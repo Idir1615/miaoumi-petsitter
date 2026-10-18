@@ -1,0 +1,11 @@
+# Bibliothèques Composer
+vendor/
+
+# Config locale (mot de passe BDD)
+config/config.php
+
+# Fichiers d'éditeur / système
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
