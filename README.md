@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/assets/miaoumi-logo.png" alt="Miaoumi" width="420">
+  <img src="public/assets/miaoumi-logo.png" alt="Logo MIAOUMI : un chien et un chat en noir et blanc" width="320">
 </p>
 
 <h1 align="center">Miaoumi</h1>

@@ -1,7 +1,7 @@
 # Logo Miaoumi
 
-`miaoumi-logo.png` est le logo à fond transparent utilisé dans le README et la navigation du site. Il a été créé avec l’outil intégré imagegen, puis copié dans le dépôt.
+`miaoumi-logo.png` est le logo fourni par l’équipe : un chien et un chat dessinés en noir, avec le nom MIAOUMI, sur fond blanc.
 
-## Prompt de génération
+Il est utilisé dans le README et la navigation du site. Le fichier original `petsitting (2).png` a été copié sans retouche ; son fond, ses proportions et sa typographie sont conservés. Seule sa taille d’affichage varie selon le contexte.
 
-Create a polished minimal logo for Miaoumi, a friendly French pet sitting platform connecting animal owners and carers. One cohesive horizontal brand lockup: a simple original rounded cat face incorporating a small heart, beside the exact word 'Miaoumi' in a clean rounded bold typeface. Deep teal and warm coral, strong readable silhouette, flat vector-like shapes, no gradients, no mockup, no tagline, generous compact padding. Transparent background. Suitable for a GitHub README and website header. Save generated output for project use.
+Ce logo remplace la proposition générée précédemment avec imagegen.

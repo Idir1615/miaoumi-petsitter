@@ -6,6 +6,8 @@ Les changements importants sont expliqués ici en français. « Non publié » c
 
 ### Présentation du dépôt
 
+- Remplacement de la proposition de logo par le logo noir et blanc fourni par l’équipe, sans retouche, avec tailles d’affichage adaptées au README et au site.
+
 - Ajout du logo Miaoumi au README et à la navigation du site.
 - Ajout du guide de contribution et des modèles GitHub de bugs, propositions et pull requests.
 - Mise à jour du rapport avec la confirmation utilisateur du fonctionnement de l’authentification sur MySQL.
