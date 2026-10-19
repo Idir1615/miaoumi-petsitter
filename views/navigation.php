@@ -1,4 +1,5 @@
 <nav aria-label="Navigation principale">
+    <a href="?page=annonces"><img src="assets/miaoumi-logo.png" alt="Miaoumi — accueil" width="180" style="max-width:100%;vertical-align:middle"></a>
     <a href="?page=annonces">Annonces</a>
     <?php if (isset($_SESSION['utilisateur'])): ?>
         <span>Bonjour <?= e($_SESSION['utilisateur']['nom']) ?> !</span>

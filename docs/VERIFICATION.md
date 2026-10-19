@@ -1,5 +1,9 @@
 # Vérification du projet — 19 octobre 2026
 
+## Validation manuelle confirmée par le propriétaire
+
+Après démarrage de son environnement et essai du site, le propriétaire a confirmé dans la conversation que la connexion et le parcours d’authentification fonctionnent sur sa base MySQL. Cette confirmation complète les tests automatisés isolés ; elle ne constitue pas un nouveau contrôle MySQL exécuté par l’assistant. Les résultats historiques ci-dessous décrivent l’environnement au moment des contrôles précédents.
+
 ## Mise à jour : authentification ajoutée
 
 L’inscription, la connexion et la déconnexion sont maintenant implémentées. Le test HTTP `tests/auth_smoke.py` est passé avec une base SQLite temporaire isolée : création du compte, hachage du mot de passe, validation, refus d’un mauvais mot de passe, renouvellement de session, échappement HTML, protections CSRF et déconnexion. La syntaxe de tous les fichiers PHP est valide.

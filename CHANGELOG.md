@@ -4,6 +4,12 @@ Les changements importants sont expliqués ici en français. « Non publié » c
 
 ## Non publié
 
+### Présentation du dépôt
+
+- Ajout du logo Miaoumi au README et à la navigation du site.
+- Ajout du guide de contribution et des modèles GitHub de bugs, propositions et pull requests.
+- Mise à jour du rapport avec la confirmation utilisateur du fonctionnement de l’authentification sur MySQL.
+
 ### Authentification
 
 - Ajout de l’inscription, de la connexion et de la déconnexion, avec validation des champs, requêtes préparées, mots de passe hachés et session renouvelée à la connexion.
