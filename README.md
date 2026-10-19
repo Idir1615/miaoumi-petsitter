@@ -4,16 +4,16 @@ Site de mise en relation entre propriétaires d’animaux et gardiens, développ
 
 ## État du projet
 
-Le site affiche les annonces de garde, de la plus récente à la plus ancienne. La base de données prévoit les utilisateurs, les annonces, les candidatures et les avis.
+Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-L’inscription, la connexion, la création d’annonces, les candidatures et les avis ne sont pas encore implémentés dans le site.
+La création d’annonces, les candidatures et les avis ne sont pas encore implémentés dans le site. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 ## Démarrer en local
 
-Prérequis : Git, PHP 7.4 ou supérieur avec l’extension `pdo_mysql`, et un serveur MySQL compatible avec le fichier SQL fourni. Une version de PHP encore maintenue est préférable.
+Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbstring`, et un serveur MySQL compatible avec le fichier SQL fourni. Une version de PHP encore maintenue est préférable.
 
 1. Ouvrir le dossier du projet dans VS Code.
-2. Dans le terminal, sélectionner la branche de développement :
+2. Dans le terminal, sélectionner la branche principale :
 
    ```sh
    git switch main

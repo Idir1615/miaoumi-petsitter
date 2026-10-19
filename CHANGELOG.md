@@ -4,6 +4,13 @@ Les changements importants sont expliqués ici en français. « Non publié » c
 
 ## Non publié
 
+### Authentification
+
+- Ajout de l’inscription, de la connexion et de la déconnexion, avec validation des champs, requêtes préparées, mots de passe hachés et session renouvelée à la connexion.
+- Protection des formulaires par jeton CSRF et déconnexion par POST.
+- Navigation indiquant le nom de la personne connectée et message explicite si la base est indisponible.
+- Ajout du guide XAMPP pour démarrer MySQL, importer la base et vérifier les comptes.
+
 ### Documentation et outils
 
 - Rassemblement du projet et de sa documentation sur `main` à la demande du propriétaire.

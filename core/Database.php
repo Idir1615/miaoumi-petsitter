@@ -6,6 +6,9 @@ class Database
     public static function getConnection(): PDO
     {
         if (self::$pdo === null) {
+            if (!is_file(__DIR__ . '/../config/config.php')) {
+                throw new RuntimeException('Configuration locale manquante.');
+            }
             $config = require __DIR__ . '/../config/config.php';
             $dsn = "mysql:host={$config['host']};dbname={$config['dbname']};charset=utf8mb4";
 

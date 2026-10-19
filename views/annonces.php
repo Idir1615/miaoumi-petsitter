@@ -5,6 +5,7 @@
     <title>Miaoumi - Annonces</title>
 </head>
 <body>
+    <?php require __DIR__ . '/navigation.php'; ?>
     <h1>Annonces de garde</h1>
 
     <?php if (empty($annonces)): ?>
