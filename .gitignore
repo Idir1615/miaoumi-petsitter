@@ -1,6 +1,9 @@
 # Bibliothèques Composer
 vendor/
 
+# Historique local généré depuis Git
+logs/
+
 # Config locale (mot de passe BDD)
 config/config.php
 

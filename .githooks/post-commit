@@ -1,0 +1,5 @@
+#!/bin/sh
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/generate-history.ps1 || {
+    echo "Le commit est enregistré, mais la génération de logs/git-history.md a échoué." >&2
+    exit 1
+}

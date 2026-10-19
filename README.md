@@ -1,2 +1,66 @@
-# miaoumi
-Site de mise en relation entre propriétaires d'animaux et gardiens
+# Miaoumi
+
+Site de mise en relation entre propriétaires d’animaux et gardiens, développé en PHP et MySQL.
+
+## État du projet
+
+Le site affiche les annonces de garde, de la plus récente à la plus ancienne. La base de données prévoit les utilisateurs, les annonces, les candidatures et les avis.
+
+L’inscription, la connexion, la création d’annonces, les candidatures et les avis ne sont pas encore implémentés dans le site.
+
+## Démarrer en local
+
+Prérequis : Git, PHP 7.4 ou supérieur avec l’extension `pdo_mysql`, et un serveur MySQL compatible avec le fichier SQL fourni. Une version de PHP encore maintenue est préférable.
+
+1. Ouvrir le dossier du projet dans VS Code.
+2. Dans le terminal, sélectionner la branche de développement :
+
+   ```sh
+   git switch main
+   ```
+
+3. Copier `config/config.example.php` vers `config/config.php`, puis renseigner les identifiants MySQL locaux. Ce fichier est ignoré par Git pour protéger les mots de passe.
+4. Importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Il crée la base `miaoumi` et ses tables : à utiliser sur une base neuve.
+5. Depuis la racine du projet, lancer :
+
+   ```sh
+   php -S localhost:8000 -t public
+   ```
+
+6. Ouvrir <http://localhost:8000>. Si aucune annonce n’a été ajoutée à la base, le message « Aucune annonce pour le moment » est normal.
+
+Le serveur intégré PHP sert au développement local.
+
+## Organisation
+
+| Fichier ou dossier | Rôle |
+| --- | --- |
+| `public/index.php` | Point d’entrée et choix de la page |
+| `core/Database.php` | Connexion MySQL avec PDO |
+| `config/config.example.php` | Modèle de configuration locale |
+| `views/annonces.php` | Affichage des annonces |
+| `Miaoumi (2).sql` | Structure de la base de données |
+| `CHANGELOG.md` | Résumé lisible des modifications |
+| `docs/GIT.md` | Guide Git pour débuter |
+| `scripts/` | Outils pour générer les journaux |
+| `AGENTS.md` | Consignes pour les assistants qui modifient le projet |
+
+## Suivre les modifications
+
+Le [journal des modifications](CHANGELOG.md) explique les changements importants. Le [guide Git](docs/GIT.md) explique comment enregistrer et envoyer son travail.
+
+Le [rapport de vérification](docs/VERIFICATION.md) présente les résultats des contrôles et les critères restant à valider.
+
+Pour activer les journaux automatiques sur Windows, exécuter une fois à la racine :
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-hooks.ps1
+```
+
+Après chaque **commit**, un historique local est généré dans `logs/git-history.md`. Il indique la date, l’auteur, le message et les fichiers concernés. Il ne surveille pas chaque sauvegarde de fichier. Pour le régénérer à la demande :
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-history.ps1
+```
+
+Le dossier `logs/` est ignoré par Git : chacun peut générer son historique sans créer de modifications à enregistrer. Le README et le CHANGELOG sont maintenus avec les changements du projet ; Git ne peut pas en rédiger automatiquement les explications.
