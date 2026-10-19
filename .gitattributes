@@ -1,0 +1,2 @@
+# Les hooks shell doivent conserver leurs fins de ligne Unix sur Windows.
+.githooks/* text eol=lf

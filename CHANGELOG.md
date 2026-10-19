@@ -12,6 +12,7 @@ Les changements importants sont expliqués ici en français. « Non publié » c
 - Ajout d’un guide de démarrage, d’une présentation de la structure et d’un guide Git pour débuter.
 - Ajout de consignes pour maintenir la documentation lors des prochaines modifications.
 - Ajout d’un générateur d’historique Git local et d’un hook pour le lancer après chaque commit sur Windows.
+- Conservation des fins de ligne Unix des hooks pour leur exécution après un clonage sous Windows.
 
 ## Base existante
 
