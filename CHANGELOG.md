@@ -6,6 +6,11 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 20/10/2026 à 09:39 — Partage des prompts (travail local consigné)
+
+- Ajout de docs/PROMPTS.md avec les demandes de la conversation dans l’ordre et des notes de contexte pour l’équipe.
+- Ajout du lien dans le README ; exclusion des instructions internes et des données privées.
+
 ### 20/10/2026 à 09:13 — Première version des avis (travail local consigné)
 
 - Ajout du modèle Avis, du contrôleur AvisController et de la vue de consultation et de dépôt.

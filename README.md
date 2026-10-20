@@ -66,6 +66,7 @@ Le serveur intégré PHP sert au développement local.
 | `Miaoumi (2).sql` | Structure de la base de données |
 | `CHANGELOG.md` | Résumé lisible des modifications |
 | `docs/GIT.md` | Guide Git pour débuter |
+| `docs/PROMPTS.md` | Historique des demandes et décisions partagé avec l’équipe |
 | `scripts/` | Outils pour générer les journaux |
 | `AGENTS.md` | Consignes pour les assistants qui modifient le projet |
 
