@@ -1,5 +1,16 @@
 # Vérification du projet — 19 octobre 2026
 
+## Adaptation à la maquette — 20 octobre 2026 à 11:44 — Idir
+
+La maquette fournie est un PDF d’une page très large contenant plusieurs écrans. Les écrans existants ont été adaptés à ses couleurs et dispositions, et des listes personnelles ont été raccordées aux données réelles.
+
+- Syntaxe vérifiée sur 22 fichiers PHP.
+- Tests PHP/MySQL sur tables temporaires : anciennes bases sans ville, création et recherche avec ville, longueur maximale, requêtes paramétrées, annonces personnelles, séparation des candidatures entre gardiens et propriétaires.
+- Tests HTTP avec fixtures temporaires : filtre ville, pagination, recherche sans résultat, erreur de connexion puis connexion réussie, Mes annonces, Mes candidatures vide, formulaire avec ville et annonce inconnue renvoyant 404.
+- Captures Chrome vérifiées pour les annonces et les deux formulaires sur ordinateur ; vérification mobile à 390 px avec largeur de document égale à 390 px, sans débordement horizontal.
+
+Les tables réelles n’ont reçu aucune donnée de test. La colonne ville existait déjà dans la base locale ; aucune modification de schéma n’a été nécessaire pendant ce contrôle. La migration fournie reste à appliquer par les collègues dont la colonne est absente. Les boutons d’acceptation et de refus des candidatures, le profil gardien et le classement des gardiens de la maquette ne sont pas encore implémentés.
+
 ## Partie Idir : annonces et socle commun — 20 octobre 2026 à 11:14
 
 Le test `tests/annonces.php`, exécuté avec le PHP de XAMPP, passe sur des tables MySQL temporaires qui masquent les tables applicatives uniquement pour la connexion de test. Les données réelles ne sont pas modifiées.

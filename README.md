@@ -19,7 +19,7 @@ Site de mise en relation entre propriétaires d’animaux et gardiens, développ
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les annonces donnent accès à leurs avis : consultation publique et dépôt réservé aux participants après la date de fin de la garde. La gestion des candidatures reste à développer. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les annonces donnent accès à leurs avis. Les pages Mes annonces, Mes candidatures et Candidatures reçues affichent les données du compte connecté. Les actions pour postuler, accepter ou refuser une candidature restent à développer. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
@@ -35,7 +35,7 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
    ```
 
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
-4. Importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Il crée la base `miaoumi` et ses tables : à utiliser sur une base neuve.
+4. Pour une base neuve, importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
 5. Depuis la racine du projet, lancer :
 
    ```sh
@@ -97,11 +97,19 @@ Le test PHP `& C:\xampp\php\php.exe tests/annonces.php` vérifie le module avec 
 
 ## Présentation et messages partagés
 
-Les vues annonces, création d’annonce et indisponibilité utilisent déjà `header.php`, `footer.php` et `assets/style.css`. Maria doit encore raccorder les vues auth/avis ; Ama utilisera le même socle pour les candidatures.
+Les vues annonces, création d’annonce, connexion/inscription, avis, candidatures et indisponibilité utilisent `header.php`, `footer.php` et `assets/style.css`. La présentation suit la maquette PDF fournie par Idir : brun doré, menthe, cartes blanches et fond gris clair.
 
 Dans une vue, définir `$titre`, charger `__DIR__ . '/header.php'`, afficher le contenu puis charger `__DIR__ . '/footer.php'`. Le header inclut déjà la navigation et les messages flash. Ne pas ajouter un second document HTML ou une seconde navigation.
 
 Depuis un contrôleur, appeler `ajouterFlash('Message')` ou `ajouterFlash('Message', 'erreur')` avant une redirection HTTP 303. `lireFlash()` retourne puis efface les messages ; le header l’appelle automatiquement. Les pages qui n’utilisent pas encore le header devront y être raccordées pour afficher ces messages. Classes disponibles : `conteneur`, `navigation`, `grille`, `carte`, `formulaire`, `champ`, `bouton`, `message`, `message-succes`, `message-erreur`, `erreur-champ`.
+
+## Recherche et écrans de la maquette
+
+La liste publique affiche les annonces `ouverte`, avec recherche dans le titre/la description, filtre par type d’animal, filtre par ville et pagination de six résultats. Le champ Ville (facultatif, 100 caractères maximum) est disponible dans le formulaire et les filtres si la colonne existe ; sans migration, l’application conserve les autres fonctions et masque ce champ.
+
+`?page=mes-annonces` affiche uniquement les annonces du compte connecté avec filtres de statut et nombres d’annonces/gardes terminées. `?page=mes-candidatures` présente ses candidatures et leurs statuts. Le lien Candidatures reçues d’une annonce personnelle ouvre les candidatures adressées au propriétaire ; un autre utilisateur ne peut pas consulter cette page. Ces deux listes de candidatures sont en lecture seule à ce stade.
+
+La page d’authentification réunit les formulaires de connexion et d’inscription côte à côte sur ordinateur, puis en colonne sur téléphone. Les erreurs restent liées au formulaire soumis. Les actions de sélection d’un gardien, de refus automatique des autres candidats et les statistiques de gardien le plus sollicité de la maquette ne sont pas encore implémentées.
 
 ## Les avis
 

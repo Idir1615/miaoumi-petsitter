@@ -1,12 +1,4 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Miaoumi — Avis</title>
-</head>
-<body>
-    <?php require __DIR__ . '/navigation.php'; ?>
+<?php $titre = 'Miaoumi — Avis'; require __DIR__ . '/header.php'; ?>
     <h1>Avis — <?= e($annonce['titre']) ?></h1>
     <?php if (($_GET['ajoute'] ?? '') === '1'): ?><p role="status">Ton avis a été enregistré.</p><?php endif; ?>
     <?php if ($erreurs): ?>
@@ -17,7 +9,7 @@
         <p><a href="?page=connexion">Connecte-toi</a> pour laisser un avis si tu as participé à cette garde.</p>
     <?php elseif ($destinataires): ?>
         <h2>Laisser un avis</h2>
-        <form method="post" action="?page=avis&amp;annonce=<?= (int) $annonce['id'] ?>">
+        <form class="formulaire" method="post" action="?page=avis&amp;annonce=<?= (int) $annonce['id'] ?>">
             <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
             <p><label>Personne évaluée <select name="cible" required>
                 <?php foreach ($destinataires as $personne): ?>
@@ -40,11 +32,10 @@
     <h2>Avis publiés</h2>
     <?php if (!$avis): ?><p>Aucun avis pour cette annonce.</p><?php endif; ?>
     <?php foreach ($avis as $evaluation): ?>
-        <article>
+        <article class="carte avis-carte">
             <h3><?= e($evaluation['auteur']) ?> → <?= e($evaluation['cible']) ?> : <?= (int) $evaluation['note'] ?> / 5</h3>
             <p><?= nl2br(e($evaluation['commentaire'] ?? '')) ?></p>
             <p>Enregistré le <?= e($evaluation['dates']) ?></p>
         </article>
     <?php endforeach; ?>
-</body>
-</html>
+<?php require __DIR__ . '/footer.php'; ?>

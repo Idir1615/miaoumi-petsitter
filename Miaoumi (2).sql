@@ -13,6 +13,7 @@ CREATE TABLE annonces (
     id INT AUTO_INCREMENT PRIMARY KEY,
     titre VARCHAR(150) NOT NULL,
     type_animal VARCHAR(100) NOT NULL,
+    ville VARCHAR(100) NOT NULL DEFAULT '',
     date_debut DATE NOT NULL,
     date_fin DATE NOT NULL,
     description TEXT,

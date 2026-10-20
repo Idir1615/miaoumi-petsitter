@@ -2,6 +2,40 @@
 
 class Annonce
 {
+    public function villeDisponible(): bool
+    {
+        return (bool) Database::getConnection()->query("SHOW COLUMNS FROM annonces LIKE 'ville'")->fetch();
+    }
+
+    public function rechercher(string $recherche, string $animal, ?int $proprietaire = null, string $ville = ''): array
+    {
+        $conditions = [];
+        $parametres = [];
+        if ($recherche !== '') {
+            $conditions[] = '(titre LIKE ? OR description LIKE ?)';
+            $parametres[] = '%' . $recherche . '%';
+            $parametres[] = '%' . $recherche . '%';
+        }
+        if ($animal !== '') {
+            $conditions[] = 'type_animal = ?';
+            $parametres[] = $animal;
+        }
+        if ($ville !== '' && $this->villeDisponible()) {
+            $conditions[] = 'ville LIKE ?';
+            $parametres[] = '%' . $ville . '%';
+        }
+        if ($proprietaire !== null) {
+            $conditions[] = 'id_proprietaire = ?';
+            $parametres[] = $proprietaire;
+        } else {
+            $conditions[] = "statut = 'ouverte'";
+        }
+        $sql = 'SELECT * FROM annonces' . ($conditions ? ' WHERE ' . implode(' AND ', $conditions) : '') . ' ORDER BY id DESC';
+        $requete = Database::getConnection()->prepare($sql);
+        $requete->execute($parametres);
+        return $requete->fetchAll();
+    }
+
     // Retourne les erreurs ; une liste vide signifie que l'annonce a été créée.
     public function creer(array $donnees, int $proprietaire): array
     {
@@ -31,6 +65,10 @@ class Annonce
         if (!is_string($donnees['description'] ?? null) || mb_strlen($donnees['description']) > 5000) {
             $erreurs['description'] = 'La description est limitée à 5 000 caractères.';
         }
+        $ville = $donnees['ville'] ?? '';
+        if (!is_string($ville) || mb_strlen($ville) > 100) {
+            $erreurs['ville'] = 'La ville est limitée à 100 caractères.';
+        }
         if ($proprietaire < 1) {
             $erreurs['general'] = 'Connecte-toi pour créer une annonce.';
         }
@@ -43,12 +81,17 @@ class Annonce
         if (!$utilisateur->fetch()) {
             return ['general' => 'Ce compte n’existe plus. Reconnecte-toi.'];
         }
+        $avecVille = $this->villeDisponible();
         $requete = $pdo->prepare(
-            "INSERT INTO annonces (titre, type_animal, date_debut, date_fin, description, statut, id_proprietaire)
-             VALUES (?, ?, ?, ?, ?, 'ouverte', ?)"
+            'INSERT INTO annonces (titre, type_animal, date_debut, date_fin, description, statut, id_proprietaire'
+            . ($avecVille ? ', ville' : '') . ") VALUES (?, ?, ?, ?, ?, 'ouverte', ?" . ($avecVille ? ', ?' : '') . ')'
         );
-        $requete->execute([trim($donnees['titre']), trim($donnees['type_animal']),
-            $donnees['date_debut'], $donnees['date_fin'], trim($donnees['description']), $proprietaire]);
+        $valeurs = [trim($donnees['titre']), trim($donnees['type_animal']),
+            $donnees['date_debut'], $donnees['date_fin'], trim($donnees['description']), $proprietaire];
+        if ($avecVille) {
+            $valeurs[] = trim($ville);
+        }
+        $requete->execute($valeurs);
         return [];
     }
 

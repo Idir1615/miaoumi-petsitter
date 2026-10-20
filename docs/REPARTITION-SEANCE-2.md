@@ -6,6 +6,8 @@ Cette répartition attribue le travail à venir ; elle ne signifie pas qu’Ama 
 
 ## Qui fait quoi ?
 
+**Mise à jour du 20/10/2026 à 11:44 — Idir :** adaptation visuelle à la maquette, raccordement des vues auth/avis au header/footer et ajout de la consultation des candidatures. Ama peut reprendre les modèles/contrôleurs/vues Candidature désormais présents et développer les actions sans repartir de zéro. Maria conserve la validation du modèle Utilisateur, les vrais flash des actions auth/avis et la conservation du destinataire dans le formulaire d’avis. La création des listes et le raccordement visuel ne doivent plus être refaits.
+
 | Personne | Responsabilité | Fichiers principaux |
 | --- | --- | --- |
 | **Idir** | Annonces et socle commun de présentation / messages flash | `models/Annonce.php`, `controllers/AnnonceController.php`, `views/annonces.php` ; à créer : `views/annonce-formulaire.php`, `views/header.php`, `views/footer.php`, `public/assets/style.css`, `core/flash.php` |

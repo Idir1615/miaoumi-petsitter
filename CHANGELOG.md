@@ -6,6 +6,20 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 20/10/2026 à 11:52 — Intégration de la version validée sur main — Idir
+
+- Confirmation par Idir du bon fonctionnement de la version adaptée à la maquette et demande explicite d’intégration sur main.
+- Vérification syntaxique PHP et tests sur tables MySQL temporaires réussis avant intégration.
+
+### 20/10/2026 à 11:44 — Adaptation à la maquette PDF (travail local consigné) — Idir
+
+- Palette brun doré/menthe, filtres latéraux, cartes d’annonces, navigation et formulaires adaptés à la maquette fournie.
+- Connexion/inscription à deux colonnes, passage des vues auth et avis au gabarit partagé et conservation du logo de l’équipe dans le footer.
+- Recherche, filtres par animal et ville, pagination et page Mes annonces avec statuts et compteurs calculés.
+- Consultation des candidatures personnelles et reçues avec contrôles d’accès ; actions de candidature toujours à terminer par Ama.
+- Champ ville dans le schéma neuf et migration dédiée aux bases existantes, avec compatibilité des anciennes bases.
+- Tests PHP/MySQL et HTTP sur données temporaires ; contrôle visuel Chrome sur ordinateur et mobile à 390 px.
+
 ### 20/10/2026 à 11:14 — Partie Idir : annonces et socle commun (travail local consigné) — Idir
 
 - Création d’annonces en MVC avec validation dans le modèle, dates vérifiées et propriétaire issu de la session.

@@ -4,6 +4,9 @@ require __DIR__ . '/../core/bootstrap.php';
 // Le routeur associe chaque page à une méthode de contrôleur.
 $routes = [
     'annonces' => [AnnonceController::class, 'index'],
+    'mes-annonces' => [AnnonceController::class, 'index'],
+    'mes-candidatures' => [CandidatureController::class, 'index'],
+    'candidatures-recues' => [CandidatureController::class, 'index'],
     'creer-annonce' => [AnnonceController::class, 'creer'],
     'avis' => [AvisController::class, 'index'],
     'inscription' => [AuthController::class, 'inscription'],

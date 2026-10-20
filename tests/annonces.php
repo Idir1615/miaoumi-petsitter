@@ -4,6 +4,7 @@
 require __DIR__ . '/../core/Database.php';
 require __DIR__ . '/../core/flash.php';
 require __DIR__ . '/../models/Annonce.php';
+require __DIR__ . '/../models/Candidature.php';
 require __DIR__ . '/../controllers/AnnonceController.php';
 
 function verifier(bool $condition, string $message): void
@@ -88,4 +89,25 @@ $controleur->creer();
 $html = ob_get_clean();
 verifier(http_response_code() === 422 && count($modele->toutes()) === 2, 'Formulaire invalide accepté.');
 verifier(strpos($html, 'value="&lt;Garde &amp; chat&gt;"') !== false, 'Le contrôleur a perdu la saisie.');
+// Compatibilité d'une ancienne base puis filtre sur une base avec la ville.
+verifier(!$modele->villeDisponible(), 'Ancienne structure mal détectée.');
+$pdo->exec("ALTER TABLE annonces ADD COLUMN ville VARCHAR(100) NOT NULL DEFAULT ''");
+verifier($modele->villeDisponible(), 'Champ ville non détecté.');
+$avecVille = $donnees + ['ville' => 'Montreuil'];
+verifier($modele->creer($avecVille, 1) === [], 'Création avec ville refusée.');
+verifier(count($modele->rechercher('', '', null, 'Montreuil')) === 1, 'Filtre ville incorrect.');
+verifier($modele->rechercher("' OR 1=1 --", '', null) === [], 'Recherche non paramétrée.');
+verifier($modele->rechercher('', '', 999) === [], 'Annonces privées non filtrées.');
+$avecVille['ville'] = str_repeat('a', 101);
+verifier(isset($modele->creer($avecVille, 1)['ville']), 'Longueur de ville non validée.');
+$pdo->exec("ALTER TABLE utilisateurs ADD COLUMN nom VARCHAR(100) DEFAULT 'Test'");
+$pdo->exec('INSERT INTO utilisateurs (id) VALUES (2), (3)');
+$pdo->exec('CREATE TEMPORARY TABLE candidatures (id INT PRIMARY KEY, id_annonce INT, id_gardien INT, statut VARCHAR(50), message TEXT, date_candidature DATETIME) ENGINE=InnoDB');
+$pdo->exec("INSERT INTO candidatures VALUES (1,1,2,'en_attente','Test','2026-10-20 12:00:00')");
+$candidatureModele = new Candidature();
+verifier(count($candidatureModele->pourGardien(2)) === 1, 'Candidature du gardien absente.');
+verifier($candidatureModele->pourGardien(3) === [], 'Candidature visible par un autre gardien.');
+verifier(count($candidatureModele->pourProprietaire(1, 1)) === 1, 'Candidature reçue absente.');
+verifier($candidatureModele->pourProprietaire(3, 1) === [], 'Candidature visible par un autre propriétaire.');
 echo "OK : validation, création, propriétaire issu de la session, refus des visiteurs, redirections, liste vide, échappement, formulaire, gabarit et flash à lecture unique. Tables MySQL temporaires uniquement.\n";
+echo "OK : ville, compatibilité ancien schéma, filtres paramétrés et confidentialité des candidatures.\n";
