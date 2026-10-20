@@ -4,6 +4,11 @@ Les changements importants sont expliqués ici en français. « Non publié » c
 
 ## Non publié
 
+### Simplification des vérifications
+
+- Suppression du script de test Python à la demande du propriétaire.
+- Remplacement des instructions associées par la vérification syntaxique PHP et les essais manuels dans le navigateur.
+
 ### Présentation du dépôt
 
 - Remplacement de la proposition de logo par le logo noir et blanc fourni par l’équipe, sans retouche, avec tailles d’affichage adaptées au README et au site.
