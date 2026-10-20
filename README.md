@@ -181,7 +181,7 @@ Depuis un contrôleur, appeler `ajouterFlash('Message')` ou `ajouterFlash('Messa
 
 La liste publique affiche les annonces `ouverte`, avec recherche dans le titre/la description, filtre par type d’animal, filtre par ville et pagination de six résultats. Le champ Ville (facultatif, 100 caractères maximum) est disponible dans le formulaire et les filtres si la colonne existe ; sans migration, l’application conserve les autres fonctions et masque ce champ.
 
-`?page=mes-annonces` affiche uniquement les annonces du compte connecté avec filtres de statut et nombres d’annonces/gardes terminées. `?page=mes-candidatures` présente ses candidatures et leurs statuts. Le lien Candidatures reçues d’une annonce personnelle ouvre les candidatures adressées au propriétaire ; un autre utilisateur ne peut pas consulter cette page. Ces deux listes de candidatures sont en lecture seule à ce stade.
+`?page=mes-annonces` affiche uniquement les annonces du compte connecté avec filtres de statut et nombres d’annonces/gardes terminées. `?page=mes-candidatures` présente les candidatures envoyées par le gardien et celles reçues sur les annonces du propriétaire. Le propriétaire peut accepter ou refuser chaque candidature en attente depuis cette page ; ses décisions sont protégées par une soumission POST et un jeton CSRF.
 
 La page d’authentification réunit les formulaires de connexion et d’inscription côte à côte sur ordinateur, puis en colonne sur téléphone. Les erreurs restent liées au formulaire soumis. Les actions de sélection d’un gardien, de refus automatique des autres candidats et les statistiques de gardien le plus sollicité de la maquette ne sont pas encore implémentées.
 

@@ -116,6 +116,19 @@ Contexte : demande d’aide pour une extension VS Code bloquée sur « Installin
 
 Contexte : création du présent fichier pour que l’équipe puisse comprendre les demandes, les décisions et leur ordre. Pour les détails des changements de code, consulter [le CHANGELOG](../CHANGELOG.md), [le rapport de vérification](VERIFICATION.md) et l’historique Git.
 
+## 12. Candidatures et intégration des changements récents
+
+44. « je dois faire ceci maintenant creee moi les fichiers adaptee et les codes » (captures de la répartition et de la checklist Candidatures)
+45. « ok mon collaborateur a mis a jour le code pour ajouter les annonces et tout mets moi aussi le code mis a jour depuis git pour que je puisse voir mes modifs »
+46. « config.exemple pour lui c est la meme chose que comfig.php pour moi , il y a eu d autres changement dans le main met les moi a jour ici »
+47. « est ce que tu les a fait si oui pourquoi je ne vois pas comment faire poure candidater »
+48. « est ce que j ai une autre solution pour creer une annonce a partir d un autre compte si ca ne marche pas »
+49. « ok top met tout ca dans le main maintenant »
+50. « met le sur git sur le main »
+51. « ta oublier de faire ce que Idir a dit de faire de modifer les changelogs etc »
+
+Contexte : les fonctions de candidature ont été intégrées sur `main` : dépôt d’une candidature, consultation des demandes envoyées et reçues, puis acceptation ou refus par le propriétaire. Un lien visible mène au formulaire ; une personne déconnectée retrouve l’annonce après connexion. L’utilisateur a aussi testé son environnement avec deux comptes et une annonce d’essai. L’intégration a été publiée après sa demande. Le logo fourni par l’équipe a remplacé l’icône de navigation. Le CHANGELOG, le README, ce fichier de suivi et le rapport de vérification décrivent le travail ; les scénarios MySQL automatisés n’ont pas été rejoués pendant cette reprise.
+
 ## Consignes actuelles pour reprendre le travail
 
 - Travailler sur `feature` ; ne pas modifier `main` sans demande explicite.

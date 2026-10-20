@@ -6,15 +6,20 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 20/10/2026 à 12:35 — Idir — Mise en cohérence de la documentation
+
+- Correction du README et de la checklist pour refléter les actions de candidature désormais disponibles et les vérifications encore à faire.
+- Ajout au fichier des prompts du suivi des demandes récentes ; distinction dans le rapport entre le dépôt confirmé manuellement et les scénarios non vérifiés.
+
+### 20/10/2026 à 12:25 — Idir — Logo de la navigation
+
+- Remplacement de l’icône patte en haut à gauche par le logo Miaoumi déjà affiché dans le pied de page.
+
 ### 20/10/2026 à 12:13 — Présentation visuelle du dépôt — Idir
 
 - Ajout en tête du README des aperçus de la maquette fournie, avec accès au PDF complet.
 - Retranscription du MCD partagé en diagramme Mermaid avec ses quatre entités et six associations.
 - Présentation de l’équipe et distinction entre maquette de référence et fonctionnalités disponibles.
-
-### 20/10/2026 à 12:25 — Idir — Logo de la navigation
-
-- Remplacement de l’icône patte en haut à gauche par le logo Miaoumi déjà affiché dans le pied de page.
 
 ### 20/10/2026 à 12:06 — Ama — Accès au formulaire de candidature
 

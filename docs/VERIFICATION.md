@@ -32,9 +32,9 @@ Aucune donnée des tables réelles n’a été ajoutée ou modifiée. Le contrô
 
 ## Candidatures — 20 octobre 2026
 
-La syntaxe PHP des fichiers de candidatures, des routes et des vues concernées a été vérifiée avec PHP 8.2.12. `git diff --check` ne signale pas d’erreur. Des rendus isolés avec des données fictives ont vérifié l’état vide, l’affichage du jeton CSRF, l’échappement du contenu HTML et la conservation de la saisie dans le formulaire après une erreur.
+La syntaxe PHP des fichiers de candidatures, des routes et des vues concernées a été vérifiée avec PHP 8.2.12. Après l’ajout du lien de candidature dans la liste publique et du retour au formulaire après connexion, la syntaxe de ces fichiers a de nouveau été vérifiée avec PHP de XAMPP. `git diff --check` ne signale pas d’erreur. Des rendus isolés avec des données fictives ont vérifié l’état vide, l’affichage du jeton CSRF, l’échappement du contenu HTML et la conservation de la saisie dans le formulaire après une erreur.
 
-Les scénarios avec la base MySQL et le navigateur n’ont pas été exécutés : doublon, candidature à sa propre annonce, refus d’une décision par un tiers, acceptation/refus par le propriétaire et transitions d’état restent à valider dans un environnement de test dédié. Aucune donnée de la configuration locale ou de la base de comptes n’a été utilisée.
+Une capture envoyée par l’utilisateur montre une candidature déposée depuis XAMPP, visible avec le statut `en_attente` ; cela confirme manuellement le parcours de dépôt dans son environnement, mais ne constitue pas un test exécuté par l’assistant. Le doublon, la candidature à sa propre annonce, le refus d’une décision par un tiers et les actions d’acceptation/refus restent à valider dans un environnement de test dédié. Aucune donnée de la configuration locale ou de la base de comptes n’a été utilisée par l’assistant.
 
 ## Réorganisation MVC — 20 octobre 2026
 
