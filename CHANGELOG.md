@@ -6,18 +6,24 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
-### 20/10/2026 à 10:43 — Démarrage XAMPP (travail local consigné)
+### 20/10/2026 à 10:48 — Attribution des changements — Idir
+
+- Ajout des prénoms de l’équipe : Idir, Ama et Maria.
+- Attribution à Idir des changements réalisés avec l’assistant dans cette conversation ; les auteurs de la base initiale restent à confirmer.
+- Consigne d’indiquer le prénom de la personne concernée avec la date et l’heure pour les prochaines entrées.
+
+### 20/10/2026 à 10:43 — Démarrage XAMPP (travail local consigné) — Idir
 
 - Configuration d’exemple adaptée à une installation XAMPP locale standard.
 - Message précis lorsque config/config.php manque et explication des copies distinctes du projet dans le guide Windows.
 - Configuration locale privée toujours exclue de Git.
 
-### 20/10/2026 à 09:39 — Partage des prompts (travail local consigné)
+### 20/10/2026 à 09:39 — Partage des prompts (travail local consigné) — Idir
 
 - Ajout de docs/PROMPTS.md avec les demandes de la conversation dans l’ordre et des notes de contexte pour l’équipe.
 - Ajout du lien dans le README ; exclusion des instructions internes et des données privées.
 
-### 20/10/2026 à 09:13 — Première version des avis (travail local consigné)
+### 20/10/2026 à 09:13 — Première version des avis (travail local consigné) — Idir
 
 - Ajout du modèle Avis, du contrôleur AvisController et de la vue de consultation et de dépôt.
 - Ajout d’un lien vers les avis depuis chaque annonce.
@@ -25,45 +31,45 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 - Vérification de la session et du jeton CSRF, des destinataires et des doublons ; échappement des commentaires à l’affichage.
 - Tests sur MySQL/MariaDB avec tables temporaires, sans modification des données du projet.
 
-### 20/10/2026 à 09:02 — Horodatage du journal
+### 20/10/2026 à 09:02 — Horodatage du journal — Idir
 
 - Ajout des dates et heures aux entrées du journal à partir des informations disponibles.
 - Ajout d’une consigne pour dater les prochaines modifications en heure de Paris.
 
-### 20/10/2026 à 09:02 — Organisation MVC (travail local consigné)
+### 20/10/2026 à 09:02 — Organisation MVC (travail local consigné) — Idir
 
 - Séparation des requêtes SQL dans les modèles Utilisateur et Annonce.
 - Déplacement des traitements dans AuthController et AnnonceController.
 - Simplification de public/index.php en routeur et préparation des sessions dans core/bootstrap.php.
 - Conservation des vues, des adresses des pages et des protections des formulaires et mots de passe.
 
-### 20/10/2026 à 08:55 — Simplification des vérifications (commit `1bd65e5`)
+### 20/10/2026 à 08:55 — Simplification des vérifications (commit `1bd65e5`) — Idir
 
 - Suppression du script de test Python à la demande du propriétaire.
 - Remplacement des instructions associées par la vérification syntaxique PHP et les essais manuels dans le navigateur.
 
-### 19/10/2026 à 23:05 — Logo de l’équipe (commit `25ce723`)
+### 19/10/2026 à 23:05 — Logo de l’équipe (commit `25ce723`) — Idir
 
 - Remplacement de la proposition de logo par le logo noir et blanc fourni par l’équipe, sans retouche, avec tailles d’affichage adaptées au README et au site.
 
-### 19/10/2026 à 23:00 — Présentation du dépôt (commit `82744ca`)
+### 19/10/2026 à 23:00 — Présentation du dépôt (commit `82744ca`) — Idir
 
 - Ajout du logo Miaoumi au README et à la navigation du site.
 - Ajout du guide de contribution et des modèles GitHub de bugs, propositions et pull requests.
 - Mise à jour du rapport avec la confirmation utilisateur du fonctionnement de l’authentification sur MySQL.
 
-### 19/10/2026 à 22:46 — Authentification (commit `24d3c22`)
+### 19/10/2026 à 22:46 — Authentification (commit `24d3c22`) — Idir
 
 - Ajout de l’inscription, de la connexion et de la déconnexion, avec validation des champs, requêtes préparées, mots de passe hachés et session renouvelée à la connexion.
 - Protection des formulaires par jeton CSRF et déconnexion par POST.
 - Navigation indiquant le nom de la personne connectée et message explicite si la base est indisponible.
 - Ajout du guide XAMPP pour démarrer MySQL, importer la base et vérifier les comptes.
 
-### 19/10/2026 à 22:07 — Compatibilité des hooks (commit `5dcf59b`)
+### 19/10/2026 à 22:07 — Compatibilité des hooks (commit `5dcf59b`) — Idir
 
 - Conservation des fins de ligne Unix des hooks pour leur exécution après un clonage sous Windows.
 
-### 19/10/2026 à 22:06 — Documentation et outils (commit `ef95702`)
+### 19/10/2026 à 22:06 — Documentation et outils (commit `ef95702`) — Idir
 
 - Rassemblement du projet et de sa documentation sur `main` à la demande du propriétaire.
 - Ajout du rapport de vérification des critères fournis et des limites des tests locaux.
