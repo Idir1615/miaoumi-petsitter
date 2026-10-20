@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/assets/miaoumi-logo.png" alt="Logo MIAOUMI : un chien et un chat en noir et blanc" width="320">
+  <img src="public/assets/miaoumi-logo.png" alt="Logo MIAOUMI : un chien et un chat en noir et blanc" width="150">
 </p>
 
 <h1 align="center">Miaoumi</h1>
@@ -7,6 +7,8 @@
 <p align="center">Des animaux bien entourés, des propriétaires rassurés.</p>
 
 <p align="center">
+  <a href="#maquette-du-site">Maquette</a> ·
+  <a href="#modèle-conceptuel-des-données-mcd">MCD</a> ·
   <a href="#démarrer-en-local">Démarrer</a> ·
   <a href="docs/DEMARRAGE-WINDOWS.md">Guide XAMPP</a> ·
   <a href="CHANGELOG.md">Modifications</a> ·
@@ -14,6 +16,74 @@
 </p>
 
 Site de mise en relation entre propriétaires d’animaux et gardiens, développé en PHP et MySQL.
+
+**L’équipe : Idir, Ama et Maria.** Un même compte permet de confier son animal ou de proposer une garde. Le projet est organisé en MVC : modèles pour les données, contrôleurs pour les traitements et vues pour l’affichage.
+
+## Maquette du site
+
+Une interface aux tons brun doré et vert menthe, pensée autour des annonces, des candidatures et des comptes utilisateurs. Ces visuels proviennent de la **maquette de référence** ; l’état des fonctionnalités développées est précisé plus bas.
+
+### Rechercher une garde
+
+[![Maquette des annonces : filtres, cartes de garde et pagination](docs/presentation/maquette-annonces.png)](docs/presentation/maquette-annonces.png)
+
+<details>
+<summary><strong>Voir la maquette de connexion et d’inscription</strong></summary>
+
+![Maquette des formulaires de connexion et d’inscription](docs/presentation/maquette-comptes.png)
+
+</details>
+
+**[Ouvrir la maquette PDF complète](docs/presentation/maquette-miaoumi.pdf)** — annonces, comptes, publication, annonces personnelles et candidatures.
+
+## Modèle conceptuel des données (MCD)
+
+Le MCD partagé par l’équipe est retranscrit ci-dessous en diagramme pour rester lisible directement sur GitHub. Il présente les quatre entités et leurs relations ; les clés étrangères du schéma SQL mettent en œuvre ces associations.
+
+```mermaid
+erDiagram
+    UTILISATEURS ||--o{ ANNONCES : publier
+    UTILISATEURS ||--o{ CANDIDATURES : envoyer
+    ANNONCES ||--o{ CANDIDATURES : viser
+    UTILISATEURS ||--o{ AVIS : rediger
+    UTILISATEURS ||--o{ AVIS : recevoir
+    ANNONCES ||--o{ AVIS : concerner
+
+    UTILISATEURS {
+        int id PK
+        string nom
+        string email
+        string password
+        string role
+    }
+    ANNONCES {
+        int id PK
+        string titre
+        string type_animal
+        date date_debut
+        date date_fin
+        text description
+        string statut
+    }
+    CANDIDATURES {
+        int id PK
+        text message
+        string statut
+        datetime date_candidature
+    }
+    AVIS {
+        int id PK
+        int note
+        text commentaire
+        datetime dates
+    }
+```
+
+Un utilisateur peut publier plusieurs annonces, envoyer plusieurs candidatures, rédiger et recevoir plusieurs avis. Chaque candidature vise une annonce ; chaque avis concerne une annonce et relie un auteur à une personne évaluée.
+
+Le diagramme reprend le MCD fourni au début du projet. Le champ `ville`, ajouté ensuite pour la maquette, figure dans le [schéma SQL actuel](Miaoumi%20%282%29.sql) et sa [migration](migrations/001_ajout_ville.sql).
+
+---
 
 ## État du projet
 

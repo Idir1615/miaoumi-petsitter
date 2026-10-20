@@ -6,6 +6,12 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 20/10/2026 à 12:13 — Présentation visuelle du dépôt — Idir
+
+- Ajout en tête du README des aperçus de la maquette fournie, avec accès au PDF complet.
+- Retranscription du MCD partagé en diagramme Mermaid avec ses quatre entités et six associations.
+- Présentation de l’équipe et distinction entre maquette de référence et fonctionnalités disponibles.
+
 ### 20/10/2026 à 11:52 — Intégration de la version validée sur main — Idir
 
 - Confirmation par Idir du bon fonctionnement de la version adaptée à la maquette et demande explicite d’intégration sur main.
