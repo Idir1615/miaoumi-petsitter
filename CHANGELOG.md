@@ -6,6 +6,14 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 20/10/2026 à 11:14 — Partie Idir : annonces et socle commun (travail local consigné) — Idir
+
+- Création d’annonces en MVC avec validation dans le modèle, dates vérifiées et propriétaire issu de la session.
+- Formulaire accessible aux utilisateurs connectés, erreurs par champ et conservation de la saisie ; redirection avec message flash après publication.
+- Header/footer, classes CSS partagées et fonctions ajouterFlash/lireFlash disponibles pour l’équipe.
+- Raccordement des annonces, du formulaire et de la page indisponible au gabarit commun ; affichage échappé des données des annonces.
+- Ajout de tests PHP sur tables MySQL temporaires pour les validations, autorisations, redirections, affichages et messages ; aucun script Python ni changement du schéma.
+
 ### 20/10/2026 à 10:55 — Répartition de la séance 2 — Idir
 
 - Revue de l’état du code par rapport aux huit critères de la nouvelle checklist.

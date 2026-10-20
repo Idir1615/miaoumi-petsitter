@@ -1,6 +1,7 @@
-<nav aria-label="Navigation principale">
+<nav class="navigation" aria-label="Navigation principale">
     <a href="?page=annonces"><img src="assets/miaoumi-logo.png" alt="Miaoumi — accueil" width="110" height="110" style="max-width:100%;height:auto;vertical-align:middle"></a>
     <a href="?page=annonces">Annonces</a>
+    <a href="?page=creer-annonce">Publier une annonce</a>
     <?php if (isset($_SESSION['utilisateur'])): ?>
         <span>Bonjour <?= e($_SESSION['utilisateur']['nom']) ?> !</span>
         <form method="post" action="?page=deconnexion" style="display:inline">

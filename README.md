@@ -19,7 +19,7 @@ Site de mise en relation entre propriétaires d’animaux et gardiens, développ
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-Les annonces donnent accès à leurs avis : consultation publique et dépôt réservé aux participants après la date de fin de la garde. La création d’annonces et la gestion des candidatures ne sont pas encore implémentées dans le site. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les annonces donnent accès à leurs avis : consultation publique et dépôt réservé aux participants après la date de fin de la garde. La gestion des candidatures reste à développer. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
@@ -28,10 +28,10 @@ L’inscription et la connexion sur la base MySQL ont été confirmées fonction
 Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbstring`, et un serveur MySQL compatible avec le fichier SQL fourni. Une version de PHP encore maintenue est préférable.
 
 1. Ouvrir le dossier du projet dans VS Code.
-2. Dans le terminal, sélectionner la branche principale :
+2. Dans le terminal, sélectionner la branche de travail :
 
    ```sh
-   git switch main
+   git switch feature
    ```
 
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
@@ -57,6 +57,10 @@ Le serveur intégré PHP sert au développement local.
 | `core/Database.php` | Connexion MySQL avec PDO |
 | `config/config.example.php` | Modèle de configuration locale |
 | `views/annonces.php` | Affichage des annonces |
+| `views/annonce-formulaire.php` | Publication d’une annonce avec conservation de la saisie |
+| `views/header.php`, `views/footer.php` | Présentation commune disponible pour les vues |
+| `core/flash.php` | Messages en session affichés une seule fois |
+| `public/assets/style.css` | Classes CSS communes |
 | `views/auth.php` | Formulaires d’inscription et de connexion |
 | `views/navigation.php` | Navigation et état de connexion |
 | `models/Avis.php` | Lecture des avis, participants autorisés et enregistrement |
@@ -82,6 +86,22 @@ Le projet utilise un MVC simple, sans framework. Les adresses des pages restent 
 Exemple : pour afficher les annonces, `index.php` appelle `AnnonceController::index()`, qui récupère les données avec `Annonce::toutes()` puis charge `views/annonces.php`.
 
 Pour les comptes, `AuthController` gère l’inscription, la connexion et la déconnexion ; `Utilisateur` enregistre les comptes et recherche un utilisateur par e-mail. Les formulaires restent dans `views/auth.php`. Les vues ne contiennent aucune requête SQL.
+
+## Publier une annonce
+
+Se connecter, puis cliquer sur **Publier une annonce** (`?page=creer-annonce`). Titre et type d’animal sont obligatoires, avec respectivement 150 et 100 caractères maximum. La date de début doit être aujourd’hui ou plus tard en heure de Paris ; la fin peut être le même jour mais pas avant le début. La description est facultative et limitée à 5 000 caractères.
+
+Le propriétaire est toujours le compte connecté, et le statut initial est `ouverte`. Le modèle refuse les données invalides avant l’insertion ; le formulaire affiche les erreurs sans perdre la saisie. Après création, la liste affiche une confirmation une seule fois. Aucune modification du schéma SQL n’est nécessaire.
+
+Le test PHP `& C:\xampp\php\php.exe tests/annonces.php` vérifie le module avec des tables MySQL temporaires, sans modifier les annonces réelles. Il nécessite une configuration locale et MySQL accessibles.
+
+## Présentation et messages partagés
+
+Les vues annonces, création d’annonce et indisponibilité utilisent déjà `header.php`, `footer.php` et `assets/style.css`. Maria doit encore raccorder les vues auth/avis ; Ama utilisera le même socle pour les candidatures.
+
+Dans une vue, définir `$titre`, charger `__DIR__ . '/header.php'`, afficher le contenu puis charger `__DIR__ . '/footer.php'`. Le header inclut déjà la navigation et les messages flash. Ne pas ajouter un second document HTML ou une seconde navigation.
+
+Depuis un contrôleur, appeler `ajouterFlash('Message')` ou `ajouterFlash('Message', 'erreur')` avant une redirection HTTP 303. `lireFlash()` retourne puis efface les messages ; le header l’appelle automatiquement. Les pages qui n’utilisent pas encore le header devront y être raccordées pour afficher ces messages. Classes disponibles : `conteneur`, `navigation`, `grille`, `carte`, `formulaire`, `champ`, `bouton`, `message`, `message-succes`, `message-erreur`, `erreur-champ`.
 
 ## Les avis
 

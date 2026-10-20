@@ -1,5 +1,13 @@
 # Vérification du projet — 19 octobre 2026
 
+## Partie Idir : annonces et socle commun — 20 octobre 2026 à 11:14
+
+Le test `tests/annonces.php`, exécuté avec le PHP de XAMPP, passe sur des tables MySQL temporaires qui masquent les tables applicatives uniquement pour la connexion de test. Les données réelles ne sont pas modifiées.
+
+Contrôles réussis : refus des champs vides ou trop longs, des dates impossibles, des débuts passés et des fins antérieures au début ; refus d’un propriétaire invalide ou inexistant ; aucune insertion après ces erreurs ; création valide avec statut ouverte ; propriétaire issu de la session malgré un identifiant envoyé dans le formulaire ; redirection 303 du visiteur et après publication ; erreur 422 et conservation de la saisie ; liste vide ; échappement du titre, de la description et du flash ; gabarit et CSS présents ; effacement du flash après lecture.
+
+Les fichiers PHP applicatifs ont passé la vérification syntaxique. Les tests du contrôleur sont exécutés en PHP, pas depuis un navigateur. Le rendu responsive et le parcours complet dans le navigateur restent à vérifier manuellement. Auth et avis attendent encore le raccordement au gabarit par Maria ; candidatures attendent le travail d’Ama.
+
 ## Avis — 20 octobre 2026
 
 Syntaxe PHP vérifiée pour les quatorze fichiers de l’application. MySQL/MariaDB est accessible lors de ce contrôle. Des tests avec des tables temporaires masquant les tables applicatives uniquement sur la connexion de test ont validé :

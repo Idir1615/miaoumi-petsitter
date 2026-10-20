@@ -43,14 +43,14 @@ Les anciens essais et confirmations sont décrits dans [VERIFICATION.md](VERIFIC
 
 ## Idir — Annonces et éléments communs
 
-- [ ] Ajouter `Annonce::creer()` avec validation du titre, du type d’animal, des dates et du propriétaire connecté avant insertion.
-- [ ] Refuser une fin antérieure au début et un auteur choisi arbitrairement dans le formulaire ; fixer les règles de dates avec l’équipe.
-- [ ] Créer le formulaire et l’action de création, conserver la saisie et afficher les erreurs par champ ou en liste.
-- [ ] Échapper les dates et les autres données affichées dans les annonces.
-- [ ] Créer le header, le footer et le CSS commun ; inclure la navigation existante dans le header.
-- [ ] Créer les fonctions flash partagées, avec lecture unique depuis la session.
-- [ ] Adapter annonces et page indisponible aux éléments communs.
-- [ ] Tester liste vide, création valide, dates invalides, visiteur non connecté et textes contenant du HTML.
+- [x] Ajouter `Annonce::creer()` avec validation du titre, du type d’animal, des dates et du propriétaire connecté avant insertion.
+- [x] Refuser une fin antérieure au début et un auteur choisi arbitrairement dans le formulaire ; fixer les règles de dates avec l’équipe.
+- [x] Créer le formulaire et l’action de création, conserver la saisie et afficher les erreurs par champ ou en liste.
+- [x] Échapper les dates et les autres données affichées dans les annonces.
+- [x] Créer le header, le footer et le CSS commun ; inclure la navigation existante dans le header.
+- [x] Créer les fonctions flash partagées, avec lecture unique depuis la session.
+- [x] Adapter annonces et page indisponible aux éléments communs.
+- [x] Tester liste vide, création valide, dates invalides, visiteur non connecté et textes contenant du HTML.
 
 ## Ama — Candidatures
 
@@ -83,7 +83,9 @@ Les anciens essais et confirmations sont décrits dans [VERIFICATION.md](VERIFIC
 | `Miaoumi (2).sql` | Schéma existant conservé par défaut. Toute évolution décidée ensemble doit prévoir une migration pour les bases déjà remplies, sans demander une réimportation destructive. |
 | README, CHANGELOG et ce tableau | Chaque personne décrit ses changements avec prénom et heure de Paris. Modifier seulement les lignes concernées et récupérer les changements des collègues avant publication. |
 
-Contrat proposé pour les éléments communs : chaque vue définit un titre, charge `views/header.php`, affiche son contenu, puis charge `views/footer.php`. Le header charge le CSS, la navigation et les flash. Idir doit préciser les noms des fonctions flash avant leur utilisation par les autres.
+Contrat disponible depuis le 20/10/2026 à 11:14 : chaque vue définit `$titre`, charge `views/header.php`, affiche son contenu, puis charge `views/footer.php`. Le header charge le CSS, la navigation et les flash. Le contrôleur appelle `ajouterFlash('Message')` ou `ajouterFlash('Message', 'erreur')` avant une redirection 303 ; le header appelle `lireFlash()` qui lit et efface les messages. Les vues sans header doivent encore être raccordées. Les classes CSS sont documentées dans le README.
+
+Mise à jour Idir : annonces, formulaire et page indisponible raccordés ; tests PHP/MySQL temporaires réussis (voir VERIFICATION.md). La validation visuelle au navigateur et la publication de ce nouveau travail restent à faire. Les tableaux d’état initiaux ci-dessus restent le point de départ de la répartition ; la liste d’Idir ci-dessous indique le travail effectué.
 
 ## Ordre de travail
 
@@ -108,6 +110,7 @@ Pour le moment, conserver `feature`. Si le formateur exige strictement cette con
 | --- | --- | --- |
 | Idir | `Annonce::trouver()` | Recherche une annonce par son identifiant et renvoie null si elle n’existe pas. |
 | Idir | `Annonce::toutes()` | Récupère les annonces de la plus récente à la plus ancienne. |
+| Idir | `Annonce::creer()` | Valide les champs, les dates et le propriétaire avant d’enregistrer une annonce, puis renvoie les erreurs éventuelles. |
 | Maria | `Utilisateur::creer()` | Enregistre un utilisateur avec un mot de passe haché, en s’appuyant actuellement sur la validation du contrôleur. |
 | Maria | `Utilisateur::trouverParEmail()` | Recherche les informations nécessaires à la connexion d’un utilisateur à partir de son e-mail. |
 | Maria | `Avis::pourAnnonce()` | Récupère les avis d’une annonce avec les noms de leurs auteurs et destinataires. |
@@ -118,7 +121,6 @@ Pour le moment, conserver `feature`. Si le formateur exige strictement cette con
 
 | Personne | Méthode proposée | Objectif |
 | --- | --- | --- |
-| Idir | `Annonce::creer()` | Valider puis enregistrer une annonce pour son propriétaire connecté. |
 | Ama | `Candidature::creer()` | Valider puis enregistrer la candidature d’un gardien à une annonce autorisée. |
 | Ama | `Candidature::pourGardien()` | Lister les candidatures déposées par le gardien connecté. |
 | Ama | `Candidature::pourProprietaire()` | Lister les candidatures reçues sur les annonces du propriétaire connecté. |
