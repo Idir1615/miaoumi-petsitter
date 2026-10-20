@@ -115,6 +115,8 @@ Le dossier `logs/` est ignoré par Git : chacun peut générer son historique sa
 
 ## Participer
 
+La [répartition de la séance 2](docs/REPARTITION-SEANCE-2.md) précise les tâches d’Idir, Ama et Maria, les fichiers à modifier, l’état de chaque critère et les points de coordination.
+
 Équipe : **Idir**, **Ama** et **Maria**. Les entrées du CHANGELOG précisent la date, l’heure de Paris et le prénom de la personne concernée.
 
 Consulter le [guide de contribution](CONTRIBUTING.md) avant de proposer une modification. Des modèles de signalement de bug et de proposition sont disponibles dans l’onglet **Issues** de GitHub.

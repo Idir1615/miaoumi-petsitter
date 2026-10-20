@@ -6,6 +6,13 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 20/10/2026 à 10:55 — Répartition de la séance 2 — Idir
+
+- Revue de l’état du code par rapport aux huit critères de la nouvelle checklist.
+- Répartition du travail à venir : annonces et socle commun pour Idir, candidatures pour Ama, avis et finition de l’authentification pour Maria.
+- Ajout des fichiers concernés, dépendances, vérifications attendues et explications des méthodes de modèles dans docs/REPARTITION-SEANCE-2.md.
+- Signalement du conflit de nommage entre feature et les branches feature/ par module, sans modifier les branches existantes.
+
 ### 20/10/2026 à 10:48 — Attribution des changements — Idir
 
 - Ajout des prénoms de l’équipe : Idir, Ama et Maria.
