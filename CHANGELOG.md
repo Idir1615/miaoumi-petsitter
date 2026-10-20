@@ -6,12 +6,12 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
-### 20/10/2026 à 12:35 — Idir — Mise en cohérence de la documentation
+### 20/10/2026 à 12:35 — Ama — Mise en cohérence de la documentation
 
 - Correction du README et de la checklist pour refléter les actions de candidature désormais disponibles et les vérifications encore à faire.
 - Ajout au fichier des prompts du suivi des demandes récentes ; distinction dans le rapport entre le dépôt confirmé manuellement et les scénarios non vérifiés.
 
-### 20/10/2026 à 12:25 — Idir — Logo de la navigation
+### 20/10/2026 à 12:25 — Ama — Logo de la navigation
 
 - Remplacement de l’icône patte en haut à gauche par le logo Miaoumi déjà affiché dans le pied de page.
 
