@@ -1,5 +1,41 @@
 # Vérification du projet — 19 octobre 2026
 
+## Adaptation à la maquette — 20 octobre 2026 à 11:44 — Idir
+
+La maquette fournie est un PDF d’une page très large contenant plusieurs écrans. Les écrans existants ont été adaptés à ses couleurs et dispositions, et des listes personnelles ont été raccordées aux données réelles.
+
+- Syntaxe vérifiée sur 22 fichiers PHP.
+- Tests PHP/MySQL sur tables temporaires : anciennes bases sans ville, création et recherche avec ville, longueur maximale, requêtes paramétrées, annonces personnelles, séparation des candidatures entre gardiens et propriétaires.
+- Tests HTTP avec fixtures temporaires : filtre ville, pagination, recherche sans résultat, erreur de connexion puis connexion réussie, Mes annonces, Mes candidatures vide, formulaire avec ville et annonce inconnue renvoyant 404.
+- Captures Chrome vérifiées pour les annonces et les deux formulaires sur ordinateur ; vérification mobile à 390 px avec largeur de document égale à 390 px, sans débordement horizontal.
+
+Les tables réelles n’ont reçu aucune donnée de test. La colonne ville existait déjà dans la base locale ; aucune modification de schéma n’a été nécessaire pendant ce contrôle. La migration fournie reste à appliquer par les collègues dont la colonne est absente. Les boutons d’acceptation et de refus des candidatures, le profil gardien et le classement des gardiens de la maquette ne sont pas encore implémentés.
+
+## Partie Idir : annonces et socle commun — 20 octobre 2026 à 11:14
+
+Le test `tests/annonces.php`, exécuté avec le PHP de XAMPP, passe sur des tables MySQL temporaires qui masquent les tables applicatives uniquement pour la connexion de test. Les données réelles ne sont pas modifiées.
+
+Contrôles réussis : refus des champs vides ou trop longs, des dates impossibles, des débuts passés et des fins antérieures au début ; refus d’un propriétaire invalide ou inexistant ; aucune insertion après ces erreurs ; création valide avec statut ouverte ; propriétaire issu de la session malgré un identifiant envoyé dans le formulaire ; redirection 303 du visiteur et après publication ; erreur 422 et conservation de la saisie ; liste vide ; échappement du titre, de la description et du flash ; gabarit et CSS présents ; effacement du flash après lecture.
+
+Les fichiers PHP applicatifs ont passé la vérification syntaxique. Les tests du contrôleur sont exécutés en PHP, pas depuis un navigateur. Le rendu responsive et le parcours complet dans le navigateur restent à vérifier manuellement. Auth et avis attendent encore le raccordement au gabarit par Maria ; candidatures attendent le travail d’Ama.
+
+## Avis — 20 octobre 2026
+
+Syntaxe PHP vérifiée pour les quatorze fichiers de l’application. MySQL/MariaDB est accessible lors de ce contrôle. Des tests avec des tables temporaires masquant les tables applicatives uniquement sur la connexion de test ont validé :
+
+- autorisation du propriétaire et du gardien accepté, refus d’un tiers et d’un gardien en attente ;
+- refus des gardes futures, de l’autoévaluation, d’une note hors limites et d’un commentaire trop long ;
+- création des deux avis réciproques, refus d’un second avis identique et lecture de la liste ;
+- échappement HTML du commentaire et des noms dans la vue.
+
+Aucune donnée des tables réelles n’a été ajoutée ou modifiée. Le contrôle des doublons utilise une transaction et un verrou sur l’annonce ; aucun test de charge concurrente n’a été réalisé. Le parcours complet dans le navigateur reste à vérifier avec les comptes de l’équipe. Les règles de cette première version sont décrites dans le README.
+
+## Réorganisation MVC — 20 octobre 2026
+
+Sur la branche `feature`, les requêtes SQL ont été déplacées vers les modèles et les traitements vers les contrôleurs. La syntaxe des onze fichiers PHP concernés a été vérifiée avec PHP 8.2.12.
+
+Un parcours HTTP avec une base SQLite temporaire a validé l’inscription, la validation des champs, le refus d’un mauvais mot de passe, la connexion, la liste vide, l’échappement du nom, le renouvellement du jeton CSRF, le refus d’un jeton invalide, la déconnexion et le statut 404. Cette vérification n’utilise aucun script Python et ne modifie pas la base MySQL. Le parcours sur MySQL après cette réorganisation reste à vérifier dans le navigateur.
+
 ## Validation manuelle confirmée par le propriétaire
 
 Après démarrage de son environnement et essai du site, le propriétaire a confirmé dans la conversation que la connexion et le parcours d’authentification fonctionnent sur sa base MySQL. Cette confirmation complète les tests automatisés isolés ; elle ne constitue pas un nouveau contrôle MySQL exécuté par l’assistant. Les résultats historiques ci-dessous décrivent l’environnement au moment des contrôles précédents.

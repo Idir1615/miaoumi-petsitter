@@ -16,6 +16,10 @@ Si les tables existent déjà, ne réimporte pas le fichier : vérifie simplemen
 
 ## 3. Configurer le site
 
+Chaque copie du projet a besoin de son propre fichier `config/config.php` : il n’est pas distribué par Git. Le fichier d’exemple est prérempli pour une installation XAMPP locale standard.
+
+Vérifie aussi le nom du dossier dans l’adresse du navigateur : pour `C:\xampp\htdocs\miaoumi`, ouvre `http://localhost/miaoumi/public/?page=annonces` ; pour un dossier `miaoumi-feature`, utilise ce nom à la place. Modifier une copie sur le Bureau ne met pas automatiquement à jour celle dans `htdocs`.
+
 Copie `config/config.example.php` vers `config/config.php`. Pour une installation XAMPP locale standard non modifiée, le contenu est généralement :
 
 ```php

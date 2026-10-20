@@ -1,4 +1,11 @@
+
 # Contribuer à Miaoumi
+
+## Équipe et attribution
+
+L’équipe est composée d’**Idir**, **Ama** et **Maria**. Les documents utilisent uniquement les prénoms, sans nom de famille.
+
+Pour chaque changement significatif, ajouter dans le CHANGELOG un titre sous la forme `JJ/MM/AAAA à HH:MM — Description — Prénom`, en heure de Paris. Si plusieurs personnes ont participé, indiquer leurs prénoms. Ne pas déduire les contributions à partir de la simple présence d’une personne dans l’équipe ; si l’auteur n’est pas identifié, écrire « Auteur à confirmer ».
 
 ## Préparer son travail
 

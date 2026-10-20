@@ -19,7 +19,7 @@ Site de mise en relation entre propriétaires d’animaux et gardiens, développ
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-La création d’annonces, les candidatures et les avis ne sont pas encore implémentés dans le site. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les annonces donnent accès à leurs avis. Les pages Mes annonces, Mes candidatures et Candidatures reçues affichent les données du compte connecté. Les actions pour postuler, accepter ou refuser une candidature restent à développer. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
@@ -28,14 +28,14 @@ L’inscription et la connexion sur la base MySQL ont été confirmées fonction
 Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbstring`, et un serveur MySQL compatible avec le fichier SQL fourni. Une version de PHP encore maintenue est préférable.
 
 1. Ouvrir le dossier du projet dans VS Code.
-2. Dans le terminal, sélectionner la branche principale :
+2. Dans le terminal, sélectionner la branche de travail :
 
    ```sh
-   git switch main
+   git switch feature
    ```
 
-3. Copier `config/config.example.php` vers `config/config.php`, puis renseigner les identifiants MySQL locaux. Ce fichier est ignoré par Git pour protéger les mots de passe.
-4. Importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Il crée la base `miaoumi` et ses tables : à utiliser sur une base neuve.
+3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
+4. Pour une base neuve, importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
 5. Depuis la racine du projet, lancer :
 
    ```sh
@@ -50,18 +50,76 @@ Le serveur intégré PHP sert au développement local.
 
 | Fichier ou dossier | Rôle |
 | --- | --- |
-| `public/index.php` | Point d’entrée et choix de la page |
+| `public/index.php` | Point d’entrée : associe une page à un contrôleur |
+| `controllers/` | Traitements des annonces et de l’authentification |
+| `models/` | Accès aux données des utilisateurs et annonces |
+| `core/bootstrap.php` | Chargement des classes, session et protection des formulaires |
 | `core/Database.php` | Connexion MySQL avec PDO |
 | `config/config.example.php` | Modèle de configuration locale |
 | `views/annonces.php` | Affichage des annonces |
+| `views/annonce-formulaire.php` | Publication d’une annonce avec conservation de la saisie |
+| `views/header.php`, `views/footer.php` | Présentation commune disponible pour les vues |
+| `core/flash.php` | Messages en session affichés une seule fois |
+| `public/assets/style.css` | Classes CSS communes |
 | `views/auth.php` | Formulaires d’inscription et de connexion |
 | `views/navigation.php` | Navigation et état de connexion |
+| `models/Avis.php` | Lecture des avis, participants autorisés et enregistrement |
+| `controllers/AvisController.php` | Validation des formulaires d’avis et choix de la vue |
+| `views/avis.php` | Liste des avis et formulaire de dépôt |
 | `public/assets/` | Logo du projet |
 | `Miaoumi (2).sql` | Structure de la base de données |
 | `CHANGELOG.md` | Résumé lisible des modifications |
 | `docs/GIT.md` | Guide Git pour débuter |
+| `docs/PROMPTS.md` | Historique des demandes et décisions partagé avec l’équipe |
 | `scripts/` | Outils pour générer les journaux |
 | `AGENTS.md` | Consignes pour les assistants qui modifient le projet |
+
+## Comprendre le MVC
+
+Le projet utilise un MVC simple, sans framework. Les adresses des pages restent les mêmes (`?page=annonces`, `?page=inscription`, etc.).
+
+1. `public/index.php` choisit le contrôleur selon la page demandée.
+2. Le **contrôleur** traite la demande, valide les champs et appelle un modèle si nécessaire.
+3. Le **modèle** exécute les requêtes SQL avec la connexion fournie par `Database`.
+4. Le contrôleur transmet les données à une **vue**, qui produit le HTML.
+
+Exemple : pour afficher les annonces, `index.php` appelle `AnnonceController::index()`, qui récupère les données avec `Annonce::toutes()` puis charge `views/annonces.php`.
+
+Pour les comptes, `AuthController` gère l’inscription, la connexion et la déconnexion ; `Utilisateur` enregistre les comptes et recherche un utilisateur par e-mail. Les formulaires restent dans `views/auth.php`. Les vues ne contiennent aucune requête SQL.
+
+## Publier une annonce
+
+Se connecter, puis cliquer sur **Publier une annonce** (`?page=creer-annonce`). Titre et type d’animal sont obligatoires, avec respectivement 150 et 100 caractères maximum. La date de début doit être aujourd’hui ou plus tard en heure de Paris ; la fin peut être le même jour mais pas avant le début. La description est facultative et limitée à 5 000 caractères.
+
+Le propriétaire est toujours le compte connecté, et le statut initial est `ouverte`. Le modèle refuse les données invalides avant l’insertion ; le formulaire affiche les erreurs sans perdre la saisie. Après création, la liste affiche une confirmation une seule fois. Aucune modification du schéma SQL n’est nécessaire.
+
+Le test PHP `& C:\xampp\php\php.exe tests/annonces.php` vérifie le module avec des tables MySQL temporaires, sans modifier les annonces réelles. Il nécessite une configuration locale et MySQL accessibles.
+
+## Présentation et messages partagés
+
+Les vues annonces, création d’annonce, connexion/inscription, avis, candidatures et indisponibilité utilisent `header.php`, `footer.php` et `assets/style.css`. La présentation suit la maquette PDF fournie par Idir : brun doré, menthe, cartes blanches et fond gris clair.
+
+Dans une vue, définir `$titre`, charger `__DIR__ . '/header.php'`, afficher le contenu puis charger `__DIR__ . '/footer.php'`. Le header inclut déjà la navigation et les messages flash. Ne pas ajouter un second document HTML ou une seconde navigation.
+
+Depuis un contrôleur, appeler `ajouterFlash('Message')` ou `ajouterFlash('Message', 'erreur')` avant une redirection HTTP 303. `lireFlash()` retourne puis efface les messages ; le header l’appelle automatiquement. Les pages qui n’utilisent pas encore le header devront y être raccordées pour afficher ces messages. Classes disponibles : `conteneur`, `navigation`, `grille`, `carte`, `formulaire`, `champ`, `bouton`, `message`, `message-succes`, `message-erreur`, `erreur-champ`.
+
+## Recherche et écrans de la maquette
+
+La liste publique affiche les annonces `ouverte`, avec recherche dans le titre/la description, filtre par type d’animal, filtre par ville et pagination de six résultats. Le champ Ville (facultatif, 100 caractères maximum) est disponible dans le formulaire et les filtres si la colonne existe ; sans migration, l’application conserve les autres fonctions et masque ce champ.
+
+`?page=mes-annonces` affiche uniquement les annonces du compte connecté avec filtres de statut et nombres d’annonces/gardes terminées. `?page=mes-candidatures` présente ses candidatures et leurs statuts. Le lien Candidatures reçues d’une annonce personnelle ouvre les candidatures adressées au propriétaire ; un autre utilisateur ne peut pas consulter cette page. Ces deux listes de candidatures sont en lecture seule à ce stade.
+
+La page d’authentification réunit les formulaires de connexion et d’inscription côte à côte sur ordinateur, puis en colonne sur téléphone. Les erreurs restent liées au formulaire soumis. Les actions de sélection d’un gardien, de refus automatique des autres candidats et les statistiques de gardien le plus sollicité de la maquette ne sont pas encore implémentées.
+
+## Les avis
+
+Depuis une annonce, cliquer sur **Voir les avis / laisser un avis** (`?page=avis&annonce=ID`). Les avis affichent l’auteur, la personne évaluée, la note sur 5, le commentaire et la date d’enregistrement.
+
+Pour publier, il faut être connecté et participer à la garde : le propriétaire peut évaluer un gardien dont la candidature porte le statut `acceptee`, et ce gardien peut évaluer le propriétaire. La date de fin doit être antérieure au jour courant en heure de Paris. Une personne ne peut pas se noter elle-même ni évaluer deux fois la même personne pour une annonce. Le commentaire est facultatif, limité à 2 000 caractères.
+
+Cette première version utilise les tables existantes, sans réimportation SQL. La gestion des candidatures n’étant pas encore développée, une candidature acceptée doit déjà exister dans la base pour tester un dépôt. Le contrôle repose actuellement sur la date de fin et la candidature acceptée ; aucune confirmation de réalisation de la garde n’est encore prévue. Les avis publiés ne sont pas modifiables ou supprimables depuis le site à ce stade.
+
+Pour essayer dans le navigateur : utiliser une annonce passée avec un propriétaire et un gardien distincts, et une candidature `acceptee`. Se connecter successivement avec les deux comptes pour publier un avis, vérifier que le formulaire ne permet plus de noter la même personne, puis vérifier qu’un compte extérieur ne peut pas déposer d’avis.
 
 ## Suivre les modifications
 
@@ -84,6 +142,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-history.ps1
 Le dossier `logs/` est ignoré par Git : chacun peut générer son historique sans créer de modifications à enregistrer. Le README et le CHANGELOG sont maintenus avec les changements du projet ; Git ne peut pas en rédiger automatiquement les explications.
 
 ## Participer
+
+La [répartition de la séance 2](docs/REPARTITION-SEANCE-2.md) précise les tâches d’Idir, Ama et Maria, les fichiers à modifier, l’état de chaque critère et les points de coordination.
+
+Équipe : **Idir**, **Ama** et **Maria**. Les entrées du CHANGELOG précisent la date, l’heure de Paris et le prénom de la personne concernée.
 
 Consulter le [guide de contribution](CONTRIBUTING.md) avant de proposer une modification. Des modèles de signalement de bug et de proposition sont disponibles dans l’onglet **Issues** de GitHub.
 
