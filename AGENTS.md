@@ -3,6 +3,7 @@
 - Lire le README et les fichiers concernés avant de modifier le projet.
 - Travailler sur la branche demandée et préserver les modifications de l’utilisateur.
 - Pour chaque changement significatif, ajouter un résumé en français sous « Non publié » dans CHANGELOG.md. Regrouper les ajustements d’une même tâche.
+- Dater chaque entrée du CHANGELOG au format JJ/MM/AAAA à HH:MM, en heure de Paris (Europe/Paris). Pour une ancienne entrée, utiliser l’horodatage Git en précisant qu’il s’agit du commit ; ne pas inventer l’heure réelle de modification. Pour le travail non commité, indiquer l’heure de consignation.
 - Mettre à jour README.md si l’installation, les fonctionnalités ou la structure changent.
 - Ne pas inventer de fonctionnalités, de tests réussis ou de dates de publication.
 - Vérifier les changements avec les outils disponibles et signaler les vérifications impossibles.

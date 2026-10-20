@@ -50,7 +50,10 @@ Le serveur intégré PHP sert au développement local.
 
 | Fichier ou dossier | Rôle |
 | --- | --- |
-| `public/index.php` | Point d’entrée et choix de la page |
+| `public/index.php` | Point d’entrée : associe une page à un contrôleur |
+| `controllers/` | Traitements des annonces et de l’authentification |
+| `models/` | Accès aux données des utilisateurs et annonces |
+| `core/bootstrap.php` | Chargement des classes, session et protection des formulaires |
 | `core/Database.php` | Connexion MySQL avec PDO |
 | `config/config.example.php` | Modèle de configuration locale |
 | `views/annonces.php` | Affichage des annonces |
@@ -62,6 +65,19 @@ Le serveur intégré PHP sert au développement local.
 | `docs/GIT.md` | Guide Git pour débuter |
 | `scripts/` | Outils pour générer les journaux |
 | `AGENTS.md` | Consignes pour les assistants qui modifient le projet |
+
+## Comprendre le MVC
+
+Le projet utilise un MVC simple, sans framework. Les adresses des pages restent les mêmes (`?page=annonces`, `?page=inscription`, etc.).
+
+1. `public/index.php` choisit le contrôleur selon la page demandée.
+2. Le **contrôleur** traite la demande, valide les champs et appelle un modèle si nécessaire.
+3. Le **modèle** exécute les requêtes SQL avec la connexion fournie par `Database`.
+4. Le contrôleur transmet les données à une **vue**, qui produit le HTML.
+
+Exemple : pour afficher les annonces, `index.php` appelle `AnnonceController::index()`, qui récupère les données avec `Annonce::toutes()` puis charge `views/annonces.php`.
+
+Pour les comptes, `AuthController` gère l’inscription, la connexion et la déconnexion ; `Utilisateur` enregistre les comptes et recherche un utilisateur par e-mail. Les formulaires restent dans `views/auth.php`. Les vues ne contiennent aucune requête SQL.
 
 ## Suivre les modifications
 

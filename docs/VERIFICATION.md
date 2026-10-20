@@ -1,5 +1,11 @@
 # Vérification du projet — 19 octobre 2026
 
+## Réorganisation MVC — 20 octobre 2026
+
+Sur la branche `feature`, les requêtes SQL ont été déplacées vers les modèles et les traitements vers les contrôleurs. La syntaxe des onze fichiers PHP concernés a été vérifiée avec PHP 8.2.12.
+
+Un parcours HTTP avec une base SQLite temporaire a validé l’inscription, la validation des champs, le refus d’un mauvais mot de passe, la connexion, la liste vide, l’échappement du nom, le renouvellement du jeton CSRF, le refus d’un jeton invalide, la déconnexion et le statut 404. Cette vérification n’utilise aucun script Python et ne modifie pas la base MySQL. Le parcours sur MySQL après cette réorganisation reste à vérifier dans le navigateur.
+
 ## Validation manuelle confirmée par le propriétaire
 
 Après démarrage de son environnement et essai du site, le propriétaire a confirmé dans la conversation que la connexion et le parcours d’authentification fonctionnent sur sa base MySQL. Cette confirmation complète les tests automatisés isolés ; elle ne constitue pas un nouveau contrôle MySQL exécuté par l’assistant. Les résultats historiques ci-dessous décrivent l’environnement au moment des contrôles précédents.
