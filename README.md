@@ -34,7 +34,7 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
    git switch main
    ```
 
-3. Copier `config/config.example.php` vers `config/config.php`, puis renseigner les identifiants MySQL locaux. Ce fichier est ignoré par Git pour protéger les mots de passe.
+3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
 4. Importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Il crée la base `miaoumi` et ses tables : à utiliser sur une base neuve.
 5. Depuis la racine du projet, lancer :
 

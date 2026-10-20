@@ -1,7 +1,9 @@
 <?php
+// Exemple pour XAMPP local standard : copier vers config.php.
+// Adapter les identifiants si MySQL a ete configure autrement.
 return [
-    'host'     => 'localhost',
+    'host'     => '127.0.0.1',
     'dbname'   => 'miaoumi',
-    'user'     => 'ton_utilisateur',
-    'password' => 'ton_mot_de_passe',
+    'user'     => 'root',
+    'password' => '',
 ];

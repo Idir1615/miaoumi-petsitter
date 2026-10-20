@@ -6,6 +6,12 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 20/10/2026 à 10:43 — Démarrage XAMPP (travail local consigné)
+
+- Configuration d’exemple adaptée à une installation XAMPP locale standard.
+- Message précis lorsque config/config.php manque et explication des copies distinctes du projet dans le guide Windows.
+- Configuration locale privée toujours exclue de Git.
+
 ### 20/10/2026 à 09:39 — Partage des prompts (travail local consigné)
 
 - Ajout de docs/PROMPTS.md avec les demandes de la conversation dans l’ordre et des notes de contexte pour l’équipe.
