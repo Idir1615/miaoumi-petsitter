@@ -1,5 +1,16 @@
 # Vérification du projet — 19 octobre 2026
 
+## Avis — 20 octobre 2026
+
+Syntaxe PHP vérifiée pour les quatorze fichiers de l’application. MySQL/MariaDB est accessible lors de ce contrôle. Des tests avec des tables temporaires masquant les tables applicatives uniquement sur la connexion de test ont validé :
+
+- autorisation du propriétaire et du gardien accepté, refus d’un tiers et d’un gardien en attente ;
+- refus des gardes futures, de l’autoévaluation, d’une note hors limites et d’un commentaire trop long ;
+- création des deux avis réciproques, refus d’un second avis identique et lecture de la liste ;
+- échappement HTML du commentaire et des noms dans la vue.
+
+Aucune donnée des tables réelles n’a été ajoutée ou modifiée. Le contrôle des doublons utilise une transaction et un verrou sur l’annonce ; aucun test de charge concurrente n’a été réalisé. Le parcours complet dans le navigateur reste à vérifier avec les comptes de l’équipe. Les règles de cette première version sont décrites dans le README.
+
 ## Réorganisation MVC — 20 octobre 2026
 
 Sur la branche `feature`, les requêtes SQL ont été déplacées vers les modèles et les traitements vers les contrôleurs. La syntaxe des onze fichiers PHP concernés a été vérifiée avec PHP 8.2.12.

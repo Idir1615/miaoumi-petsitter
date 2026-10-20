@@ -19,7 +19,7 @@ Site de mise en relation entre propriétaires d’animaux et gardiens, développ
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-La création d’annonces, les candidatures et les avis ne sont pas encore implémentés dans le site. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les annonces donnent accès à leurs avis : consultation publique et dépôt réservé aux participants après la date de fin de la garde. La création d’annonces et la gestion des candidatures ne sont pas encore implémentées dans le site. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
@@ -59,6 +59,9 @@ Le serveur intégré PHP sert au développement local.
 | `views/annonces.php` | Affichage des annonces |
 | `views/auth.php` | Formulaires d’inscription et de connexion |
 | `views/navigation.php` | Navigation et état de connexion |
+| `models/Avis.php` | Lecture des avis, participants autorisés et enregistrement |
+| `controllers/AvisController.php` | Validation des formulaires d’avis et choix de la vue |
+| `views/avis.php` | Liste des avis et formulaire de dépôt |
 | `public/assets/` | Logo du projet |
 | `Miaoumi (2).sql` | Structure de la base de données |
 | `CHANGELOG.md` | Résumé lisible des modifications |
@@ -78,6 +81,16 @@ Le projet utilise un MVC simple, sans framework. Les adresses des pages restent 
 Exemple : pour afficher les annonces, `index.php` appelle `AnnonceController::index()`, qui récupère les données avec `Annonce::toutes()` puis charge `views/annonces.php`.
 
 Pour les comptes, `AuthController` gère l’inscription, la connexion et la déconnexion ; `Utilisateur` enregistre les comptes et recherche un utilisateur par e-mail. Les formulaires restent dans `views/auth.php`. Les vues ne contiennent aucune requête SQL.
+
+## Les avis
+
+Depuis une annonce, cliquer sur **Voir les avis / laisser un avis** (`?page=avis&annonce=ID`). Les avis affichent l’auteur, la personne évaluée, la note sur 5, le commentaire et la date d’enregistrement.
+
+Pour publier, il faut être connecté et participer à la garde : le propriétaire peut évaluer un gardien dont la candidature porte le statut `acceptee`, et ce gardien peut évaluer le propriétaire. La date de fin doit être antérieure au jour courant en heure de Paris. Une personne ne peut pas se noter elle-même ni évaluer deux fois la même personne pour une annonce. Le commentaire est facultatif, limité à 2 000 caractères.
+
+Cette première version utilise les tables existantes, sans réimportation SQL. La gestion des candidatures n’étant pas encore développée, une candidature acceptée doit déjà exister dans la base pour tester un dépôt. Le contrôle repose actuellement sur la date de fin et la candidature acceptée ; aucune confirmation de réalisation de la garde n’est encore prévue. Les avis publiés ne sont pas modifiables ou supprimables depuis le site à ce stade.
+
+Pour essayer dans le navigateur : utiliser une annonce passée avec un propriétaire et un gardien distincts, et une candidature `acceptee`. Se connecter successivement avec les deux comptes pour publier un avis, vérifier que le formulaire ne permet plus de noter la même personne, puis vérifier qu’un compte extérieur ne peut pas déposer d’avis.
 
 ## Suivre les modifications
 

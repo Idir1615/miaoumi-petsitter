@@ -6,6 +6,14 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 20/10/2026 à 09:13 — Première version des avis (travail local consigné)
+
+- Ajout du modèle Avis, du contrôleur AvisController et de la vue de consultation et de dépôt.
+- Ajout d’un lien vers les avis depuis chaque annonce.
+- Dépôt d’une note de 1 à 5 et d’un commentaire facultatif après la date de fin, entre propriétaire et gardien dont la candidature est acceptée.
+- Vérification de la session et du jeton CSRF, des destinataires et des doublons ; échappement des commentaires à l’affichage.
+- Tests sur MySQL/MariaDB avec tables temporaires, sans modification des données du projet.
+
 ### 20/10/2026 à 09:02 — Horodatage du journal
 
 - Ajout des dates et heures aux entrées du journal à partir des informations disponibles.

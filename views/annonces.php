@@ -14,6 +14,7 @@
         <?php foreach ($annonces as $a): ?>
             <div>
                 <h2><?= htmlspecialchars($a['titre']) ?></h2>
+                <a href="?page=avis&amp;annonce=<?= (int) $a['id'] ?>">Voir les avis / laisser un avis</a>
                 <p><?= htmlspecialchars($a['type_animal']) ?> · du <?= $a['date_debut'] ?> au <?= $a['date_fin'] ?></p>
             </div>
         <?php endforeach; ?>
