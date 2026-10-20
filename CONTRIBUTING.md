@@ -11,7 +11,7 @@
 
 - Garder une modification centrée sur un objectif.
 - Vérifier le parcours concerné dans le navigateur et la syntaxe des fichiers PHP modifiés avec `php -l chemin/du/fichier.php`.
-- Si l’authentification est touchée, exécuter le test décrit dans le README.
+- Si l’authentification est touchée, vérifier manuellement l’inscription, la connexion, le refus d’un mauvais mot de passe et la déconnexion en suivant le guide Windows.
 - Expliquer le changement dans `CHANGELOG.md` et adapter le README si nécessaire.
 - Vérifier `git diff` avant d’enregistrer : aucun mot de passe, compte réel ou fichier `config/config.php` ne doit être envoyé.
 

@@ -21,7 +21,7 @@ Le site affiche les annonces de garde, de la plus récente à la plus ancienne. 
 
 La création d’annonces, les candidatures et les avis ne sont pas encore implémentés dans le site. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
-L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet. Les tests automatisés utilisent une base temporaire isolée.
+L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
 ## Démarrer en local
 
@@ -57,7 +57,6 @@ Le serveur intégré PHP sert au développement local.
 | `views/auth.php` | Formulaires d’inscription et de connexion |
 | `views/navigation.php` | Navigation et état de connexion |
 | `public/assets/` | Logo du projet |
-| `tests/auth_smoke.py` | Test HTTP de l’authentification sur base temporaire |
 | `Miaoumi (2).sql` | Structure de la base de données |
 | `CHANGELOG.md` | Résumé lisible des modifications |
 | `docs/GIT.md` | Guide Git pour débuter |
@@ -90,10 +89,10 @@ Consulter le [guide de contribution](CONTRIBUTING.md) avant de proposer une modi
 
 ## Vérifier le code
 
-Avec Python et PHP disposant de `pdo_sqlite` et `mbstring`, depuis la racine :
+Vérifier la syntaxe des fichiers PHP modifiés, par exemple :
 
 ```powershell
-python tests/auth_smoke.py C:\xampp\php\php.exe
+& C:\xampp\php\php.exe -l public/index.php
 ```
 
-Ce test utilise une base SQLite temporaire sans modifier les comptes MySQL. Le [rapport de vérification](docs/VERIFICATION.md) distingue les tests automatisés et les validations manuelles.
+Tester ensuite l’inscription, la connexion et la déconnexion dans le navigateur en suivant le [guide Windows](docs/DEMARRAGE-WINDOWS.md). Python n’est pas nécessaire.

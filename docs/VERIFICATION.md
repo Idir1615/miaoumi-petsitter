@@ -6,9 +6,9 @@ Après démarrage de son environnement et essai du site, le propriétaire a conf
 
 ## Mise à jour : authentification ajoutée
 
-L’inscription, la connexion et la déconnexion sont maintenant implémentées. Le test HTTP `tests/auth_smoke.py` est passé avec une base SQLite temporaire isolée : création du compte, hachage du mot de passe, validation, refus d’un mauvais mot de passe, renouvellement de session, échappement HTML, protections CSRF et déconnexion. La syntaxe de tous les fichiers PHP est valide.
+L’inscription, la connexion et la déconnexion sont maintenant implémentées. Lors de leur ajout, un test HTTP sur base temporaire isolée a vérifié : création du compte, hachage du mot de passe, validation, refus d’un mauvais mot de passe, renouvellement de session, échappement HTML, protections CSRF et déconnexion. La syntaxe de tous les fichiers PHP avait été validée.
 
-Commande : `python tests/auth_smoke.py C:\xampp\php\php.exe` (Python requis uniquement pour ce test).
+Le script de test a depuis été retiré à la demande du propriétaire. Les vérifications actuelles se font avec PHP et dans le navigateur selon `DEMARRAGE-WINDOWS.md` ; les résultats ci-dessus sont historiques.
 
 Ce test ne valide pas MySQL : le contrôle du doublon d’e-mail spécifique à MySQL et le parcours sur la base réelle restent à vérifier avec le guide `DEMARRAGE-WINDOWS.md`. Une configuration locale XAMPP standard a été préparée dans le fichier ignoré `config/config.php` ; adapter ses identifiants si nécessaire. MySQL ne répond toujours pas au contrôle local.
 
