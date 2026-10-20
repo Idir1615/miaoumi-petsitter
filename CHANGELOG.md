@@ -12,6 +12,20 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 - Retranscription du MCD partagé en diagramme Mermaid avec ses quatre entités et six associations.
 - Présentation de l’équipe et distinction entre maquette de référence et fonctionnalités disponibles.
 
+### 20/10/2026 à 12:25 — Idir — Logo de la navigation
+
+- Remplacement de l’icône patte en haut à gauche par le logo Miaoumi déjà affiché dans le pied de page.
+
+### 20/10/2026 à 12:06 — Ama — Accès au formulaire de candidature
+
+- Affichage d’un lien de candidature pour les annonces ouvertes et accessibles ; les visiteurs non connectés sont invités à se connecter.
+- Retour vers le formulaire de l’annonce après connexion et documentation du parcours.
+
+### 20/10/2026 à 11:59 — Ama — Mise à jour de feature depuis main
+
+- Intégration des derniers changements de `main` dans `feature` : maquette, recherche et filtres, pagination, champ ville et migration.
+- Conservation du parcours complet de candidature et de tes changements locaux ; `config/config.php` reste local.
+
 ### 20/10/2026 à 11:52 — Intégration de la version validée sur main — Idir
 
 - Confirmation par Idir du bon fonctionnement de la version adaptée à la maquette et demande explicite d’intégration sur main.
@@ -25,6 +39,15 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 - Consultation des candidatures personnelles et reçues avec contrôles d’accès ; actions de candidature toujours à terminer par Ama.
 - Champ ville dans le schéma neuf et migration dédiée aux bases existantes, avec compatibilité des anciennes bases.
 - Tests PHP/MySQL et HTTP sur données temporaires ; contrôle visuel Chrome sur ordinateur et mobile à 390 px.
+
+### 20/10/2026 à 11:24 — Ama — Candidatures (travail local consigné)
+
+- Ajout des vues et du flux MVC pour postuler, consulter les demandes et accepter ou refuser une candidature.
+- Réservation des décisions au propriétaire de l’annonce, contrôle POST avec CSRF, refus des doublons et validation côté modèle.
+- Autorisation de plusieurs candidatures acceptées sur une annonce, cohérente avec la consultation des avis existante.
+- Réutilisation du gabarit, des styles et des messages flash partagés du projet.
+- Mise à jour du README pour documenter le parcours et les règles.
+- Consignation des contrôles réalisés et des essais restant à faire dans le rapport de vérification.
 
 ### 20/10/2026 à 11:14 — Partie Idir : annonces et socle commun (travail local consigné) — Idir
 

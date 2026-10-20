@@ -57,6 +57,17 @@ require __DIR__ . '/header.php';
                             <?php if (!empty($a['description'])): ?><p class="description-annonce"><?= nl2br(e($a['description'])) ?></p><?php endif; ?>
                             <a class="lien-avis" href="?page=avis&amp;annonce=<?= (int) $a['id'] ?>">Voir les avis / laisser un avis <span aria-hidden="true">→</span></a>
                             <?php if ($mesAnnonces): ?><a class="lien-avis" href="?page=candidatures-recues&amp;annonce=<?= (int) $a['id'] ?>">Candidatures reçues →</a><?php endif; ?>
+                            <?php
+                            $connecte = isset($_SESSION['utilisateur']['id']);
+                            $annonceAccessible = !$mesAnnonces
+                                && ($a['statut'] ?? '') === 'ouverte'
+                                && $a['date_fin'] >= $aujourdHui;
+                            $estSaPropreAnnonce = $connecte
+                                && (int) $_SESSION['utilisateur']['id'] === (int) $a['id_proprietaire'];
+                            ?>
+                            <?php if ($annonceAccessible && !$estSaPropreAnnonce): ?>
+                                <a class="lien-avis" href="?page=postuler&amp;annonce=<?= (int) $a['id'] ?>"><?= $connecte ? 'Postuler à cette annonce' : 'Se connecter pour postuler' ?> →</a>
+                            <?php endif; ?>
                         </div>
                     </article>
                 <?php endforeach; ?>

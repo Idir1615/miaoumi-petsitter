@@ -3,7 +3,7 @@ $pageCourante = is_string($_GET['page'] ?? null) ? $_GET['page'] : 'annonces';
 $authPage = in_array($pageCourante, ['connexion', 'inscription'], true);
 ?>
 <nav class="navigation <?= $authPage ? 'navigation-auth' : '' ?>" aria-label="Navigation principale">
-    <a class="marque" href="?page=annonces"><img src="assets/patte.svg" alt="" width="23" height="23"> <span>Miaoumi</span></a>
+    <a class="marque" href="?page=annonces" aria-label="Miaoumi — accueil"><img src="assets/miaoumi-logo.png" alt="" width="48" height="48"></a>
     <?php if (!$authPage): ?>
         <form class="recherche-navigation" method="get" action="">
             <input type="hidden" name="page" value="annonces">

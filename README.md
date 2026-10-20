@@ -89,7 +89,7 @@ Le diagramme reprend le MCD fourni au début du projet. Le champ `ville`, ajout�
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les annonces donnent accès à leurs avis. Les pages Mes annonces, Mes candidatures et Candidatures reçues affichent les données du compte connecté. Les actions pour postuler, accepter ou refuser une candidature restent à développer. Pour le démarrage avec XAMPP et le test des comptes, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Une annonce peut avoir plusieurs candidatures acceptées. Les avis sont consultables publiquement et leur dépôt est réservé aux participants après la date de fin de la garde. Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
@@ -136,6 +136,10 @@ Le serveur intégré PHP sert au développement local.
 | `models/Avis.php` | Lecture des avis, participants autorisés et enregistrement |
 | `controllers/AvisController.php` | Validation des formulaires d’avis et choix de la vue |
 | `views/avis.php` | Liste des avis et formulaire de dépôt |
+| `models/Candidature.php` | Dépôt, lecture et décision sur les candidatures |
+| `controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
+| `views/candidatures.php` | Candidatures envoyées et reçues |
+| `views/candidature-formulaire.php` | Formulaire de candidature |
 | `public/assets/` | Logo du projet |
 | `Miaoumi (2).sql` | Structure de la base de données |
 | `CHANGELOG.md` | Résumé lisible des modifications |
@@ -187,9 +191,15 @@ Depuis une annonce, cliquer sur **Voir les avis / laisser un avis** (`?page=avis
 
 Pour publier, il faut être connecté et participer à la garde : le propriétaire peut évaluer un gardien dont la candidature porte le statut `acceptee`, et ce gardien peut évaluer le propriétaire. La date de fin doit être antérieure au jour courant en heure de Paris. Une personne ne peut pas se noter elle-même ni évaluer deux fois la même personne pour une annonce. Le commentaire est facultatif, limité à 2 000 caractères.
 
-Cette première version utilise les tables existantes, sans réimportation SQL. La gestion des candidatures n’étant pas encore développée, une candidature acceptée doit déjà exister dans la base pour tester un dépôt. Le contrôle repose actuellement sur la date de fin et la candidature acceptée ; aucune confirmation de réalisation de la garde n’est encore prévue. Les avis publiés ne sont pas modifiables ou supprimables depuis le site à ce stade.
+Cette première version utilise les tables existantes, sans réimportation SQL. Pour tester un avis, utilise une annonce passée avec au moins une candidature acceptée. Le contrôle repose actuellement sur la date de fin et la candidature acceptée ; aucune confirmation de réalisation de la garde n’est encore prévue. Les avis publiés ne sont pas modifiables ou supprimables depuis le site à ce stade.
 
 Pour essayer dans le navigateur : utiliser une annonce passée avec un propriétaire et un gardien distincts, et une candidature `acceptee`. Se connecter successivement avec les deux comptes pour publier un avis, vérifier que le formulaire ne permet plus de noter la même personne, puis vérifier qu’un compte extérieur ne peut pas déposer d’avis.
+
+## Les candidatures
+
+Sur la liste des annonces, choisir **Postuler à cette annonce**. Si tu n’es pas connecté, **Se connecter pour postuler** ouvre la connexion puis te ramène au formulaire de cette annonce. Le formulaire accepte un message facultatif de 2 000 caractères maximum. Un gardien ne peut pas postuler à sa propre annonce ni déposer deux fois une candidature pour la même annonce. Depuis **Mes candidatures**, le gardien consulte ses demandes et le propriétaire voit les candidatures reçues. Seul le propriétaire peut accepter ou refuser une demande en attente, par formulaire POST protégé par jeton CSRF. Les statuts utilisés sont `en_attente`, `acceptee` et `refusee`.
+
+Plusieurs candidatures peuvent être acceptées sur une même annonce. Les avis restent réservés aux gardiens acceptés et au propriétaire, après la date de fin. Cette fonctionnalité utilise la table `candidatures` déjà présente ; aucun nouvel import SQL n’est requis.
 
 ## Suivre les modifications
 

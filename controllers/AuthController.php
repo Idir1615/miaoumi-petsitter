@@ -68,7 +68,17 @@ class AuthController
                     session_regenerate_id(true);
                     $_SESSION['utilisateur'] = ['id' => $utilisateur['id'], 'nom' => $utilisateur['nom']];
                     $_SESSION['csrf'] = bin2hex(random_bytes(32));
-                    $this->rediriger('?page=annonces');
+                    $destination = '?page=annonces';
+                    $annonceApresConnexion = filter_var(
+                        $_SESSION['annonce_apres_connexion'] ?? null,
+                        FILTER_VALIDATE_INT,
+                        ['options' => ['min_range' => 1]]
+                    );
+                    unset($_SESSION['annonce_apres_connexion']);
+                    if ($annonceApresConnexion) {
+                        $destination = '?page=postuler&annonce=' . $annonceApresConnexion;
+                    }
+                    $this->rediriger($destination);
                 }
                 $erreurs[] = 'E-mail ou mot de passe incorrect.';
             }

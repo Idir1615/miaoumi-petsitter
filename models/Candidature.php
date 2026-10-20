@@ -1,27 +1,113 @@
 <?php
 
-// Consultation des candidatures ; les actions restent à développer par Ama.
 class Candidature
 {
-    public function pourGardien(int $gardien): array
+    public function pourUtilisateur(int $utilisateur): array
     {
         $requete = Database::getConnection()->prepare(
-            'SELECT c.*, a.titre, a.type_animal, a.date_debut, a.date_fin
-             FROM candidatures c JOIN annonces a ON a.id = c.id_annonce
-             WHERE c.id_gardien = ? ORDER BY c.id DESC'
+            'SELECT c.id, c.message, c.statut, c.date_candidature, c.id_gardien,
+                    a.id AS id_annonce, a.titre, a.date_debut, a.date_fin,
+                    a.statut AS statut_annonce, a.id_proprietaire,
+                    gardien.nom AS nom_gardien, proprietaire.nom AS nom_proprietaire
+             FROM candidatures c
+             JOIN annonces a ON a.id = c.id_annonce
+             JOIN utilisateurs gardien ON gardien.id = c.id_gardien
+             JOIN utilisateurs proprietaire ON proprietaire.id = a.id_proprietaire
+             WHERE c.id_gardien = ? OR a.id_proprietaire = ?
+             ORDER BY c.date_candidature DESC, c.id DESC'
         );
-        $requete->execute([$gardien]);
+        $requete->execute([$utilisateur, $utilisateur]);
         return $requete->fetchAll();
     }
 
-    public function pourProprietaire(int $proprietaire, int $annonce): array
+    public function postuler(int $annonce, int $gardien, string $message): bool
     {
-        $requete = Database::getConnection()->prepare(
-            'SELECT c.*, u.nom FROM candidatures c
-             JOIN annonces a ON a.id = c.id_annonce JOIN utilisateurs u ON u.id = c.id_gardien
-             WHERE a.id_proprietaire = ? AND a.id = ? ORDER BY c.id DESC'
-        );
-        $requete->execute([$proprietaire, $annonce]);
-        return $requete->fetchAll();
+        $message = trim($message);
+        if ($gardien < 1 || mb_strlen($message) > 2000) {
+            return false;
+        }
+
+        $pdo = Database::getConnection();
+        $pdo->beginTransaction();
+        try {
+            // Le verrou empêche deux envois simultanés de créer un doublon.
+            $requete = $pdo->prepare('SELECT * FROM annonces WHERE id = ? FOR UPDATE');
+            $requete->execute([$annonce]);
+            $offre = $requete->fetch();
+
+            if (!$offre || !$this->estAccessible($offre)
+                || (int) $offre['id_proprietaire'] === $gardien) {
+                $pdo->rollBack();
+                return false;
+            }
+
+            $requete = $pdo->prepare(
+                'SELECT id FROM candidatures WHERE id_annonce = ? AND id_gardien = ? LIMIT 1'
+            );
+            $requete->execute([$annonce, $gardien]);
+            if ($requete->fetch()) {
+                $pdo->rollBack();
+                return false;
+            }
+
+            $requete = $pdo->prepare(
+                "INSERT INTO candidatures (message, statut, id_annonce, id_gardien)
+                 VALUES (?, 'en_attente', ?, ?)"
+            );
+            $requete->execute([$message, $annonce, $gardien]);
+            $pdo->commit();
+            return true;
+        } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
+        }
+    }
+
+    public function decider(int $candidature, int $proprietaire, string $decision): bool
+    {
+        if ($candidature < 1 || $proprietaire < 1
+            || !in_array($decision, ['acceptee', 'refusee'], true)) {
+            return false;
+        }
+
+        $pdo = Database::getConnection();
+        $pdo->beginTransaction();
+        try {
+            $requete = $pdo->prepare(
+                'SELECT c.id, c.statut, a.id_proprietaire
+                 FROM candidatures c
+                 JOIN annonces a ON a.id = c.id_annonce
+                 WHERE c.id = ? FOR UPDATE'
+            );
+            $requete->execute([$candidature]);
+            $ligne = $requete->fetch();
+
+            if (!$ligne || (int) $ligne['id_proprietaire'] !== $proprietaire
+                || $ligne['statut'] !== 'en_attente') {
+                $pdo->rollBack();
+                return false;
+            }
+
+            // Plusieurs candidatures peuvent être acceptées pour une même annonce.
+            $requete = $pdo->prepare(
+                "UPDATE candidatures SET statut = ? WHERE id = ? AND statut = 'en_attente'"
+            );
+            $requete->execute([$decision, $candidature]);
+            $pdo->commit();
+            return $requete->rowCount() === 1;
+        } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
+        }
+    }
+
+    private function estAccessible(array $annonce): bool
+    {
+        $aujourdHui = (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d');
+        return $annonce['statut'] === 'ouverte' && $annonce['date_fin'] >= $aujourdHui;
     }
 }

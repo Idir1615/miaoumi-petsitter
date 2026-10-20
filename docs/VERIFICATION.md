@@ -9,7 +9,7 @@ La maquette fournie est un PDF d’une page très large contenant plusieurs écr
 - Tests HTTP avec fixtures temporaires : filtre ville, pagination, recherche sans résultat, erreur de connexion puis connexion réussie, Mes annonces, Mes candidatures vide, formulaire avec ville et annonce inconnue renvoyant 404.
 - Captures Chrome vérifiées pour les annonces et les deux formulaires sur ordinateur ; vérification mobile à 390 px avec largeur de document égale à 390 px, sans débordement horizontal.
 
-Les tables réelles n’ont reçu aucune donnée de test. La colonne ville existait déjà dans la base locale ; aucune modification de schéma n’a été nécessaire pendant ce contrôle. La migration fournie reste à appliquer par les collègues dont la colonne est absente. Les boutons d’acceptation et de refus des candidatures, le profil gardien et le classement des gardiens de la maquette ne sont pas encore implémentés.
+Les tables réelles n’ont reçu aucune donnée de test. La colonne ville existait déjà dans la base locale ; aucune modification de schéma n’a été nécessaire pendant ce contrôle. La migration fournie reste à appliquer par les collègues dont la colonne est absente. Le profil gardien et le classement des gardiens de la maquette ne sont pas encore implémentés. Le parcours d’acceptation et de refus des candidatures est décrit dans la section ci-dessous ; les scénarios correspondants restent à valider dans un environnement de test dédié.
 
 ## Partie Idir : annonces et socle commun — 20 octobre 2026 à 11:14
 
@@ -17,7 +17,7 @@ Le test `tests/annonces.php`, exécuté avec le PHP de XAMPP, passe sur des tabl
 
 Contrôles réussis : refus des champs vides ou trop longs, des dates impossibles, des débuts passés et des fins antérieures au début ; refus d’un propriétaire invalide ou inexistant ; aucune insertion après ces erreurs ; création valide avec statut ouverte ; propriétaire issu de la session malgré un identifiant envoyé dans le formulaire ; redirection 303 du visiteur et après publication ; erreur 422 et conservation de la saisie ; liste vide ; échappement du titre, de la description et du flash ; gabarit et CSS présents ; effacement du flash après lecture.
 
-Les fichiers PHP applicatifs ont passé la vérification syntaxique. Les tests du contrôleur sont exécutés en PHP, pas depuis un navigateur. Le rendu responsive et le parcours complet dans le navigateur restent à vérifier manuellement. Auth et avis attendent encore le raccordement au gabarit par Maria ; candidatures attendent le travail d’Ama.
+Les fichiers PHP applicatifs ont passé la vérification syntaxique. Les tests du contrôleur sont exécutés en PHP, pas depuis un navigateur. Le rendu responsive et le parcours complet dans le navigateur restent à vérifier manuellement. Auth et avis attendent encore le raccordement au gabarit par Maria.
 
 ## Avis — 20 octobre 2026
 
@@ -29,6 +29,12 @@ Syntaxe PHP vérifiée pour les quatorze fichiers de l’application. MySQL/Mari
 - échappement HTML du commentaire et des noms dans la vue.
 
 Aucune donnée des tables réelles n’a été ajoutée ou modifiée. Le contrôle des doublons utilise une transaction et un verrou sur l’annonce ; aucun test de charge concurrente n’a été réalisé. Le parcours complet dans le navigateur reste à vérifier avec les comptes de l’équipe. Les règles de cette première version sont décrites dans le README.
+
+## Candidatures — 20 octobre 2026
+
+La syntaxe PHP des fichiers de candidatures, des routes et des vues concernées a été vérifiée avec PHP 8.2.12. `git diff --check` ne signale pas d’erreur. Des rendus isolés avec des données fictives ont vérifié l’état vide, l’affichage du jeton CSRF, l’échappement du contenu HTML et la conservation de la saisie dans le formulaire après une erreur.
+
+Les scénarios avec la base MySQL et le navigateur n’ont pas été exécutés : doublon, candidature à sa propre annonce, refus d’une décision par un tiers, acceptation/refus par le propriétaire et transitions d’état restent à valider dans un environnement de test dédié. Aucune donnée de la configuration locale ou de la base de comptes n’a été utilisée.
 
 ## Réorganisation MVC — 20 octobre 2026
 

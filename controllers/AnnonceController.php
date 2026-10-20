@@ -38,6 +38,7 @@ class AnnonceController
         $recherche = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']), 0, 150) : '';
         $animal = is_string($_GET['animal'] ?? null) ? mb_substr(trim($_GET['animal']), 0, 100) : '';
         $modele = new Annonce();
+        $aujourdHui = (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d');
         $villeDisponible = $modele->villeDisponible();
         $ville = $villeDisponible && is_string($_GET['ville'] ?? null) ? mb_substr(trim($_GET['ville']), 0, 100) : '';
         $annoncesCompletes = $modele->rechercher($recherche, $animal,
