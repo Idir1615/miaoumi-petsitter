@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 23/10/2026 à 15:51 — Idir — Checklist de Maria (travail local consigné)
+
+- Ajout de docs/CHECKLIST-MARIA.md : tâches restantes sur les avis et les comptes (flash, validation de `Utilisateur::creer()`, formulaire d’avis, tests), avec les lignes de code concernées.
+
 ### 20/10/2026 à 12:35 — Ama — Mise en cohérence de la documentation
 
 - Correction du README et de la checklist pour refléter les actions de candidature désormais disponibles et les vérifications encore à faire.
