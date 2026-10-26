@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 26/10/2026 à 20:51 — Idir — Checklist des annonces (travail local consigné)
+
+- Ajout de docs/CHECKLIST-IDIR.md : état des critères de fin de séance 2 pour le module annonces, vérifié par relecture du code ; restent la branche de module et l’explication de `rechercher()` et `villeDisponible()`.
+
 ### 23/10/2026 à 15:51 — Idir — Checklist de Maria (travail local consigné)
 
 - Ajout de docs/CHECKLIST-MARIA.md : tâches restantes sur les avis et les comptes (flash, validation de `Utilisateur::creer()`, formulaire d’avis, tests), avec les lignes de code concernées.
