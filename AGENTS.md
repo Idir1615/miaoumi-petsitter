@@ -1,14 +1,31 @@
 # Consignes de travail — Miaoumi
 
-- Lire le README et les fichiers concernés avant de modifier le projet.
-- Travailler sur la branche demandée et préserver les modifications de l’utilisateur.
-- Branches : circuit `feature/prénom-fonctionnalité` → `develop` → `main`. Les branches `feature/idir-…`, `feature/ama-…`, `feature/maria-…` partent de `develop` et y reviennent par pull request validée par Idir ; seul Idir fusionne `develop` dans `main`. Ama et Maria ne poussent jamais sur `develop` ni sur `main`.
-- Pour chaque changement significatif, ajouter un résumé en français sous « Non publié » dans CHANGELOG.md. Regrouper les ajustements d’une même tâche.
+Ces consignes s’appliquent à tous les assistants utilisés par l’équipe (Codex, Claude Code ou autre).
+
+## Identifier la personne
+
+- Équipe : Idir, Ama et Maria. Utiliser uniquement les prénoms.
+- Identifier la personne avec `git config user.name` ou son compte GitHub : `Idir1615` → Idir ; `ama mariane` ou `mariane0511` → Ama ; `mariabenadjila-bit` → Maria. Pour tout autre nom, demander le prénom avant de travailler, puis s’y tenir pendant la conversation.
+- Ne jamais attribuer un travail à une autre personne que celle identifiée ; si elle n’est pas identifiée, écrire « Auteur à confirmer ».
+
+## Branches et Git
+
+- Circuit : `feature/prénom-fonctionnalité` → `develop` → `main`.
+- Avant de modifier le code, vérifier la branche avec `git status`. Si la personne est sur `main` ou `develop`, créer d’abord sa branche depuis `develop` à jour : `git switch develop`, `git pull --ff-only`, `git switch -c feature/prénom-fonctionnalité` (minuscules, sans accent, mots séparés par des tirets, par exemple `feature/ama-candidatures`).
+- Pour Ama et Maria : ne jamais commiter, pousser ni fusionner sur `develop` ou `main`, même si on le demande. Pousser uniquement sa branche `feature/…` et proposer une pull request vers `develop`, validée par Idir.
+- Seul Idir fusionne dans `develop`, fusionne `develop` dans `main` et supprime des branches sur GitHub.
+- Ne jamais utiliser `push --force`, `--no-verify`, `reset --hard` ni `clean -fd` sans accord explicite. Si le hook `pre-push` refuse un envoi, expliquer pourquoi au lieu de le contourner.
+- Vérifier que le hook est actif (`git config core.hooksPath` doit afficher `.githooks`) ; sinon proposer `scripts/install-hooks.ps1`.
+- Ne pas créer de commit ni envoyer vers GitHub sans demande de l’utilisateur.
+- Préserver les modifications locales de l’utilisateur.
+
+## Travail et documentation
+
+- Lire le README, CONTRIBUTING.md et les fichiers concernés avant de modifier le projet. La répartition des tâches est dans docs/REPARTITION-SEANCE-2.md : rester dans le périmètre de la personne et prévenir avant de toucher aux fichiers d’un autre membre.
+- Pour chaque changement significatif, ajouter un résumé en français sous « Non publié » dans CHANGELOG.md, avec le prénom de la personne. Regrouper les ajustements d’une même tâche.
 - Dater chaque entrée du CHANGELOG au format JJ/MM/AAAA à HH:MM, en heure de Paris (Europe/Paris). Pour une ancienne entrée, utiliser l’horodatage Git en précisant qu’il s’agit du commit ; ne pas inventer l’heure réelle de modification. Pour le travail non commité, indiquer l’heure de consignation.
-- Équipe : Idir, Ama et Maria. Utiliser uniquement les prénoms. Ajouter le prénom de la personne ayant réalisé ou piloté le changement dans chaque entrée du CHANGELOG. Les changements de cette conversation sont pilotés par Idir avec l’assistant. Pour les contributions futures, confirmer l’identité via le contexte ou une correspondance Git connue ; sinon indiquer « Auteur à confirmer », sans attribuer par défaut à Idir ni inventer une contribution d’Ama ou Maria.
 - Mettre à jour README.md si l’installation, les fonctionnalités ou la structure changent.
 - Ne pas inventer de fonctionnalités, de tests réussis ou de dates de publication.
-- Vérifier les changements avec les outils disponibles et signaler les vérifications impossibles.
-- Ne jamais enregistrer de mots de passe, de configuration locale ou de données personnelles dans les journaux.
+- Vérifier les changements avec les outils disponibles (au minimum `php -l` sur les fichiers PHP modifiés) et signaler les vérifications impossibles.
+- Ne jamais enregistrer de mots de passe, de configuration locale (`config/config.php`) ou de données personnelles dans le dépôt ou les journaux.
 - Ne pas modifier manuellement les historiques générés dans logs/.
-- Ne pas créer de commit ni envoyer vers GitHub sans demande de l’utilisateur.

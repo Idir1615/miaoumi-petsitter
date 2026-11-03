@@ -151,7 +151,7 @@ Le serveur intégré PHP sert au développement local.
 | `docs/PROMPTS.md` | Historique des demandes et décisions partagé avec l’équipe |
 | `scripts/` | Outils pour générer les journaux |
 | `.githooks/pre-push`, `.github/CODEOWNERS`, `.github/workflows/` | Règles de branches : circuit feature/prénom-fonctionnalité → develop → main |
-| `AGENTS.md` | Consignes pour les assistants qui modifient le projet |
+| `AGENTS.md`, `CLAUDE.md` | Consignes pour les assistants IA (Codex lit AGENTS.md, Claude Code lit CLAUDE.md qui y renvoie) |
 
 ## Comprendre le MVC
 

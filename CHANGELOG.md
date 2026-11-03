@@ -6,6 +6,11 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 09:00 — Consignes pour les assistants IA (travail local consigné) — Idir
+
+- AGENTS.md réorganisé pour Codex et Claude Code : identification de la personne via `git config user.name`, création automatique de la branche `feature/prénom-fonctionnalité` depuis `develop`, interdiction pour Ama et Maria de pousser sur `develop` ou `main`, pas de contournement du hook.
+- Ajout de CLAUDE.md, qui renvoie Claude Code vers AGENTS.md.
+
 ### 03/11/2026 à 08:58 — Règles de branches et protection de main — Idir
 
 - Circuit imposé `feature/prénom-fonctionnalité` → `develop` → `main`, avec des branches `feature/idir-…`, `feature/ama-…`, `feature/maria-…` créées depuis `develop`.
