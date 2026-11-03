@@ -164,6 +164,121 @@ Quatre tables (fichier `Miaoumi (2).sql`) :
 
 **Comment montrer le site avec des données ?** `donnees-demo.sql` crée 4 comptes fictifs, 4 annonces, 6 candidatures et 3 avis, avec des dates calculées depuis le jour de l’import ; il peut être réimporté pour remettre la démonstration à zéro.
 
+## Réviser pas à pas
+
+Leçons courtes à lire dans l’ordre : une notion, une question, puis la réponse modèle (cliquer pour l’afficher). Tout le monde les révise, quel que soit son module. Les fichiers cités sont ceux de `develop`.
+
+### Module Annonces
+
+#### Leçon 1 — Comment une page s’affiche (le MVC)
+
+Toutes les pages passent par **un seul fichier** : `public/index.php`, le **routeur**. Pour `?page=mes-annonces` :
+
+1. le routeur lit `page=mes-annonces` dans l’adresse ;
+2. il le cherche dans sa liste : `'mes-annonces' => [AnnonceController::class, 'index']`, c’est-à-dire « appelle `index()` de `AnnonceController` » ;
+3. le **contrôleur** demande les annonces au **modèle** `Annonce`, qui interroge MySQL ;
+4. le contrôleur passe les annonces à la **vue** `views/annonces.php`, qui fabrique le HTML.
+
+| Lettre | Fichier | Rôle | Image |
+| --- | --- | --- | --- |
+| **M**odèle | `models/Annonce.php` | Parle à la base de données | Le cuisinier |
+| **V**ue | `views/annonces.php` | Affiche le HTML | L’assiette |
+| **C**ontrôleur | `controllers/AnnonceController.php` | Reçoit la demande et décide | Le serveur |
+
+Une page absente de la liste (`?page=nimporte`) renvoie un code **404** et affiche `views/introuvable.php` avec le gabarit du site.
+
+**Question :** pourquoi séparer le code en modèle, vue et contrôleur au lieu de tout mettre dans un fichier ?
+
+<details><summary>Réponse modèle</summary>
+
+Pour que **chaque fichier ait un seul rôle** : le modèle les données, la vue l’affichage, le contrôleur la logique de la page. On peut modifier l’affichage sans toucher au SQL, ce qui évite les erreurs, et l’équipe a pu **se répartir le travail** par module sans se gêner.
+</details>
+
+#### Leçon 2 — Publier une annonce : valider avant d’enregistrer
+
+`Annonce::creer()` (`models/Annonce.php`) travaille en **deux temps** :
+
+1. **Vérifier et noter les erreurs** dans un tableau `$erreurs` : titre obligatoire (150 caractères maximum), type d’animal obligatoire, dates valides, début aujourd’hui ou plus tard, fin après le début, description de 5 000 caractères maximum, ville de 100 caractères maximum.
+2. **Seulement s’il n’y a aucune erreur**, faire l’`INSERT` avec une requête préparée.
+
+```php
+if ($erreurs) {
+    return $erreurs;   // on s'arrête : rien n'est écrit en base
+}
+$requete = $pdo->prepare('INSERT INTO annonces (...) VALUES (?, ?, ...)');
+$requete->execute($valeurs);
+return [];             // liste vide = annonce créée
+```
+
+S’il y a des erreurs, `AnnonceController::creer()` répond **422** et réaffiche le formulaire **avec la saisie conservée** et un message sous chaque champ. Sinon, il ajoute le message flash « Ton annonce a été publiée. » et redirige (**303**).
+
+Le propriétaire vient de la **session** (`$_SESSION['utilisateur']['id']`), jamais du formulaire : impossible de publier au nom d’un autre en trafiquant la page.
+
+**Question :** que se passe-t-il si un utilisateur met une date de fin avant la date de début ?
+
+<details><summary>Réponse modèle</summary>
+
+`Annonce::creer()` le détecte et ajoute l’erreur « La fin ne peut pas précéder le début. » dans `$erreurs['date_fin']`. Comme la liste d’erreurs n’est pas vide, la méthode s’arrête **avant l’INSERT** : rien n’est enregistré. Le contrôleur répond 422 et réaffiche le formulaire avec ce que l’utilisateur avait tapé et le message sous le champ « date de fin ».
+</details>
+
+#### Leçon 3 — Lister, chercher et paginer
+
+`AnnonceController::index()` sert deux pages : **Annonces** (tout le monde) et **Mes annonces** (connecté seulement, sinon redirection vers la connexion avec un message).
+
+1. Il lit les filtres de l’adresse : recherche `q`, `animal`, `ville`, et `statut` pour Mes annonces. Chaque valeur est vérifiée (texte, longueur limitée, statut parmi une liste autorisée).
+2. `Annonce::rechercher()` construit la requête SQL **petit à petit** : il ajoute une condition par filtre rempli, toujours avec des `?`. Sur la page Annonces, seules les annonces `ouverte` sont montrées ; sur Mes annonces, toutes celles du propriétaire connecté.
+3. La **pagination** affiche 6 annonces par page : `array_slice($annonces, ($numero - 1) * 6, 6)`. Le numéro de page est ramené entre 1 et le nombre de pages.
+4. Si la liste est vide, la vue affiche un **état vide** (« Aucune annonce pour le moment. ») au lieu d’une page blanche.
+
+**Question :** pourquoi la recherche utilise-t-elle `titre LIKE ?` plutôt que de coller le texte tapé directement dans la requête SQL ?
+
+<details><summary>Réponse modèle</summary>
+
+Pour éviter l’**injection SQL**. Avec `?` et une requête préparée, PDO envoie le texte tapé **comme une donnée**, jamais comme du code SQL. Si quelqu’un tape `' OR 1=1 --`, la base cherche littéralement ce texte au lieu d’exécuter une commande. Le test `tests/annonces.php` vérifie ce cas.
+</details>
+
+#### Leçon 4 — Clôturer une garde
+
+La clôture termine une garde. Elle se fait en **deux clics** : « Terminer la garde » ouvre une confirmation, puis « Confirmer la clôture » envoie le formulaire. Cela évite une clôture par erreur.
+
+1. Le formulaire envoie un **POST** vers `?page=cloturer-annonce` avec l’identifiant de l’annonce et le jeton `csrf`.
+2. `AnnonceController::cloturer()` refuse un accès direct par l’adresse (**405**) et un visiteur non connecté (redirection vers la connexion).
+3. `Annonce::cloturer()` vérifie que l’annonce existe, que l’utilisateur en est **le propriétaire**, et qu’elle n’est pas déjà terminée. Puis :
+
+```sql
+UPDATE annonces SET statut = 'terminee'
+WHERE id = ? AND id_proprietaire = ? AND statut <> 'terminee'
+```
+
+4. Redirection **303** vers Mes annonces avec « La garde est clôturée. » ou un message d’erreur clair.
+
+`Annonce::marquerPourvue()` suit la même idée : `UPDATE … SET statut = 'pourvue' WHERE id = ? AND statut = 'ouverte'`. Elle est appelée quand une candidature est acceptée.
+
+**Question :** pourquoi répéter `id_proprietaire = ?` dans le `WHERE` alors que la méthode a déjà vérifié le propriétaire juste avant ?
+
+<details><summary>Réponse modèle</summary>
+
+C’est une **double sécurité**. La vérification en PHP donne un message clair à l’utilisateur ; la condition dans le `WHERE` garantit qu’en base, **seule la ligne du bon propriétaire, pas encore terminée**, peut être modifiée. Si deux clôtures arrivent en même temps, la seconde ne modifie aucune ligne (`rowCount()` vaut 0) et reçoit « Cette garde est déjà clôturée. ».
+</details>
+
+#### Leçon 5 — Le socle commun : jeton CSRF et messages flash
+
+Ces deux mécanismes, dans `core/`, servent à **tout le site**.
+
+- **Jeton CSRF** (`core/bootstrap.php`) : à la première visite, la session reçoit un jeton aléatoire (`random_bytes`). Chaque formulaire le renvoie dans un champ caché. À chaque POST, le serveur compare les deux avec `hash_equals()` ; s’ils diffèrent, réponse **403** « Formulaire expiré ». Un autre site ne connaît pas ce jeton, il ne peut donc pas envoyer un formulaire à la place de l’utilisateur.
+- **Messages flash** (`core/flash.php`) : `ajouterFlash()` range un message dans la session **avant une redirection** ; le header l’affiche avec `lireFlash()`, qui l’efface aussitôt. Le message apparaît donc **une seule fois**.
+
+**Question :** pourquoi ne peut-on pas afficher directement « Ton annonce a été publiée » avec un simple `echo` dans le contrôleur ?
+
+<details><summary>Réponse modèle</summary>
+
+Parce que le contrôleur **redirige** juste après l’enregistrement (patron Post/Redirect/Get) : la page qui s’affiche est une **nouvelle requête**, et un `echo` fait avant la redirection serait perdu. Le message est donc gardé en session et affiché par la page suivante, une seule fois. La redirection évite aussi qu’un rafraîchissement republie l’annonce.
+</details>
+
+### Modules Candidatures, Avis et Comptes
+
+À compléter sur le même modèle (leçon, question, réponse modèle) lors des prochaines séances de révision.
+
 ## 11. Avant mardi
 
 - [ ] Chacun lit ce document et le code de **toutes** les parties, pas seulement la sienne.
