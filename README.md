@@ -148,6 +148,7 @@ Le serveur intégré PHP sert au développement local.
 | `Miaoumi (2).sql` | Structure de la base de données |
 | `CHANGELOG.md` | Résumé lisible des modifications |
 | `docs/GIT.md` | Guide Git pour débuter |
+| `docs/ORAL.md` | Support de révision de l’équipe pour l’oral |
 | `docs/PROMPTS.md` | Historique des demandes et décisions partagé avec l’équipe |
 | `scripts/` | Outils pour générer les journaux |
 | `.githooks/pre-push`, `.github/CODEOWNERS`, `.github/workflows/` | Règles de branches : circuit feature/prénom-fonctionnalité → develop → main |

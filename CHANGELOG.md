@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 09:08 — Support de préparation à l’oral (travail local consigné) — Idir
+
+- Ajout de docs/ORAL.md : présentation du projet, répartition, MVC avec un parcours détaillé, base de données, méthodes des modèles, sécurité, Git, limites actuelles et questions probables du jury.
+
 ### 03/11/2026 à 09:00 — Consignes pour les assistants IA (travail local consigné) — Idir
 
 - AGENTS.md réorganisé pour Codex et Claude Code : identification de la personne via `git config user.name`, création automatique de la branche `feature/prénom-fonctionnalité` depuis `develop`, interdiction pour Ama et Maria de pousser sur `develop` ou `main`, pas de contournement du hook.
