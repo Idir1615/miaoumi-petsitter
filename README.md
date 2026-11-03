@@ -38,50 +38,24 @@ Une interface aux tons brun doré et vert menthe, pensée autour des annonces, d
 
 ## Modèle conceptuel des données (MCD)
 
-Le MCD partagé par l’équipe est retranscrit ci-dessous en diagramme pour rester lisible directement sur GitHub. Il présente les quatre entités et leurs relations ; les clés étrangères du schéma SQL mettent en œuvre ces associations.
+Le MCD de l’équipe présente les quatre entités et leurs six associations ; les clés étrangères du schéma SQL mettent en œuvre ces associations.
 
-```mermaid
-erDiagram
-    UTILISATEURS ||--o{ ANNONCES : publier
-    UTILISATEURS ||--o{ CANDIDATURES : envoyer
-    ANNONCES ||--o{ CANDIDATURES : viser
-    UTILISATEURS ||--o{ AVIS : rediger
-    UTILISATEURS ||--o{ AVIS : recevoir
-    ANNONCES ||--o{ AVIS : concerner
+<p align="center">
+  <img src="docs/presentation/mcd-miaoumi.png" alt="MCD Miaoumi : entités utilisateurs, annonces, candidatures et avis reliées par les associations publier, envoyer, viser, rediger, recevoir et concerner" width="760">
+</p>
 
-    UTILISATEURS {
-        int id PK
-        string nom
-        string email
-        string password
-        string role
-    }
-    ANNONCES {
-        int id PK
-        string titre
-        string type_animal
-        date date_debut
-        date date_fin
-        text description
-        string statut
-    }
-    CANDIDATURES {
-        int id PK
-        text message
-        string statut
-        datetime date_candidature
-    }
-    AVIS {
-        int id PK
-        int note
-        text commentaire
-        datetime dates
-    }
-```
+| Association | Cardinalités |
+| --- | --- |
+| publier | un utilisateur publie 0,n annonces ; une annonce est publiée par 1,1 utilisateur |
+| envoyer | un utilisateur envoie 0,n candidatures ; une candidature est envoyée par 1,1 utilisateur |
+| viser | une annonce reçoit 0,n candidatures ; une candidature vise 1,1 annonce |
+| rediger | un utilisateur rédige 0,n avis ; un avis a 1,1 auteur |
+| recevoir | un utilisateur reçoit 0,n avis ; un avis concerne 1,1 personne évaluée |
+| concerner | une annonce a 0,n avis ; un avis concerne 1,1 annonce |
 
 Un utilisateur peut publier plusieurs annonces, envoyer plusieurs candidatures, rédiger et recevoir plusieurs avis. Chaque candidature vise une annonce ; chaque avis concerne une annonce et relie un auteur à une personne évaluée.
 
-Le diagramme reprend le MCD fourni au début du projet. Le champ `ville`, ajouté ensuite pour la maquette, figure dans le [schéma SQL actuel](Miaoumi%20%282%29.sql) et sa [migration](migrations/001_ajout_ville.sql).
+Le champ `ville`, ajouté ensuite pour la maquette, figure dans le [schéma SQL actuel](Miaoumi%20%282%29.sql) et sa [migration](migrations/001_ajout_ville.sql).
 
 ## Modèle logique des données (MLD)
 

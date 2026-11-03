@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 10:37 — MCD de l’équipe dans le README — Idir
+
+- Le diagramme Mermaid du MCD est remplacé par l’image du MCD fournie par Idir (docs/presentation/mcd-miaoumi.png), accompagnée du tableau des cardinalités de ses six associations.
+
 ### 03/11/2026 à 10:27 — Leçons de révision du module Annonces — Idir
 
 - docs/ORAL.md : partie « Réviser pas à pas » avec cinq leçons sur les annonces (MVC et routeur, validation à la création, recherche et pagination, clôture, jeton CSRF et messages flash), chacune avec une question et une réponse modèle repliée ; les modules Candidatures, Avis et Comptes restent à rédiger.
