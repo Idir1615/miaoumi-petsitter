@@ -83,13 +83,96 @@ Un utilisateur peut publier plusieurs annonces, envoyer plusieurs candidatures, 
 
 Le diagramme reprend le MCD fourni au début du projet. Le champ `ville`, ajouté ensuite pour la maquette, figure dans le [schéma SQL actuel](Miaoumi%20%282%29.sql) et sa [migration](migrations/001_ajout_ville.sql).
 
+## Modèle logique des données (MLD)
+
+Traduction du MCD en tables, telle qu’elle est appliquée par [`Miaoumi (2).sql`](Miaoumi%20%282%29.sql). Clé primaire **soulignée en gras**, clé étrangère précédée de `#`.
+
+- **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role)
+- **annonces** (**id**, titre, type_animal, ville, date_debut, date_fin, description, statut, `#id_proprietaire` → utilisateurs.id)
+- **candidatures** (**id**, message, statut, date_candidature, `#id_annonce` → annonces.id, `#id_gardien` → utilisateurs.id)
+- **avis** (**id**, note, commentaire, dates, `#id_annonce` → annonces.id, `#id_auteur` → utilisateurs.id, `#id_cible` → utilisateurs.id)
+
+Toutes les clés étrangères sont en `ON DELETE CASCADE` : supprimer un compte supprime ses annonces, candidatures et avis. Valeurs de statut utilisées : annonces `ouverte`, `pourvue`, `terminee` ; candidatures `en_attente`, `acceptee`, `refusee`.
+
+## Diagramme de classes
+
+Classes PHP du projet (MVC sans framework). Les contrôleurs reçoivent la requête depuis `public/index.php`, appellent les modèles, puis affichent une vue ou redirigent ; les modèles obtiennent la connexion PDO par `Database`.
+
+```mermaid
+classDiagram
+    class Database {
+        -PDO pdo$
+        +getConnection()$ PDO
+    }
+    class Utilisateur {
+        +creer(nom, email, password) void
+        +trouverParEmail(email) array
+    }
+    class Annonce {
+        +villeDisponible() bool
+        +rechercher(recherche, animal, proprietaire, ville) array
+        +creer(donnees, proprietaire) array
+        +cloturer(annonce, proprietaire) array
+        +marquerPourvue(annonce) bool
+        +trouver(id) array
+        +toutes() array
+    }
+    class Candidature {
+        +pourUtilisateur(utilisateur) array
+        +postuler(annonce, gardien, message) bool
+        +decider(candidature, proprietaire, decision) bool
+        -estAccessible(annonce) bool
+    }
+    class Avis {
+        +pourAnnonce(annonce) array
+        +destinataires(annonce, auteur) array
+        +creer(annonce, auteur, cible, note, commentaire) bool
+    }
+    class AuthController {
+        +inscription() void
+        +connexion() void
+        +deconnexion() void
+    }
+    class AnnonceController {
+        +index() void
+        +creer() void
+        +cloturer() void
+    }
+    class CandidatureController {
+        +index() void
+        +postuler() void
+        +decision() void
+    }
+    class AvisController {
+        +index() void
+    }
+    AuthController ..> Utilisateur
+    AnnonceController ..> Annonce
+    CandidatureController ..> Candidature
+    CandidatureController ..> Annonce
+    AvisController ..> Avis
+    AvisController ..> Annonce
+    Utilisateur ..> Database
+    Annonce ..> Database
+    Candidature ..> Database
+    Avis ..> Database
+```
+
+## Logique métier
+
+1. **Publier** : un utilisateur connecté crée une annonce ; `Annonce::creer()` valide les champs et les dates (début aujourd’hui ou plus tard, fin après le début) avant l’insertion. L’annonce démarre au statut `ouverte` et le propriétaire est lu dans la session.
+2. **Candidater** : un autre utilisateur postule à une annonce ouverte dont la date de fin n’est pas passée ; `Candidature::postuler()` refuse sa propre annonce et les doublons, dans une transaction qui verrouille l’annonce.
+3. **Valider** : le propriétaire accepte ou refuse une candidature en attente avec `Candidature::decider()`. `Annonce::marquerPourvue()` fait passer une annonce `ouverte` en `pourvue` ; son appel à l’acceptation est à brancher par Ama dans `decider()` (voir [docs/ROADMAP.md](docs/ROADMAP.md)).
+4. **Clôturer** : `Annonce::cloturer()` termine une garde. Elle vérifie que l’annonce existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée, puis passe son statut à `terminee`. La mise à jour reprend ces conditions dans sa clause `WHERE`, si bien qu’un second envoi ou un tiers ne peut rien modifier. Le bouton « Terminer la garde » de Mes annonces envoie un POST protégé par le jeton CSRF ; le contrôleur redirige avec un message de confirmation ou d’erreur. Une garde terminée ne propose plus le bouton et n’accepte plus de candidature.
+5. **Noter** : après la garde, le propriétaire et chaque gardien accepté peuvent se laisser un avis de 1 à 5, une seule fois par personne évaluée (`Avis::creer()`). Le paragraphe sur `noteMoyenne()` sera ajouté par Maria avec la méthode.
+
 ---
 
 ## État du projet
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Une annonce peut avoir plusieurs candidatures acceptées. Les avis sont consultables publiquement et leur dépôt est réservé aux participants après la date de fin de la garde. Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Une annonce peut avoir plusieurs candidatures acceptées. Le propriétaire peut clôturer sa garde depuis Mes annonces ; elle passe alors au statut terminée. Les avis sont consultables publiquement et leur dépôt est réservé aux participants après la date de fin de la garde. Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 

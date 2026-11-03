@@ -59,11 +59,11 @@ Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car 
 
 ### Idir — Annonces, documentation, intégration
 
-1. [ ] **`Annonce::cloturer(int $annonce, int $proprietaire)`** : seul le propriétaire clôt sa garde ; l’annonce passe en `terminee`. Bouton « Terminer la garde » dans Mes annonces, en POST avec CSRF, puis redirection avec le message flash « La garde est clôturée. ». Erreur claire si l’annonce n’est pas à lui ou déjà terminée. Tests dans `tests/annonces.php`.
-2. [ ] **`Annonce::marquerPourvue(int $annonce)`** : passe une annonce ouverte en `pourvue` ; méthode fournie à Ama.
-3. [ ] **Page introuvable** : la réponse 404 du routeur (`public/index.php`) s’affiche avec le gabarit commun, pas en texte brut.
+1. [x] **`Annonce::cloturer(int $annonce, int $proprietaire)`** : seul le propriétaire clôt sa garde ; l’annonce passe en `terminee`. Bouton « Terminer la garde » dans Mes annonces, en POST avec CSRF, puis redirection avec le message flash « La garde est clôturée. ». Erreur claire si l’annonce n’est pas à lui ou déjà terminée. Tests dans `tests/annonces.php`.
+2. [x] **`Annonce::marquerPourvue(int $annonce)`** : passe une annonce ouverte en `pourvue` ; méthode fournie à Ama.
+3. [x] **Page introuvable** : la réponse 404 du routeur (`public/index.php`) s’affiche avec le gabarit commun, pas en texte brut.
 4. [x] **Jeu de données SQL** : `donnees-demo.sql` (4 annonces, 6 candidatures, 3 avis), sur `feature/idir-donnees-demo`, à fusionner.
-5. [ ] **Documentation** dans le README : MLD à jour, diagramme de classes (modèles et contrôleurs), logique métier, paragraphe expliquant `cloturer()`. Intégrer le paragraphe de Maria sur `noteMoyenne()`.
+5. [~] **Documentation** dans le README (MLD, diagramme de classes, logique métier et `cloturer()` rédigés le 03/11/2026 ; reste à intégrer les paragraphes d’Ama et de Maria) : MLD à jour, diagramme de classes (modèles et contrôleurs), logique métier, paragraphe expliquant `cloturer()`. Intégrer le paragraphe de Maria sur `noteMoyenne()`.
 6. [ ] **Intégration** : relire et fusionner les pull requests dans `develop`, puis `develop` dans `main`, sans conflit résiduel.
 
 ### Ama — Candidatures

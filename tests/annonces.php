@@ -109,5 +109,36 @@ $candidatureModele = new Candidature();
 verifier(count($candidatureModele->pourUtilisateur(2)) === 1, 'Candidature du gardien absente.');
 verifier(count($candidatureModele->pourUtilisateur(1)) === 1, 'Candidature reçue absente.');
 verifier($candidatureModele->pourUtilisateur(3) === [], 'Candidature visible par un tiers.');
+
+// Clôture et passage en « pourvue ».
+$ouvertes = array_values(array_filter($modele->toutes(), fn($x) => (int) $x['id_proprietaire'] === 1));
+$garde = (int) $ouvertes[0]['id'];
+verifier(isset($modele->cloturer($garde, 2)['general']), 'Clôture par un tiers acceptée.');
+verifier(isset($modele->cloturer(999, 1)['general']), 'Annonce inexistante clôturée.');
+verifier($modele->marquerPourvue($garde), 'Annonce ouverte non passée en pourvue.');
+verifier(!$modele->marquerPourvue($garde), 'Annonce déjà pourvue modifiée.');
+verifier($modele->trouver($garde)['statut'] === 'pourvue', 'Statut pourvue absent.');
+verifier($modele->cloturer($garde, 1) === [], 'Clôture par le propriétaire refusée.');
+verifier($modele->trouver($garde)['statut'] === 'terminee', 'Statut terminée absent.');
+verifier(isset($modele->cloturer($garde, 1)['general']), 'Double clôture acceptée.');
+verifier(!$modele->marquerPourvue($garde), 'Garde terminée repassée en pourvue.');
+$autre = (int) $ouvertes[1]['id'];
+$_SERVER['REQUEST_METHOD'] = 'POST';
+$_SESSION = ['utilisateur' => ['id' => 2, 'nom' => 'Tiers'], 'csrf' => 'test'];
+$_POST = ['annonce' => (string) $autre];
+$controleur->cloturer();
+$flash = lireFlash();
+verifier(http_response_code() === 303 && $modele->trouver($autre)['statut'] !== 'terminee', 'Contrôleur : clôture par un tiers acceptée.');
+verifier(count($flash) === 1 && $flash[0]['type'] === 'erreur', 'Contrôleur : erreur de clôture sans message.');
+$_SESSION['utilisateur'] = ['id' => 1, 'nom' => 'Test'];
+$controleur->cloturer();
+$flash = lireFlash();
+verifier($modele->trouver($autre)['statut'] === 'terminee', 'Contrôleur : clôture du propriétaire refusée.');
+verifier(count($flash) === 1 && $flash[0]['type'] === 'succes', 'Contrôleur : confirmation de clôture absente.');
+$_SESSION = [];
+$controleur->cloturer();
+verifier(http_response_code() === 303 && lireFlash()[0]['type'] === 'erreur', 'Contrôleur : visiteur non redirigé.');
+echo "OK : clôture réservée au propriétaire, passage en pourvue, messages de confirmation et d’erreur.
+";
 echo "OK : validation, création, propriétaire issu de la session, refus des visiteurs, redirections, liste vide, échappement, formulaire, gabarit et flash à lecture unique. Tables MySQL temporaires uniquement.\n";
 echo "OK : ville, compatibilité ancien schéma, filtres paramétrés et confidentialité des candidatures.\n";

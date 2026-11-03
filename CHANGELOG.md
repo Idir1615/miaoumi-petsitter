@@ -6,6 +6,14 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 10:15 — Clôture des gardes, page introuvable et documentation (travail local consigné) — Idir
+
+- `Annonce::cloturer()` : seul le propriétaire clôt sa garde, qui passe au statut `terminee` ; refus d’un tiers, d’une annonce inexistante et d’une double clôture. Bouton « Terminer la garde » dans Mes annonces (POST avec jeton CSRF, route `cloturer-annonce`), message flash de confirmation ou d’erreur.
+- `Annonce::marquerPourvue()` : passe une annonce ouverte en `pourvue`, prête à être appelée par Ama dans `Candidature::decider()`.
+- Page « Page introuvable » affichée avec le gabarit commun au lieu d’un texte brut (`views/introuvable.php`).
+- README : MLD, diagramme de classes, logique métier et explication de `cloturer()` ; les paragraphes d’Ama et de Maria (dont `noteMoyenne()`) restent à ajouter.
+- Vérifié : `tests/annonces.php` (nouveaux cas de clôture et de passage en pourvue) et parcours sur XAMPP avec les comptes de démo (clôture refusée à un tiers, acceptée pour la propriétaire, refus en GET et sans jeton, 404 avec gabarit), puis réimport de `donnees-demo.sql`.
+
 ### 03/11/2026 à 10:09 — Répartition de la remise finale — Idir
 
 - docs/ROADMAP.md : tâches de la checklist de remise finale et des finitions réparties entre Idir (cloturer(), marquerPourvue(), page 404, documentation, intégration), Ama (passage en « pourvue », messages d’erreur, tests des candidatures) et Maria (noteMoyenne(), confirmations, messages d’erreur des avis), avec l’ordre des dépendances.

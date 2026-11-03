@@ -65,6 +65,7 @@ button:hover,.bouton:hover { background:var(--accent-sombre); color:#fff; }
 .auth-carte .champ { margin-bottom:22px; }
 .auth-carte .intro { margin-bottom:24px; }
 .bouton-large { width:100%; margin-top:8px; }
+.form-cloture { margin:12px 0 0; }
 .auth-renvoi { color:var(--discret); text-align:center; margin:18px 0 0; }
 .auth-renvoi a { font-weight:600; }
 .publication { max-width:680px; margin:2px auto 28px; }
