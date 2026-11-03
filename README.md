@@ -163,7 +163,7 @@ classDiagram
 1. **Publier** : un utilisateur connecté crée une annonce ; `Annonce::creer()` valide les champs et les dates (début aujourd’hui ou plus tard, fin après le début) avant l’insertion. L’annonce démarre au statut `ouverte` et le propriétaire est lu dans la session.
 2. **Candidater** : un autre utilisateur postule à une annonce ouverte dont la date de fin n’est pas passée ; `Candidature::postuler()` refuse sa propre annonce et les doublons, dans une transaction qui verrouille l’annonce.
 3. **Valider** : le propriétaire accepte ou refuse une candidature en attente avec `Candidature::decider()`. `Annonce::marquerPourvue()` fait passer une annonce `ouverte` en `pourvue` ; son appel à l’acceptation est à brancher par Ama dans `decider()` (voir [docs/ROADMAP.md](docs/ROADMAP.md)).
-4. **Clôturer** : `Annonce::cloturer()` termine une garde. Elle vérifie que l’annonce existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée, puis passe son statut à `terminee`. La mise à jour reprend ces conditions dans sa clause `WHERE`, si bien qu’un second envoi ou un tiers ne peut rien modifier. Le bouton « Terminer la garde » de Mes annonces envoie un POST protégé par le jeton CSRF ; le contrôleur redirige avec un message de confirmation ou d’erreur. Une garde terminée ne propose plus le bouton et n’accepte plus de candidature.
+4. **Clôturer** : `Annonce::cloturer()` termine une garde. Elle vérifie que l’annonce existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée, puis passe son statut à `terminee`. La mise à jour reprend ces conditions dans sa clause `WHERE`, si bien qu’un second envoi ou un tiers ne peut rien modifier. Le bouton « Terminer la garde » de Mes annonces ouvre une demande de confirmation ; seul « Confirmer la clôture » envoie le POST protégé par le jeton CSRF ; le contrôleur redirige avec un message de confirmation ou d’erreur. Une garde terminée ne propose plus le bouton et n’accepte plus de candidature.
 5. **Noter** : après la garde, le propriétaire et chaque gardien accepté peuvent se laisser un avis de 1 à 5, une seule fois par personne évaluée (`Avis::creer()`). Le paragraphe sur `noteMoyenne()` sera ajouté par Maria avec la méthode.
 
 ---
@@ -194,7 +194,7 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
 4. Pour une base neuve, importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
    Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `migrations/002_avis_dates.sql`.
-   Pour la démonstration, importer ensuite `donnees-demo.sql` : 4 comptes fictifs (`claire`, `karim`, `sofia`, `lucas` @demo.miaoumi.fr, mot de passe `demo1234`), 4 annonces ouvertes, pourvues et terminées, 6 candidatures et 3 avis. Le fichier peut être réimporté : il remplace uniquement les comptes de démo et leurs données.
+   Pour la démonstration, importer ensuite `donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
 5. Depuis la racine du projet, lancer :
 
    ```sh
@@ -204,6 +204,19 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 6. Ouvrir <http://localhost:8000>. Si aucune annonce n’a été ajoutée à la base, le message « Aucune annonce pour le moment » est normal.
 
 Le serveur intégré PHP sert au développement local.
+
+## Comptes de démonstration
+
+Après l’import de `donnees-demo.sql`, ces comptes fictifs sont disponibles. **Mot de passe commun : `demo1234`.** Ils servent uniquement à la démonstration locale.
+
+| Compte | E-mail | À montrer |
+| --- | --- | --- |
+| Claire | `claire@demo.miaoumi.fr` | Propriétaire : annonce ouverte « Garde de Moka » avec 2 candidatures en attente à accepter ou refuser, bouton « Terminer la garde » ; garde terminée « Week-end avec Plume » avec avis dans les deux sens |
+| Lucas | `lucas@demo.miaoumi.fr` | Propriétaire : annonce pourvue « Promenades pour Rex » ; garde terminée « Nourrir Bulle et Caillou » |
+| Sofia | `sofia@demo.miaoumi.fr` | Gardienne : candidature en attente sur Moka, acceptée sur Rex et Bulle ; peut laisser un avis à Lucas sur Bulle |
+| Karim | `karim@demo.miaoumi.fr` | Gardien : candidature en attente sur Moka, refusée sur Rex, acceptée sur Plume |
+
+Le jeu contient 4 annonces (ouverte, pourvue, deux terminées), 6 candidatures et 3 avis. Les dates sont calculées à partir du jour de l’import. Le fichier peut être réimporté pour remettre la démonstration à zéro : il remplace uniquement ces comptes et leurs données.
 
 ## Organisation
 

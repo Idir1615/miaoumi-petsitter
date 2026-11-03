@@ -9,6 +9,7 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 ### 03/11/2026 à 10:15 — Clôture des gardes, page introuvable et documentation (travail local consigné) — Idir
 
 - `Annonce::cloturer()` : seul le propriétaire clôt sa garde, qui passe au statut `terminee` ; refus d’un tiers, d’une annonce inexistante et d’une double clôture. Bouton « Terminer la garde » dans Mes annonces (POST avec jeton CSRF, route `cloturer-annonce`), message flash de confirmation ou d’erreur.
+- Clôture en deux temps : « Terminer la garde » ouvre une confirmation, seul « Confirmer la clôture » envoie le formulaire, pour éviter une clôture par erreur. Comptes de démonstration détaillés dans le README.
 - `Annonce::marquerPourvue()` : passe une annonce ouverte en `pourvue`, prête à être appelée par Ama dans `Candidature::decider()`.
 - Page « Page introuvable » affichée avec le gabarit commun au lieu d’un texte brut (`views/introuvable.php`).
 - README : MLD, diagramme de classes, logique métier et explication de `cloturer()` ; les paragraphes d’Ama et de Maria (dont `noteMoyenne()`) restent à ajouter.
