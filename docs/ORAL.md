@@ -49,6 +49,14 @@ Navigateur ──► public/index.php (routeur)
 5. S’il y a des erreurs : code **422**, le formulaire est réaffiché **avec la saisie conservée** et les erreurs par champ.
 6. Sinon : message flash « Ton annonce a été publiée. » puis **redirection 303** vers la liste (patron **Post/Redirect/Get** : recharger la page ne republie pas l’annonce).
 
+### Exemple à savoir raconter : clôturer une garde
+
+1. Dans Mes annonces, le propriétaire clique sur « Terminer la garde » : un encadré demande de confirmer (pas de clôture sur un simple clic).
+2. « Confirmer la clôture » envoie un **POST** vers `?page=cloturer-annonce` avec l’identifiant de l’annonce et le jeton `csrf`.
+3. `AnnonceController::cloturer()` refuse un GET (**405**) et un visiteur non connecté (redirection vers la connexion).
+4. `Annonce::cloturer()` vérifie l’annonce, le propriétaire et le statut, puis fait `UPDATE annonces SET statut = 'terminee' WHERE id = ? AND id_proprietaire = ? AND statut <> 'terminee'`. Les conditions sont **répétées dans le WHERE** : même si deux envois arrivent en même temps, un seul peut modifier la ligne.
+5. Redirection **303** vers Mes annonces avec « La garde est clôturée. » ou le message d’erreur (« Seul le propriétaire peut clôturer cette garde. »).
+
 ## 4. La base de données
 
 Quatre tables (fichier `Miaoumi (2).sql`) :
@@ -71,6 +79,8 @@ Quatre tables (fichier `Miaoumi (2).sql`) :
 - `creer()` : valide les champs et les dates (début aujourd’hui ou plus tard, fin après le début), vérifie que le compte existe, puis enregistre l’annonce ; renvoie la liste des erreurs, vide si tout s’est bien passé.
 - `trouver()` : renvoie une annonce par son identifiant, ou `null`.
 - `toutes()` : renvoie toutes les annonces, de la plus récente à la plus ancienne.
+- `cloturer()` : termine une garde après avoir vérifié qu’elle existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée ; renvoie les erreurs, vide si la garde est clôturée.
+- `marquerPourvue()` : passe une annonce `ouverte` en `pourvue` ; elle est appelée quand une candidature est acceptée.
 - `villeDisponible()` : indique si la colonne `ville` existe dans la base.
 
 ### Candidature (Ama)
@@ -119,7 +129,9 @@ Quatre tables (fichier `Miaoumi (2).sql`) :
 
 ## 9. Ce qui n’est pas fait (à dire honnêtement si on le demande)
 
-- **Statut des annonces** : les filtres `pourvue` / `terminee` existent dans « Mes annonces », mais aucune action ne change automatiquement le statut d’une annonce (accepter une candidature ne la passe pas à `pourvue`).
+- **Passage en « pourvue »** : `Annonce::marquerPourvue()` existe, mais son appel à l’acceptation d’une candidature dans `decider()` est à brancher par Ama.
+- **Avis après clôture** : clôturer une garde avant sa date de fin ne permet pas encore de laisser un avis, car la règle des avis exige que la date de fin soit passée (choix à faire par Maria).
+- Une annonce n’est pas clôturée automatiquement à sa date de fin : c’est le propriétaire qui la clôture.
 - **Plusieurs candidatures peuvent être acceptées** pour une même annonce (choix assumé dans le code).
 - **Validation des comptes** : elle se fait dans `AuthController`, pas encore dans `Utilisateur::creer()` (tâche de Maria).
 - **Messages de succès** après inscription et dépôt d’avis : affichés via un paramètre d’URL (`inscrit=1`, `ajoute=1`) et non par le mécanisme flash commun (tâche de Maria).
@@ -146,10 +158,16 @@ Quatre tables (fichier `Miaoumi (2).sql`) :
 
 **Comment avez-vous travaillé en équipe ?** Répartition par module (`docs/REPARTITION-SEANCE-2.md`), une branche par fonctionnalité, des pull requests validées par Idir, un CHANGELOG commun.
 
+**Pourquoi demander une confirmation avant de clôturer ?** La clôture est définitive : l’encadré de confirmation évite une erreur de clic. Il est fait en HTML (`<details>`), donc il fonctionne sans JavaScript ; la sécurité reste vérifiée côté serveur.
+
+**Que voit-on si on tape une page qui n’existe pas ?** Le routeur renvoie un code 404 et affiche `views/introuvable.php` avec le gabarit du site, jamais une page blanche.
+
+**Comment montrer le site avec des données ?** `donnees-demo.sql` crée 4 comptes fictifs, 4 annonces, 6 candidatures et 3 avis, avec des dates calculées depuis le jour de l’import ; il peut être réimporté pour remettre la démonstration à zéro.
+
 ## 11. Avant mardi
 
 - [ ] Chacun lit ce document et le code de **toutes** les parties, pas seulement la sienne.
 - [ ] Chacun sait raconter le parcours « publier une annonce » (section 3) et un parcours de sa partie de la même façon.
 - [ ] Faire une démonstration complète au moins une fois sur XAMPP : inscription, connexion, annonce, candidature, acceptation, avis.
-- [ ] Préparer des comptes et données de démonstration (une annonce terminée avec une candidature acceptée pour montrer les avis).
+- [x] Comptes et données de démonstration : `donnees-demo.sql`, comptes dans la section « Comptes de démonstration » du README (mot de passe `demo1234`).
 - [ ] S’interroger mutuellement avec les questions de la section 10.

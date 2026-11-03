@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 10:22 — Révisions : clôture et données de démo — Idir
+
+- docs/ORAL.md : méthodes `cloturer()` et `marquerPourvue()`, parcours « clôturer une garde » à savoir raconter, limites mises à jour (passage en pourvue à brancher par Ama, avis après clôture à décider par Maria) et nouvelles questions (confirmation, page 404, données de démo).
+
 ### 03/11/2026 à 10:15 — Clôture des gardes, page introuvable et documentation (travail local consigné) — Idir
 
 - `Annonce::cloturer()` : seul le propriétaire clôt sa garde, qui passe au statut `terminee` ; refus d’un tiers, d’une annonce inexistante et d’une double clôture. Bouton « Terminer la garde » dans Mes annonces (POST avec jeton CSRF, route `cloturer-annonce`), message flash de confirmation ou d’erreur.
