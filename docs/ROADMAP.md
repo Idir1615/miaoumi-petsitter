@@ -8,7 +8,7 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
 
 - [x] Checklist de séance 2 complète pour le module Annonces.
 - [x] Branche `feature/idir-annonces` publiée (03/11/2026).
-- [ ] Réviser les sections 3 et 5 de docs/ORAL.md.
+- [ ] Réviser **tout** docs/ORAL.md : les trois modules, pas seulement les annonces (voir « Révision commune »).
 - [ ] Relire et fusionner les pull requests d’Ama et de Maria dans `develop`, puis `develop` dans `main`.
 
 ## Ama — Candidatures
@@ -30,7 +30,7 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
    - toutes les données affichées passent par `e()` ;
    - header/footer et classes CSS communs.
    Corrections éventuelles limitées à `models/Candidature.php`, `controllers/CandidatureController.php`, `views/candidatures.php`, `views/candidature-formulaire.php`.
-3. [ ] **Réviser** : expliquer à Ama chaque méthode de `models/Candidature.php` en une phrase (section 5 de docs/ORAL.md), puis l’interroger sur son code comme à l’oral et corriger ses réponses.
+3. [ ] **Réviser tout le projet** (voir « Révision commune ») : commencer par `models/Candidature.php`, puis les annonces, les avis et les comptes.
 
 ## Maria — Avis et comptes
 
@@ -49,7 +49,7 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
    Fichiers autorisés : `models/Avis.php`, `models/Utilisateur.php`, `controllers/AvisController.php`, `controllers/AuthController.php`, `views/avis.php`, `views/auth.php`.
 3. [ ] **Vérifier** : `php -l` sur chaque fichier modifié, puis tester dans le navigateur (XAMPP) l’inscription valide et invalide, la connexion, la déconnexion et le dépôt d’un avis. Indiquer honnêtement ce qui a été testé ou non.
 4. [ ] **Publier** : entrée dans CHANGELOG.md (date, heure de Paris, prénom), un commit par correction à son nom, push de sa branche et pull request vers `develop`.
-5. [ ] **Réviser** : expliquer à Maria chaque méthode de `models/Avis.php` et `models/Utilisateur.php` en une phrase (section 5 de docs/ORAL.md), puis l’interroger sur son code comme à l’oral et corriger ses réponses.
+5. [ ] **Réviser tout le projet** (voir « Révision commune ») : commencer par `models/Avis.php` et `models/Utilisateur.php`, puis les annonces et les candidatures.
 
 ## Remise finale — répartition
 
@@ -82,6 +82,19 @@ Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car 
 4. [ ] **Avis après clôture** : vérifier que le dépôt d’avis fonctionne sur une annonce clôturée par `cloturer()` (après la livraison d’Idir).
 5. [ ] **Paragraphe** expliquant `noteMoyenne()` pour la documentation, à transmettre à Idir.
 6. [ ] **Historique Git** : commits à son nom sur `feature/maria-avis-comptes`.
+
+### Révision commune — tout le monde sait tout
+
+Le professeur peut interroger n’importe qui sur n’importe quelle partie. **Idir, Ama et Maria doivent chacun savoir expliquer les trois modules.** Pour chaque personne, l’assistant :
+
+- explique chaque méthode des **quatre** modèles en une phrase (`Annonce`, `Candidature`, `Avis`, `Utilisateur`, section 5 de docs/ORAL.md) ;
+- fait raconter les parcours de la section 3 (publier une annonce, clôturer une garde) et un parcours de candidature et d’avis ;
+- fait expliquer la sécurité (section 6), la base de données (section 4) et l’organisation Git (section 8) ;
+- pose les questions de la section 10, en insistant sur les modules que la personne n’a **pas** codés, puis corrige ses réponses.
+
+- [ ] Idir sait expliquer les candidatures, les avis et les comptes.
+- [ ] Ama sait expliquer les annonces, les avis et les comptes.
+- [ ] Maria sait expliquer les annonces et les candidatures.
 
 ### Équipe
 

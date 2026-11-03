@@ -12,6 +12,7 @@ Ces consignes s’appliquent à tous les assistants utilisés par l’équipe (C
 
 - Mettre le projet à jour (`git fetch --prune`), identifier la personne, puis lire docs/ROADMAP.md et lui présenter les tâches non cochées de **sa** section. L’accompagner étape par étape, en lui expliquant le code pour qu’elle puisse le présenter à l’oral.
 - Quand une tâche est vérifiée, la cocher dans docs/ROADMAP.md avec le prénom et la date.
+- Révisions : chaque membre doit savoir expliquer **tout** le projet, pas seulement son module. Quand la personne révise, l’interroger aussi sur les modules des autres (docs/ORAL.md, section « Révision commune » de docs/ROADMAP.md).
 
 ## Avant de terminer une session de travail
 

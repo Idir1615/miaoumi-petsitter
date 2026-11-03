@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 10:23 — Révision commune de tout le projet — Idir
+
+- ROADMAP : section « Révision commune », chacun révise les trois modules et pas seulement le sien ; AGENTS.md demande aux assistants d’interroger aussi sur les modules des autres.
+
 ### 03/11/2026 à 10:22 — Révisions : clôture et données de démo — Idir
 
 - docs/ORAL.md : méthodes `cloturer()` et `marquerPourvue()`, parcours « clôturer une garde » à savoir raconter, limites mises à jour (passage en pourvue à brancher par Ama, avis après clôture à décider par Maria) et nouvelles questions (confirmation, page 404, données de démo).

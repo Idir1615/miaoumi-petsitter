@@ -1,6 +1,6 @@
 # Préparer l’oral — Miaoumi
 
-Support de révision pour Idir, Ama et Maria. Chacun doit pouvoir expliquer **tout le projet**, pas seulement sa partie. Ce document décrit le code tel qu’il est sur `develop` ; il ne présente pas comme faites des fonctionnalités qui n’existent pas.
+Support de révision pour Idir, Ama et Maria. Chacun doit pouvoir expliquer **tout le projet**, pas seulement sa partie : le professeur peut interroger n’importe qui sur n’importe quel module. Ce document décrit le code tel qu’il est sur `develop` ; il ne présente pas comme faites des fonctionnalités qui n’existent pas.
 
 ## 1. Le projet en 30 secondes
 
