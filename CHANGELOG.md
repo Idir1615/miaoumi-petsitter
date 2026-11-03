@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 10:09 — Répartition de la remise finale — Idir
+
+- docs/ROADMAP.md : tâches de la checklist de remise finale et des finitions réparties entre Idir (cloturer(), marquerPourvue(), page 404, documentation, intégration), Ama (passage en « pourvue », messages d’erreur, tests des candidatures) et Maria (noteMoyenne(), confirmations, messages d’erreur des avis), avec l’ordre des dépendances.
+
 ### 03/11/2026 à 09:38 — Vérification de fin de session par les assistants — Idir
 
 - AGENTS.md : avant de terminer, l’assistant vérifie que les tâches sont finies, que tout est commité et poussé sur la branche `feature/…`, qu’une pull request est ouverte si besoin, puis intègre `develop` (qui contient `main`) dans la branche de la personne.

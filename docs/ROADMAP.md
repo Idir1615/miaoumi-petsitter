@@ -51,6 +51,39 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
 4. [ ] **Publier** : entrée dans CHANGELOG.md (date, heure de Paris, prénom), un commit par correction à son nom, push de sa branche et pull request vers `develop`.
 5. [ ] **Réviser** : expliquer à Maria chaque méthode de `models/Avis.php` et `models/Utilisateur.php` en une phrase (section 5 de docs/ORAL.md), puis l’interroger sur son code comme à l’oral et corriger ses réponses.
 
-## Plus tard (checklist de remise finale)
+## Remise finale — répartition
 
-Statut et clôture des annonces, note moyenne, jeu de données SQL, MLD et diagramme de classes : à répartir après la séance 2.
+Répartition proposée par Idir le 03/11/2026, à partir de la checklist de remise finale et des « Finitions attendues avant la remise ». Chacun reste dans son module : la clôture touche les annonces (Idir), la note moyenne touche les avis (Maria), le passage en « pourvue » se déclenche à l’acceptation d’une candidature (Ama). **Les noms `cloturer()` et `noteMoyenne()` sont imposés par le professeur.**
+
+Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car Ama et Maria en dépendent.
+
+### Idir — Annonces, documentation, intégration
+
+1. [ ] **`Annonce::cloturer(int $annonce, int $proprietaire)`** : seul le propriétaire clôt sa garde ; l’annonce passe en `terminee`. Bouton « Terminer la garde » dans Mes annonces, en POST avec CSRF, puis redirection avec le message flash « La garde est clôturée. ». Erreur claire si l’annonce n’est pas à lui ou déjà terminée. Tests dans `tests/annonces.php`.
+2. [ ] **`Annonce::marquerPourvue(int $annonce)`** : passe une annonce ouverte en `pourvue` ; méthode fournie à Ama.
+3. [ ] **Page introuvable** : la réponse 404 du routeur (`public/index.php`) s’affiche avec le gabarit commun, pas en texte brut.
+4. [x] **Jeu de données SQL** : `donnees-demo.sql` (4 annonces, 6 candidatures, 3 avis), sur `feature/idir-donnees-demo`, à fusionner.
+5. [ ] **Documentation** dans le README : MLD à jour, diagramme de classes (modèles et contrôleurs), logique métier, paragraphe expliquant `cloturer()`. Intégrer le paragraphe de Maria sur `noteMoyenne()`.
+6. [ ] **Intégration** : relire et fusionner les pull requests dans `develop`, puis `develop` dans `main`, sans conflit résiduel.
+
+### Ama — Candidatures
+
+1. [ ] **Passer l’annonce en « pourvue »** : dans `Candidature::decider()`, quand une candidature est acceptée, appeler `Annonce::marquerPourvue()` (après la livraison d’Idir).
+2. [ ] **Autres candidatures** : décider avec Idir si elles sont refusées automatiquement à l’acceptation, puis l’appliquer.
+3. [ ] **Messages d’erreur clairs** : candidature en double, annonce déjà pourvue ou terminée, décision par un tiers ; jamais de page blanche.
+4. [ ] **Tests** des candidatures (doublon, propre annonce, décision par un tiers), sur le modèle de `tests/annonces.php`.
+5. [ ] **Paragraphe** pour la documentation : règles de candidature et d’acceptation, à transmettre à Idir.
+
+### Maria — Avis et comptes
+
+1. [ ] **`Avis::noteMoyenne(int $utilisateur)`** : moyenne des notes reçues (`AVG`), `null` s’il n’y a aucun avis ; affichée avec une décimale, ou « Pas encore d’avis » quand elle est absente.
+2. [ ] **Confirmations** : messages flash après inscription, connexion, déconnexion et dépôt d’avis (remplace `inscrit=1` et `ajoute=1`) — voir aussi la section séance 2.
+3. [ ] **Messages d’erreur** : « Annonce introuvable » sur la page des avis affiché avec le gabarit commun ; classes `message message-erreur` dans `avis.php`.
+4. [ ] **Avis après clôture** : vérifier que le dépôt d’avis fonctionne sur une annonce clôturée par `cloturer()` (après la livraison d’Idir).
+5. [ ] **Paragraphe** expliquant `noteMoyenne()` pour la documentation, à transmettre à Idir.
+6. [ ] **Historique Git** : commits à son nom sur `feature/maria-avis-comptes`.
+
+### Équipe
+
+- [ ] Parcours complet sans erreur sur XAMPP avec `donnees-demo.sql` : publier → candidater → valider → clôturer → noter.
+- [ ] Oral blanc à trois avec les questions de docs/ORAL.md.
