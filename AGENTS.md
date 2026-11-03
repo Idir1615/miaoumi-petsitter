@@ -13,6 +13,14 @@ Ces consignes s’appliquent à tous les assistants utilisés par l’équipe (C
 - Mettre le projet à jour (`git fetch --prune`), identifier la personne, puis lire docs/ROADMAP.md et lui présenter les tâches non cochées de **sa** section. L’accompagner étape par étape, en lui expliquant le code pour qu’elle puisse le présenter à l’oral.
 - Quand une tâche est vérifiée, la cocher dans docs/ROADMAP.md avec le prénom et la date.
 
+## Avant de terminer une session de travail
+
+1. **Travail fini** : reprendre les tâches de la personne dans docs/ROADMAP.md et dire clairement lesquelles sont terminées et vérifiées, et lesquelles restent à faire.
+2. **Tout est enregistré** : `git status` ne doit montrer aucune modification non commitée (hors `config/config.php`, ignoré). Sinon, proposer de commiter sur la branche `feature/…` de la personne.
+3. **Tout est sur GitHub** : `git fetch` puis `git status -sb` ne doit pas indiquer `ahead` ; sinon, pousser la branche `feature/…` (jamais `develop` ni `main` pour Ama et Maria). Si la tâche est finie, vérifier qu’une pull request vers `develop` est ouverte ou proposer de l’ouvrir.
+4. **Se remettre à jour avec l’équipe** : intégrer le travail commun dans la branche de la personne avec `git fetch` puis `git merge origin/develop` (`develop` contient toujours `main` et le travail déjà validé par Idir). En cas de conflit, l’expliquer et le résoudre avec la personne, sans écraser le travail des autres, puis repousser la branche.
+5. Terminer par un résumé court : ce qui est fait, ce qui est sur GitHub, ce qui reste pour la prochaine fois.
+
 ## Branches et Git
 
 - Circuit : `feature/prénom-fonctionnalité` → `develop` → `main`.

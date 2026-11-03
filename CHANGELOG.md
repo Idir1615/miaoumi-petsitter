@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 09:38 — Vérification de fin de session par les assistants — Idir
+
+- AGENTS.md : avant de terminer, l’assistant vérifie que les tâches sont finies, que tout est commité et poussé sur la branche `feature/…`, qu’une pull request est ouverte si besoin, puis intègre `develop` (qui contient `main`) dans la branche de la personne.
+
 ### 03/11/2026 à 09:36 — Feuille de route de l’équipe — Idir
 
 - Ajout de docs/ROADMAP.md avec les tâches restantes de la séance 2 pour Idir, Ama et Maria.
