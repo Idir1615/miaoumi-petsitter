@@ -6,6 +6,13 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 09:54 — Données de démonstration et correction du test des annonces (travail local consigné) — Idir
+
+- Ajout de `donnees-demo.sql` : 4 comptes fictifs, 4 annonces (ouverte, pourvue, deux terminées), 6 candidatures (en attente, acceptées, refusée) et 3 avis ; dates calculées depuis le jour de l’import, fichier réimportable.
+- Ajout de `migrations/002_avis_dates.sql` pour les bases locales dont la table `avis` a une colonne `date` au lieu de `dates` (cas constaté sur la base d’Idir, qui provoquait un avertissement sur la page des avis).
+- `tests/annonces.php` mis à jour : il appelait `pourGardien()` et `pourProprietaire()`, remplacées par `Candidature::pourUtilisateur()` ; le test repasse.
+- Vérifié sur XAMPP : import des données, connexion des comptes de démo, Mes annonces, filtre Terminées, Mes candidatures, page des avis et refus de postuler à sa propre annonce, sans erreur PHP. Le parcours complet avec écriture (postuler, accepter, laisser un avis) n’a pas été rejoué.
+
 ### 03/11/2026 à 09:38 — Vérification de fin de session par les assistants — Idir
 
 - AGENTS.md : avant de terminer, l’assistant vérifie que les tâches sont finies, que tout est commité et poussé sur la branche `feature/…`, qu’une pull request est ouverte si besoin, puis intègre `develop` (qui contient `main`) dans la branche de la personne.

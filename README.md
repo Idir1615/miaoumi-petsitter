@@ -110,6 +110,8 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
 4. Pour une base neuve, importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
+   Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `migrations/002_avis_dates.sql`.
+   Pour la démonstration, importer ensuite `donnees-demo.sql` : 4 comptes fictifs (`claire`, `karim`, `sofia`, `lucas` @demo.miaoumi.fr, mot de passe `demo1234`), 4 annonces ouvertes, pourvues et terminées, 6 candidatures et 3 avis. Le fichier peut être réimporté : il remplace uniquement les comptes de démo et leurs données.
 5. Depuis la racine du projet, lancer :
 
    ```sh
@@ -146,6 +148,7 @@ Le serveur intégré PHP sert au développement local.
 | `views/candidature-formulaire.php` | Formulaire de candidature |
 | `public/assets/` | Logo du projet |
 | `Miaoumi (2).sql` | Structure de la base de données |
+| `donnees-demo.sql` | Données de démonstration (comptes fictifs, annonces, candidatures, avis) |
 | `CHANGELOG.md` | Résumé lisible des modifications |
 | `docs/GIT.md` | Guide Git pour débuter |
 | `docs/ORAL.md` | Support de révision de l’équipe pour l’oral |
