@@ -6,6 +6,14 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 08:58 — Règles de branches et protection de main — Idir
+
+- Circuit imposé `feature/prénom-fonctionnalité` → `develop` → `main`, avec des branches `feature/idir-…`, `feature/ama-…`, `feature/maria-…` créées depuis `develop`.
+- `develop` et `main` réservées à Idir : intégration uniquement par pull request validée par Idir (fichier `.github/CODEOWNERS`) ; `main` ne reçoit que `develop`.
+- Hook local `pre-push` refusant, pour une autre personne qu’Idir, un push sur `main` ou `develop` et la suppression de branches distantes, ainsi que les noms de branches non conformes ; contrôle GitHub des pull requests vers `develop` et `main`.
+- Suppression de l’ancienne branche commune `feature`, déjà entièrement fusionnée dans `main`, pour permettre les branches `feature/…` ; `develop` remise au niveau de `main`.
+- Mise à jour du README, de CONTRIBUTING, du guide Git et des consignes AGENTS. Le dépôt restant privé sur un compte gratuit, GitHub n’applique pas les règles de branche : leur respect repose sur l’équipe et le hook local.
+
 ### 20/10/2026 à 12:35 — Ama — Mise en cohérence de la documentation
 
 - Correction du README et de la checklist pour refléter les actions de candidature désormais disponibles et les vérifications encore à faire.

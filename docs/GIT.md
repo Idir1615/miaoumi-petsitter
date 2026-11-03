@@ -4,9 +4,11 @@ Git garde des points de sauvegarde du code appelés **commits**. GitHub héberge
 
 ## Les branches
 
-- `main` : branche principale qui rassemble le projet et sa documentation à la demande du propriétaire.
-- `develop` : branche de développement existante.
-- `feature` : autre branche existante ; son contenu peut différer.
+Circuit : `feature/prénom-fonctionnalité` → `develop` → `main`.
+
+- `main` : version finale, **réservée à Idir**, qui y fusionne `develop`.
+- `develop` : rassemble le travail de l’équipe, uniquement par pull request validée par Idir.
+- `feature/prénom-fonctionnalité` : une branche par tâche, créée depuis `develop`, par exemple `feature/ama-candidatures` ou `feature/maria-avis`. Minuscules, sans accent, mots séparés par des tirets.
 
 Une branche est une version de travail du projet. Vérifier la branche en bas à gauche de VS Code ou avec `git branch --show-current`.
 
@@ -14,11 +16,17 @@ Une branche est une version de travail du projet. Vérifier la branche en bas à
 
 ```sh
 git status
-git switch main
+git switch develop
 git pull --ff-only
 ```
 
 Si Git indique des modifications locales, les examiner et les enregistrer avant de changer de branche. Si la mise à jour échoue, demander de l’aide en donnant le message exact ; ne pas forcer.
+
+Puis créer sa branche depuis ce `develop` à jour :
+
+```sh
+git switch -c feature/ama-candidatures
+```
 
 ## Enregistrer une modification
 
@@ -43,8 +51,10 @@ Si Git indique des modifications locales, les examiner et les enregistrer avant 
 5. Quand le travail est prêt à être envoyé sur GitHub :
 
    ```sh
-   git push origin main
+   git push -u origin feature/ama-candidatures
    ```
+
+6. Sur GitHub, ouvrir une pull request de sa branche vers `develop`. Idir la relit et la fusionne, puis fusionne `develop` dans `main` quand c’est prêt. Ama et Maria ne poussent jamais sur `develop` ni sur `main`.
 
 Dans VS Code, le panneau **Contrôle de code source** permet aussi d’examiner les différences, de sélectionner les fichiers avec `+`, puis de saisir un message et de créer un commit.
 

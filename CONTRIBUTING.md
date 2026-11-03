@@ -11,7 +11,7 @@ Pour chaque changement significatif, ajouter dans le CHANGELOG un titre sous la 
 
 1. Suivre le [README](README.md) pour démarrer le projet.
 2. Vérifier la branche et les changements locaux avec `git status`.
-3. Partir d’un `main` à jour, puis créer une branche pour la tâche, par exemple `git switch -c feature/creation-annonces`.
+3. Partir de `develop` à jour, puis créer une branche nommée `feature/prénom-fonctionnalité`, en minuscules, sans accent, avec des tirets : `git switch -c feature/ama-candidatures`.
 4. Convenir avec l’équipe des fichiers à modifier pour éviter de travailler en même temps sur les mêmes parties.
 
 ## Avant de proposer une modification
@@ -22,7 +22,17 @@ Pour chaque changement significatif, ajouter dans le CHANGELOG un titre sous la 
 - Expliquer le changement dans `CHANGELOG.md` et adapter le README si nécessaire.
 - Vérifier `git diff` avant d’enregistrer : aucun mot de passe, compte réel ou fichier `config/config.php` ne doit être envoyé.
 
-Envoyer sa branche et ouvrir une pull request vers `main`, en indiquant le résultat attendu et les vérifications réellement effectuées. Le [guide Git](docs/GIT.md) explique les commandes de base.
+Envoyer sa branche et ouvrir une pull request vers `develop`, en indiquant le résultat attendu et les vérifications réellement effectuées. Le [guide Git](docs/GIT.md) explique les commandes de base.
+
+## Règles de branches
+
+Circuit : `feature/prénom-fonctionnalité` → `develop` → `main`.
+
+- `main` est réservée à **Idir** : elle ne reçoit que `develop`, fusionnée par Idir.
+- `develop` rassemble le travail de l’équipe ; on n’y pousse pas directement, tout arrive par pull request validée par Idir.
+- Chacun crée ses branches `feature/idir-…`, `feature/ama-…` ou `feature/maria-…` depuis `develop` à jour.
+- Après une fusion, repartir de `develop` à jour pour la tâche suivante.
+- Le hook `pre-push` (installé avec `scripts/install-hooks.ps1`) refuse localement un push sur `main` ou `develop` par une autre personne qu’Idir, et les noms de branches non conformes. Un contrôle GitHub vérifie aussi chaque pull request.
 
 ## Signaler un problème
 

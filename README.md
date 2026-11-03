@@ -101,8 +101,12 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 2. Dans le terminal, sélectionner la branche de travail :
 
    ```sh
-   git switch feature
+   git switch develop
+   git pull --ff-only
+   git switch -c feature/prenom-fonctionnalite
    ```
+
+   Circuit : `feature/prénom-fonctionnalité` → `develop` → `main`. Chacun propose ses changements par pull request vers `develop` ; seul Idir fusionne dans `develop` et `main` (voir [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
 4. Pour une base neuve, importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
@@ -146,6 +150,7 @@ Le serveur intégré PHP sert au développement local.
 | `docs/GIT.md` | Guide Git pour débuter |
 | `docs/PROMPTS.md` | Historique des demandes et décisions partagé avec l’équipe |
 | `scripts/` | Outils pour générer les journaux |
+| `.githooks/pre-push`, `.github/CODEOWNERS`, `.github/workflows/` | Règles de branches : circuit feature/prénom-fonctionnalité → develop → main |
 | `AGENTS.md` | Consignes pour les assistants qui modifient le projet |
 
 ## Comprendre le MVC
@@ -212,6 +217,8 @@ Pour activer les journaux automatiques sur Windows, exécuter une fois à la rac
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-hooks.ps1
 ```
+
+Cette commande active aussi le hook `pre-push` qui protège `main` et `develop` et vérifie le nom des branches.
 
 Après chaque **commit**, un historique local est généré dans `logs/git-history.md`. Il indique la date, l’auteur, le message et les fichiers concernés. Il ne surveille pas chaque sauvegarde de fichier. Pour le régénérer à la demande :
 

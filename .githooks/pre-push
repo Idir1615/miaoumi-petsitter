@@ -1,0 +1,30 @@
+#!/bin/sh
+# Garde-fou local : main et develop sont réservées à Idir, le travail passe par des branches feature/prénom-fonctionnalité.
+# La vraie protection est la règle de branche configurée sur GitHub.
+utilisateur=$(git config user.name)
+while read -r ref_locale sha_local ref_distante sha_distant; do
+    branche=${ref_distante#refs/heads/}
+    # Suppression d'une branche distante : réservée à Idir.
+    if [ "$sha_local" = "0000000000000000000000000000000000000000" ]; then
+        if [ "$utilisateur" != "Idir1615" ]; then
+            echo "Refusé : seul Idir supprime des branches sur GitHub." >&2
+            exit 1
+        fi
+        continue
+    fi
+    case "$branche" in
+        main|develop)
+            if [ "$utilisateur" != "Idir1615" ]; then
+                echo "Refusé : seul Idir modifie $branche. Pousse ta branche feature/prénom-fonctionnalité et ouvre une pull request vers develop." >&2
+                exit 1
+            fi
+            ;;
+        *)
+            if ! echo "$branche" | grep -Eq '^feature/(idir|ama|maria)-[a-z0-9]+(-[a-z0-9]+)*$'; then
+                echo "Refusé : la branche « $branche » doit s'appeler feature/prénom-fonctionnalité, par exemple feature/ama-candidatures." >&2
+                exit 1
+            fi
+            ;;
+    esac
+done
+exit 0
