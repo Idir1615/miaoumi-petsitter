@@ -6,6 +6,11 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 09:36 — Feuille de route de l’équipe — Idir
+
+- Ajout de docs/ROADMAP.md avec les tâches restantes de la séance 2 pour Idir, Ama et Maria.
+- AGENTS.md demande aux assistants de lire cette feuille de route au début de chaque conversation et d’accompagner la personne sur sa section.
+
 ### 03/11/2026 à 09:08 — Support de préparation à l’oral (travail local consigné) — Idir
 
 - Ajout de docs/ORAL.md : présentation du projet, répartition, MVC avec un parcours détaillé, base de données, méthodes des modèles, sécurité, Git, limites actuelles et questions probables du jury.

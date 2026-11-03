@@ -8,6 +8,11 @@ Ces consignes s’appliquent à tous les assistants utilisés par l’équipe (C
 - Identifier la personne avec `git config user.name` ou son compte GitHub : `Idir1615` → Idir ; `ama mariane` ou `mariane0511` → Ama ; `mariabenadjila-bit` → Maria. Pour tout autre nom, demander le prénom avant de travailler, puis s’y tenir pendant la conversation.
 - Ne jamais attribuer un travail à une autre personne que celle identifiée ; si elle n’est pas identifiée, écrire « Auteur à confirmer ».
 
+## Au début de chaque conversation
+
+- Mettre le projet à jour (`git fetch --prune`), identifier la personne, puis lire docs/ROADMAP.md et lui présenter les tâches non cochées de **sa** section. L’accompagner étape par étape, en lui expliquant le code pour qu’elle puisse le présenter à l’oral.
+- Quand une tâche est vérifiée, la cocher dans docs/ROADMAP.md avec le prénom et la date.
+
 ## Branches et Git
 
 - Circuit : `feature/prénom-fonctionnalité` → `develop` → `main`.
