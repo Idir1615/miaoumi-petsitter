@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 10:09 — Répartition de la remise finale — Idir
+
+- docs/ROADMAP.md : tâches de la checklist de remise finale et des finitions réparties entre Idir (cloturer(), marquerPourvue(), page 404, documentation, intégration), Ama (passage en « pourvue », messages d’erreur, tests des candidatures) et Maria (noteMoyenne(), confirmations, messages d’erreur des avis), avec l’ordre des dépendances.
+
 ### 03/11/2026 à 09:54 — Données de démonstration et correction du test des annonces (travail local consigné) — Idir
 
 - Ajout de `donnees-demo.sql` : 4 comptes fictifs, 4 annonces (ouverte, pourvue, deux terminées), 6 candidatures (en attente, acceptées, refusée) et 3 avis ; dates calculées depuis le jour de l’import, fichier réimportable.
