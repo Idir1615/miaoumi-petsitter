@@ -10,6 +10,14 @@ class Utilisateur
         $requete->execute([$nom, $email, password_hash($password, PASSWORD_DEFAULT)]);
     }
 
+    // Informations publiques d'un compte (sans e-mail ni mot de passe), ou null.
+    public function trouver(int $id): ?array
+    {
+        $requete = Database::getConnection()->prepare('SELECT id, nom FROM utilisateurs WHERE id = ?');
+        $requete->execute([$id]);
+        return $requete->fetch() ?: null;
+    }
+
     public function trouverParEmail(string $email): ?array
     {
         $requete = Database::getConnection()->prepare(

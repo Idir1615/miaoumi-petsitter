@@ -80,6 +80,7 @@ classDiagram
     }
     class Utilisateur {
         +creer(nom, email, password) void
+        +trouver(id) array
         +trouverParEmail(email) array
     }
     class Annonce {
@@ -99,6 +100,7 @@ classDiagram
     }
     class Avis {
         +pourAnnonce(annonce) array
+        +recus(utilisateur) array
         +destinataires(annonce, auteur) array
         +creer(annonce, auteur, cible, note, commentaire) bool
     }
@@ -120,12 +122,17 @@ classDiagram
     class AvisController {
         +index() void
     }
+    class ProfilController {
+        +index() void
+    }
     AuthController ..> Utilisateur
     AnnonceController ..> Annonce
     CandidatureController ..> Candidature
     CandidatureController ..> Annonce
     AvisController ..> Avis
     AvisController ..> Annonce
+    ProfilController ..> Utilisateur
+    ProfilController ..> Avis
     Utilisateur ..> Database
     Annonce ..> Database
     Candidature ..> Database
@@ -230,6 +237,7 @@ miaoumi/
 | `app/controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
 | `app/views/candidatures.php` | Candidatures envoyées et reçues |
 | `app/views/candidature-formulaire.php` | Formulaire de candidature |
+| `app/controllers/ProfilController.php`, `app/views/profil.php` | Profil public : nom, note moyenne et avis reçus |
 | `sql/migrations/` | Évolutions pour les bases déjà importées |
 | `public/assets/` | Logo du projet |
 | `sql/miaoumi.sql` | Structure de la base de données |
@@ -279,6 +287,10 @@ La liste publique affiche les annonces `ouverte`, avec recherche dans le titre/l
 `?page=mes-annonces` affiche uniquement les annonces du compte connecté avec filtres de statut et nombres d’annonces/gardes terminées. `?page=mes-candidatures` présente les candidatures envoyées par le gardien et celles reçues sur les annonces du propriétaire. Le propriétaire peut accepter ou refuser chaque candidature en attente depuis cette page ; ses décisions sont protégées par une soumission POST et un jeton CSRF.
 
 La page d’authentification réunit les formulaires de connexion et d’inscription côte à côte sur ordinateur, puis en colonne sur téléphone. Les erreurs restent liées au formulaire soumis. Les actions de sélection d’un gardien, de refus automatique des autres candidats et les statistiques de gardien le plus sollicité de la maquette ne sont pas encore implémentées.
+
+## Le profil public
+
+`?page=profil&id=…` affiche le nom d’un utilisateur, sa note moyenne et les avis qu’il a reçus, avec un lien vers la garde concernée. Le profil est accessible depuis « Mon profil » dans le menu du compte et depuis les noms affichés dans les avis et les candidatures. `ProfilController` utilise `Utilisateur::trouver()` (nom seulement, jamais l’e-mail), `Avis::recus()` et `Avis::noteMoyenne()`. Tant que `noteMoyenne()` n’est pas livrée, la note affiche « Pas encore d’avis ». Un identifiant absent ou inconnu renvoie la page introuvable (404).
 
 ## Les avis
 

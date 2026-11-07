@@ -18,6 +18,7 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/AnnonceController.php';
 require_once __DIR__ . '/../controllers/AvisController.php';
 require_once __DIR__ . '/../controllers/CandidatureController.php';
+require_once __DIR__ . '/../controllers/ProfilController.php';
 
 function e(string $value): string
 {

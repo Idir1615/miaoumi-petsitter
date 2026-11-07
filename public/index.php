@@ -10,6 +10,7 @@ $routes = [
     'creer-annonce' => [AnnonceController::class, 'creer'],
     'cloturer-annonce' => [AnnonceController::class, 'cloturer'],
     'avis' => [AvisController::class, 'index'],
+    'profil' => [ProfilController::class, 'index'],
     'candidatures' => [CandidatureController::class, 'index'],
     'postuler' => [CandidatureController::class, 'postuler'],
     'decision-candidature' => [CandidatureController::class, 'decision'],

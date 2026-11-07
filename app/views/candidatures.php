@@ -26,7 +26,7 @@
             <?php foreach ($mesCandidatures as $candidature): ?>
                 <article class="carte">
                     <h3><?= e($candidature['titre']) ?></h3>
-                    <p>Propriétaire : <?= e($candidature['nom_proprietaire']) ?></p>
+                    <p>Propriétaire : <a href="?page=profil&amp;id=<?= (int) $candidature['id_proprietaire'] ?>"><?= e($candidature['nom_proprietaire']) ?></a></p>
                     <p>Statut : <?= e($libellesStatuts[$candidature['statut']] ?? $candidature['statut']) ?></p>
                     <p>Envoyée le <?= e($candidature['date_candidature']) ?></p>
                     <?php if (($candidature['message'] ?? '') !== ''): ?>
@@ -47,7 +47,7 @@
             <?php foreach ($candidaturesRecues as $candidature): ?>
                 <article class="carte">
                     <h3><?= e($candidature['titre']) ?></h3>
-                    <p>Candidat·e : <?= e($candidature['nom_gardien']) ?></p>
+                    <p>Candidat·e : <a href="?page=profil&amp;id=<?= (int) $candidature['id_gardien'] ?>"><?= e($candidature['nom_gardien']) ?></a></p>
                     <p>Statut : <?= e($libellesStatuts[$candidature['statut']] ?? $candidature['statut']) ?></p>
                     <p>Reçue le <?= e($candidature['date_candidature']) ?></p>
                     <?php if (($candidature['message'] ?? '') !== ''): ?>

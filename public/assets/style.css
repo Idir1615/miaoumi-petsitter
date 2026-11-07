@@ -20,6 +20,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .menu-compte { position:relative; }
 .menu-compte-contenu { position:absolute; right:0; top:50px; z-index:5; min-width:210px; background:#fff; padding:18px; border:1px solid var(--bord); border-radius:10px; box-shadow:0 6px 22px #21353014; }
 .menu-compte-contenu button { margin-top:12px; }
+.menu-compte-contenu a { display:block; margin-top:10px; }
 .conteneur { max-width:1200px; padding:26px 38px 48px; margin:0 auto; min-height:calc(100vh - 148px); }
 h1 { font-size:28px; line-height:1.25; margin:0 0 8px; letter-spacing:-.5px; }
 h2 { font-size:17px; line-height:1.4; margin:0 0 14px; }

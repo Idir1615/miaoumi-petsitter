@@ -6,6 +6,14 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 07/11/2026 à 11:09 — Idir — Profil public (travail local consigné)
+
+- Nouvelle page `?page=profil&id=…` (`ProfilController`, `app/views/profil.php`) : nom, note moyenne et avis reçus avec l’auteur, la garde et la date ; état vide si aucun avis ; 404 avec le gabarit pour un identifiant absent ou inconnu.
+- Ajout de `Utilisateur::trouver()` (id et nom seulement) et `Avis::recus()` dans les modèles de Maria (à lui signaler avant qu’elle reprenne ces fichiers) ; la note moyenne appelle `Avis::noteMoyenne()`, que Maria livre, et affiche « Pas encore d’avis » en attendant.
+- Liens vers les profils : « Mon profil » dans le menu du compte, noms des auteurs et des personnes évaluées dans les avis, noms dans les candidatures.
+- README : section « Le profil public », diagramme de classes et tableau des fichiers mis à jour.
+- Vérifié : `php -l`, pages profil (avec et sans avis, identifiant inconnu ou invalide), lien du menu et liens des candidatures dans XAMPP avec les données de démo, sans erreur PHP ; `tests/annonces.php` réussi.
+
 ### 07/11/2026 à 10:31 — Idir — Intégration dans develop et main, ménage des branches
 
 - Fusion dans `develop` de `feature/idir-logo` (icône de navigation et favicon) puis de `feature/idir-structure` ; seul conflit, les deux entrées du CHANGELOG, conservées toutes les deux. L’icône a suivi les vues déplacées dans `app/views/`.

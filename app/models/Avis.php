@@ -14,6 +14,19 @@ class Avis
         return $requete->fetchAll();
     }
 
+    // Avis reçus par un utilisateur, pour son profil public.
+    public function recus(int $utilisateur): array
+    {
+        $requete = Database::getConnection()->prepare(
+            'SELECT avis.*, auteur.nom AS auteur, annonces.titre
+             FROM avis JOIN utilisateurs auteur ON auteur.id = avis.id_auteur
+             JOIN annonces ON annonces.id = avis.id_annonce
+             WHERE avis.id_cible = ? ORDER BY avis.id DESC'
+        );
+        $requete->execute([$utilisateur]);
+        return $requete->fetchAll();
+    }
+
     public function destinataires(array $annonce, int $auteur): array
     {
         if ($annonce['date_fin'] >= (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d')) {
