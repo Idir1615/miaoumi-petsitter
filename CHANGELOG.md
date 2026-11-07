@@ -6,6 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 07/11/2026 à 10:53 — Idir — Image du MLD dans le README (travail local consigné)
+
+- Ajout de l’image du MLD réalisée par Idir avec Looping (`docs/presentation/mld-miaoumi.png`) dans la section MLD du README, au-dessus de la version texte. Les rôles des associations donnent aux clés étrangères les noms du schéma SQL : `id_proprietaire`, `id_annonce`, `id_gardien`, `id_auteur`, `id_cible`.
+
 ### 07/11/2026 à 10:31 — Idir — Intégration dans develop et main, ménage des branches
 
 - Fusion dans `develop` de `feature/idir-logo` (icône de navigation et favicon) puis de `feature/idir-structure` ; seul conflit, les deux entrées du CHANGELOG, conservées toutes les deux. L’icône a suivi les vues déplacées dans `app/views/`.

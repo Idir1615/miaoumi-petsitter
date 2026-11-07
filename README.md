@@ -61,6 +61,12 @@ Le champ `ville` de l’entité annonces, ajouté ensuite pour la maquette, figu
 
 Traduction du MCD en tables, telle qu’elle est appliquée par [`sql/miaoumi.sql`](sql/miaoumi.sql). Clé primaire **soulignée en gras**, clé étrangère précédée de `#`.
 
+<p align="center">
+  <img src="docs/presentation/mld-miaoumi.png" alt="MLD Miaoumi généré avec Looping : tables utilisateurs, annonces, candidatures et avis ; clés étrangères id_proprietaire, id_annonce, id_gardien, id_auteur et id_cible en italique" width="760">
+</p>
+
+Le MLD ci-dessus est généré par Looping à partir du MCD ; les clés étrangères y sont en italique et les flèches pointent vers la table référencée. Le détail en texte :
+
 - **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role)
 - **annonces** (**id**, titre, type_animal, ville, date_debut, date_fin, description, statut, `#id_proprietaire` → utilisateurs.id)
 - **candidatures** (**id**, message, statut, date_candidature, `#id_annonce` → annonces.id, `#id_gardien` → utilisateurs.id)
