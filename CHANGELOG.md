@@ -6,6 +6,14 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 07/11/2026 à 10:31 — Idir — Intégration dans develop et ménage des branches (travail local consigné)
+
+- Fusion dans `develop` de `feature/idir-logo` (icône de navigation et favicon) puis de `feature/idir-structure` ; seul conflit, les deux entrées du CHANGELOG, conservées toutes les deux. L’icône a suivi les vues déplacées dans `app/views/`.
+- Vérifié sur le résultat fusionné : `php -l` sur tous les fichiers PHP, pages annonces, connexion, avis et 404 dans XAMPP sans erreur, images et CSS chargés, `tests/annonces.php` réussi (tables MySQL temporaires).
+- Suppression sur GitHub des branches déjà fusionnées : `feature/idir-annonces`, `feature/idir-donnees-demo`, `feature/idir-statut-annonces`, `feature/idir-logo`, `feature/idir-structure`. `feature/maria-avis-comptes` est conservée (checklists d’Idir et de Maria non fusionnées).
+- Suppression des anciennes branches locales `restructuration` et `maria-avis-comptes` ; activation du hook Git qui génère `logs/git-history.md`.
+- Ajout de ces échanges dans docs/PROMPTS.md (section 13) et mise à jour de ses consignes de reprise.
+
 ### 07/11/2026 à 10:12 — Idir — Structure des dossiers alignée sur le cours (commit 24bd318)
 
 - Déplacement des modèles, contrôleurs, vues et du dossier core dans `app/` ; la connexion `core/Database.php` devient `config/database.php`.
