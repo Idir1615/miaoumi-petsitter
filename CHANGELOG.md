@@ -6,9 +6,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
-### 07/11/2026 à 10:53 — Idir — Image du MLD dans le README (travail local consigné)
+### 07/11/2026 à 10:53 — Idir — Image du MLD et fiches de révision
 
 - Ajout de l’image du MLD réalisée par Idir avec Looping (`docs/presentation/mld-miaoumi.png`) dans la section MLD du README, au-dessus de la version texte. Les rôles des associations donnent aux clés étrangères les noms du schéma SQL : `id_proprietaire`, `id_annonce`, `id_gardien`, `id_auteur`, `id_cible`.
+- Ajout de deux fiches de révision pour l’oral : `docs/FICHE-REVISION-MIAOUMI.pdf` (tout le code, 20 questions avec réponses) et `docs/FICHE-EXPRESS-ORAL.pdf` (2 pages, présentation du projet et ordre de révision). Elles décrivent le code du 07/11/2026 : `noteMoyenne()`, le profil public et le nouveau `decider()` y sont indiqués « à venir ».
 
 ### 07/11/2026 à 10:31 — Idir — Intégration dans develop et main, ménage des branches
 
