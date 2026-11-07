@@ -1,11 +1,11 @@
 <?php
 // Test PHP/MySQL isolé : php tests/annonces.php
 // Les tables temporaires disparaissent à la fermeture de la connexion.
-require __DIR__ . '/../core/Database.php';
-require __DIR__ . '/../core/flash.php';
-require __DIR__ . '/../models/Annonce.php';
-require __DIR__ . '/../models/Candidature.php';
-require __DIR__ . '/../controllers/AnnonceController.php';
+require __DIR__ . '/../config/database.php';
+require __DIR__ . '/../app/core/flash.php';
+require __DIR__ . '/../app/models/Annonce.php';
+require __DIR__ . '/../app/models/Candidature.php';
+require __DIR__ . '/../app/controllers/AnnonceController.php';
 
 function verifier(bool $condition, string $message): void
 {
@@ -32,7 +32,7 @@ $_SESSION = ['csrf' => 'test'];
 $aujourdHui = (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d');
 $annonces = [];
 ob_start();
-require __DIR__ . '/../views/annonces.php';
+require __DIR__ . '/../app/views/annonces.php';
 $html = ob_get_clean();
 verifier(strpos($html, 'Aucune annonce pour le moment.') !== false, 'État vide absent.');
 
@@ -55,7 +55,7 @@ verifier($annonces[0]['statut'] === 'ouverte', 'Statut initial incorrect.');
 verifier($modele->trouver((int) $annonces[0]['id']) !== null, 'Lecture impossible.');
 ajouterFlash('<Annonce publiée>');
 ob_start();
-require __DIR__ . '/../views/annonces.php';
+require __DIR__ . '/../app/views/annonces.php';
 $html = ob_get_clean();
 verifier(strpos($html, '&lt;Garde &amp; chat&gt;') !== false, 'Titre non échappé.');
 verifier(strpos($html, '&lt;script&gt;test&lt;/script&gt;') !== false, 'Description non échappée.');
@@ -65,7 +65,7 @@ verifier(strpos($html, 'assets/style.css') !== false && strpos($html, 'site-foot
 
 $erreurs = ['titre' => 'Erreur de test'];
 ob_start();
-require __DIR__ . '/../views/annonce-formulaire.php';
+require __DIR__ . '/../app/views/annonce-formulaire.php';
 $html = ob_get_clean();
 verifier(strpos($html, 'value="&lt;Garde &amp; chat&gt;"') !== false, 'Saisie non conservée.');
 verifier(strpos($html, 'Erreur de test') !== false, 'Erreur non affichée.');

@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/../core/bootstrap.php';
+require __DIR__ . '/../app/core/bootstrap.php';
 
 // Le routeur associe chaque page à une méthode de contrôleur.
 $routes = [
@@ -21,7 +21,7 @@ $routes = [
 $page = $_GET['page'] ?? 'annonces';
 if (!is_string($page) || !isset($routes[$page])) {
     http_response_code(404);
-    require __DIR__ . '/../views/introuvable.php';
+    require __DIR__ . '/../app/views/introuvable.php';
     exit;
 }
 
@@ -31,5 +31,5 @@ try {
     $controleur->$methode();
 } catch (PDOException | RuntimeException $exception) {
     http_response_code(503);
-    require __DIR__ . '/../views/indisponible.php';
+    require __DIR__ . '/../app/views/indisponible.php';
 }

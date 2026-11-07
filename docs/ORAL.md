@@ -17,9 +17,9 @@ Technologies : **PHP** sans framework, **MySQL** avec **PDO**, HTML/CSS, archite
 
 | Personne | Partie | Fichiers principaux |
 | --- | --- | --- |
-| **Idir** | Annonces, socle commun (header/footer, CSS, messages flash), adaptation à la maquette, organisation Git | `models/Annonce.php`, `controllers/AnnonceController.php`, `views/annonces.php`, `views/annonce-formulaire.php`, `views/header.php`, `views/footer.php`, `core/flash.php`, `public/assets/style.css` |
-| **Ama** | Candidatures : postuler, consulter, accepter/refuser | `models/Candidature.php`, `controllers/CandidatureController.php`, `views/candidatures.php`, `views/candidature-formulaire.php` |
-| **Maria** | Avis et comptes (inscription, connexion) | `models/Avis.php`, `controllers/AvisController.php`, `views/avis.php`, `models/Utilisateur.php`, `controllers/AuthController.php`, `views/auth.php` |
+| **Idir** | Annonces, socle commun (header/footer, CSS, messages flash), adaptation à la maquette, organisation Git | `app/models/Annonce.php`, `app/controllers/AnnonceController.php`, `app/views/annonces.php`, `app/views/annonce-formulaire.php`, `app/views/header.php`, `app/views/footer.php`, `app/core/flash.php`, `public/assets/style.css` |
+| **Ama** | Candidatures : postuler, consulter, accepter/refuser | `app/models/Candidature.php`, `app/controllers/CandidatureController.php`, `app/views/candidatures.php`, `app/views/candidature-formulaire.php` |
+| **Maria** | Avis et comptes (inscription, connexion) | `app/models/Avis.php`, `app/controllers/AvisController.php`, `app/views/avis.php`, `app/models/Utilisateur.php`, `app/controllers/AuthController.php`, `app/views/auth.php` |
 
 ## 3. L’architecture MVC
 
@@ -33,12 +33,12 @@ Navigateur ──► public/index.php (routeur)
                  Vue (HTML, données échappées avec e())
 ```
 
-- **Modèle** (`models/`) : uniquement les requêtes SQL et les règles métier (validation avant d’écrire en base).
-- **Vue** (`views/`) : uniquement l’affichage HTML. Aucune requête SQL dans les vues.
-- **Contrôleur** (`controllers/`) : lit la requête (`$_GET`, `$_POST`, session), appelle le modèle, puis affiche une vue ou redirige.
+- **Modèle** (`app/models/`) : uniquement les requêtes SQL et les règles métier (validation avant d’écrire en base).
+- **Vue** (`app/views/`) : uniquement l’affichage HTML. Aucune requête SQL dans les vues.
+- **Contrôleur** (`app/controllers/`) : lit la requête (`$_GET`, `$_POST`, session), appelle le modèle, puis affiche une vue ou redirige.
 - **`public/index.php`** est le **seul point d’entrée**. Un tableau `$routes` associe chaque `?page=…` à une méthode de contrôleur. Une page inconnue renvoie **404** ; une base indisponible affiche la page `indisponible.php` avec un code **503**.
-- **`core/bootstrap.php`** est chargé par chaque page : il démarre la session, charge les classes, définit `e()` et vérifie le jeton CSRF.
-- **`core/Database.php`** fournit une **connexion PDO unique** (patron singleton), configurée à partir de `config/config.php` (fichier local, ignoré par Git car il contient le mot de passe).
+- **`app/core/bootstrap.php`** est chargé par chaque page : il démarre la session, charge les classes, définit `e()` et vérifie le jeton CSRF.
+- **`config/database.php`** fournit une **connexion PDO unique** (patron singleton), configurée à partir de `config/config.php` (fichier local, ignoré par Git car il contient le mot de passe).
 
 ### Exemple à savoir raconter : publier une annonce
 
@@ -59,7 +59,7 @@ Navigateur ──► public/index.php (routeur)
 
 ## 4. La base de données
 
-Quatre tables (fichier `Miaoumi (2).sql`) :
+Quatre tables (fichier `sql/miaoumi.sql`) :
 
 | Table | Rôle | Clés étrangères |
 | --- | --- | --- |
@@ -70,7 +70,7 @@ Quatre tables (fichier `Miaoumi (2).sql`) :
 
 - Un utilisateur n’a pas de rôle fixe : **le même compte peut être propriétaire et gardien**.
 - `ON DELETE CASCADE` : supprimer un utilisateur supprime ses annonces, candidatures et avis.
-- `migrations/001_ajout_ville.sql` ajoute la colonne `ville` aux bases créées avant son ajout. Le code vérifie si la colonne existe (`villeDisponible()`) pour rester compatible.
+- `sql/migrations/001_ajout_ville.sql` ajoute la colonne `ville` aux bases créées avant son ajout. Le code vérifie si la colonne existe (`villeDisponible()`) pour rester compatible.
 
 ## 5. Les méthodes des modèles en une phrase
 
@@ -102,8 +102,8 @@ Quatre tables (fichier `Miaoumi (2).sql`) :
 | Risque | Protection dans Miaoumi | Où |
 | --- | --- | --- |
 | **Injection SQL** | Toutes les requêtes avec des données utilisent des **requêtes préparées** (`prepare` + `execute` avec `?`) | tous les modèles |
-| **XSS** (script injecté dans une page) | Tout texte affiché passe par `e()` = `htmlspecialchars()` | `core/bootstrap.php`, vues |
-| **CSRF** (formulaire envoyé depuis un autre site) | Un jeton aléatoire en session, caché dans chaque formulaire, comparé avec `hash_equals()` à chaque POST | `core/bootstrap.php` |
+| **XSS** (script injecté dans une page) | Tout texte affiché passe par `e()` = `htmlspecialchars()` | `app/core/bootstrap.php`, vues |
+| **CSRF** (formulaire envoyé depuis un autre site) | Un jeton aléatoire en session, caché dans chaque formulaire, comparé avec `hash_equals()` à chaque POST | `app/core/bootstrap.php` |
 | **Mots de passe volés** | Hachage avec `password_hash()` / `password_verify()`, jamais stockés en clair, jamais réaffichés | `Utilisateur`, `AuthController` |
 | **Vol de session** | `session_regenerate_id()` à la connexion et à la déconnexion, cookie `HttpOnly` et `SameSite=Lax` | `AuthController`, `bootstrap.php` |
 | **Accès non autorisé** | Le propriétaire et l’auteur viennent de la **session**, pas du formulaire ; chaque action revérifie les droits dans le modèle | contrôleurs et modèles |
@@ -160,9 +160,9 @@ Quatre tables (fichier `Miaoumi (2).sql`) :
 
 **Pourquoi demander une confirmation avant de clôturer ?** La clôture est définitive : l’encadré de confirmation évite une erreur de clic. Il est fait en HTML (`<details>`), donc il fonctionne sans JavaScript ; la sécurité reste vérifiée côté serveur.
 
-**Que voit-on si on tape une page qui n’existe pas ?** Le routeur renvoie un code 404 et affiche `views/introuvable.php` avec le gabarit du site, jamais une page blanche.
+**Que voit-on si on tape une page qui n’existe pas ?** Le routeur renvoie un code 404 et affiche `app/views/introuvable.php` avec le gabarit du site, jamais une page blanche.
 
-**Comment montrer le site avec des données ?** `donnees-demo.sql` crée 4 comptes fictifs, 4 annonces, 6 candidatures et 3 avis, avec des dates calculées depuis le jour de l’import ; il peut être réimporté pour remettre la démonstration à zéro.
+**Comment montrer le site avec des données ?** `sql/donnees-demo.sql` crée 4 comptes fictifs, 4 annonces, 6 candidatures et 3 avis, avec des dates calculées depuis le jour de l’import ; il peut être réimporté pour remettre la démonstration à zéro.
 
 ## Réviser pas à pas
 
@@ -177,15 +177,15 @@ Toutes les pages passent par **un seul fichier** : `public/index.php`, le **rout
 1. le routeur lit `page=mes-annonces` dans l’adresse ;
 2. il le cherche dans sa liste : `'mes-annonces' => [AnnonceController::class, 'index']`, c’est-à-dire « appelle `index()` de `AnnonceController` » ;
 3. le **contrôleur** demande les annonces au **modèle** `Annonce`, qui interroge MySQL ;
-4. le contrôleur passe les annonces à la **vue** `views/annonces.php`, qui fabrique le HTML.
+4. le contrôleur passe les annonces à la **vue** `app/views/annonces.php`, qui fabrique le HTML.
 
 | Lettre | Fichier | Rôle | Image |
 | --- | --- | --- | --- |
-| **M**odèle | `models/Annonce.php` | Parle à la base de données | Le cuisinier |
-| **V**ue | `views/annonces.php` | Affiche le HTML | L’assiette |
-| **C**ontrôleur | `controllers/AnnonceController.php` | Reçoit la demande et décide | Le serveur |
+| **M**odèle | `app/models/Annonce.php` | Parle à la base de données | Le cuisinier |
+| **V**ue | `app/views/annonces.php` | Affiche le HTML | L’assiette |
+| **C**ontrôleur | `app/controllers/AnnonceController.php` | Reçoit la demande et décide | Le serveur |
 
-Une page absente de la liste (`?page=nimporte`) renvoie un code **404** et affiche `views/introuvable.php` avec le gabarit du site.
+Une page absente de la liste (`?page=nimporte`) renvoie un code **404** et affiche `app/views/introuvable.php` avec le gabarit du site.
 
 **Question :** pourquoi séparer le code en modèle, vue et contrôleur au lieu de tout mettre dans un fichier ?
 
@@ -196,7 +196,7 @@ Pour que **chaque fichier ait un seul rôle** : le modèle les données, la vue 
 
 #### Leçon 2 — Publier une annonce : valider avant d’enregistrer
 
-`Annonce::creer()` (`models/Annonce.php`) travaille en **deux temps** :
+`Annonce::creer()` (`app/models/Annonce.php`) travaille en **deux temps** :
 
 1. **Vérifier et noter les erreurs** dans un tableau `$erreurs` : titre obligatoire (150 caractères maximum), type d’animal obligatoire, dates valides, début aujourd’hui ou plus tard, fin après le début, description de 5 000 caractères maximum, ville de 100 caractères maximum.
 2. **Seulement s’il n’y a aucune erreur**, faire l’`INSERT` avec une requête préparée.
@@ -263,10 +263,10 @@ C’est une **double sécurité**. La vérification en PHP donne un message clai
 
 #### Leçon 5 — Le socle commun : jeton CSRF et messages flash
 
-Ces deux mécanismes, dans `core/`, servent à **tout le site**.
+Ces deux mécanismes, dans `app/core/`, servent à **tout le site**.
 
-- **Jeton CSRF** (`core/bootstrap.php`) : à la première visite, la session reçoit un jeton aléatoire (`random_bytes`). Chaque formulaire le renvoie dans un champ caché. À chaque POST, le serveur compare les deux avec `hash_equals()` ; s’ils diffèrent, réponse **403** « Formulaire expiré ». Un autre site ne connaît pas ce jeton, il ne peut donc pas envoyer un formulaire à la place de l’utilisateur.
-- **Messages flash** (`core/flash.php`) : `ajouterFlash()` range un message dans la session **avant une redirection** ; le header l’affiche avec `lireFlash()`, qui l’efface aussitôt. Le message apparaît donc **une seule fois**.
+- **Jeton CSRF** (`app/core/bootstrap.php`) : à la première visite, la session reçoit un jeton aléatoire (`random_bytes`). Chaque formulaire le renvoie dans un champ caché. À chaque POST, le serveur compare les deux avec `hash_equals()` ; s’ils diffèrent, réponse **403** « Formulaire expiré ». Un autre site ne connaît pas ce jeton, il ne peut donc pas envoyer un formulaire à la place de l’utilisateur.
+- **Messages flash** (`app/core/flash.php`) : `ajouterFlash()` range un message dans la session **avant une redirection** ; le header l’affiche avec `lireFlash()`, qui l’efface aussitôt. Le message apparaît donc **une seule fois**.
 
 **Question :** pourquoi ne peut-on pas afficher directement « Ton annonce a été publiée » avec un simple `echo` dans le contrôleur ?
 
@@ -284,5 +284,5 @@ Parce que le contrôleur **redirige** juste après l’enregistrement (patron Po
 - [ ] Chacun lit ce document et le code de **toutes** les parties, pas seulement la sienne.
 - [ ] Chacun sait raconter le parcours « publier une annonce » (section 3) et un parcours de sa partie de la même façon.
 - [ ] Faire une démonstration complète au moins une fois sur XAMPP : inscription, connexion, annonce, candidature, acceptation, avis.
-- [x] Comptes et données de démonstration : `donnees-demo.sql`, comptes dans la section « Comptes de démonstration » du README (mot de passe `demo1234`).
+- [x] Comptes et données de démonstration : `sql/donnees-demo.sql`, comptes dans la section « Comptes de démonstration » du README (mot de passe `demo1234`).
 - [ ] S’interroger mutuellement avec les questions de la section 10.

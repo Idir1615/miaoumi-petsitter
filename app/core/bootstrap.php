@@ -8,7 +8,7 @@ session_start([
     'cookie_secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
 ]);
 
-require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/flash.php';
 require_once __DIR__ . '/../models/Utilisateur.php';
 require_once __DIR__ . '/../models/Annonce.php';
