@@ -129,10 +129,25 @@ Contexte : création du présent fichier pour que l’équipe puisse comprendre 
 
 Contexte : les fonctions de candidature ont été intégrées sur `main` : dépôt d’une candidature, consultation des demandes envoyées et reçues, puis acceptation ou refus par le propriétaire. Un lien visible mène au formulaire ; une personne déconnectée retrouve l’annonce après connexion. L’utilisateur a aussi testé son environnement avec deux comptes et une annonce d’essai. L’intégration a été publiée après sa demande. Le logo fourni par l’équipe a remplacé l’icône de navigation. Le CHANGELOG, le README, ce fichier de suivi et le rapport de vérification décrivent le travail ; les scénarios MySQL automatisés n’ont pas été rejoués pendant cette reprise.
 
+## 13. Restructuration, MCD et ménage des branches (Idir, 26/10 → 07/11/2026)
+
+52. « nickel je suis idir maintenat je veux que tu check ce qui est deja fais dans cette image » (capture de la checklist de fin de séance 2)
+53. « ce tableau la tu peux stp le mettre dans git dans la checklist stp »
+54. « fait moi un pdf pr l'instant de ce uqej e dos connaitre »
+55. « on a besoin de reprendre le travail en main, j'aime bien tout mon site exiterais t'il pas une facon plus simple pr le code pr qu'on puisse le comprendre si non le fait pas, apres revoit la strucures des ficheirs » (arborescence montrée par le professeur : config/, app/models, app/controllers, app/views, public/index.php, sql/)
+56. « fait moi un rendu visuel en local comment je fais sur xampp »
+57. « c'est la version la plus a jour du git ? »
+58. « faut que tu me dit si le mcd est bon ? » (capture du MCD Looping et du logo)
+59. « recuperer sa et modifie le mcd fait par l'ia de git par celui la » (nouvelle image du MCD avec `ville`)
+60. « j'ai vu il reste beaucoup branche »
+61. « je veux que tu verifie bien pour pas qu'il y 'est d'erreur, commit et pousse feature/idir-structure fusionne/idir-logo et feature/idirstructure dans develop oui je donne mon accord supprime les branches inutiles et journalise tout ce qu'on a fait »
+
+Contexte : la checklist d’Idir (docs/CHECKLIST-IDIR.md) a été rédigée sur la branche de Maria, toujours présente sur `feature/maria-avis-comptes`. Le code n’a pas été simplifié : l’assistant a jugé qu’il ne pouvait pas l’être sans perdre de fonctionnalités. Une première restructuration, faite le 27/10 sur une ancienne version, a été abandonnée et refaite le 07/11 sur `develop` à jour (`feature/idir-structure`). Le MCD de l’équipe a été validé par rapport au schéma SQL ; seul l’attribut `ville` manquait, et Idir a fourni une nouvelle image. Après vérification (`php -l`, pages dans XAMPP, `tests/annonces.php`), `feature/idir-logo` puis `feature/idir-structure` ont été fusionnées dans `develop`, et les branches déjà fusionnées ont été supprimées. Une fiche PDF de révision a été préparée mais n’est pas versionnée : elle cite l’ancienne structure.
+
 ## Consignes actuelles pour reprendre le travail
 
-- Travailler sur `feature` ; ne pas modifier `main` sans demande explicite.
-- Garder l’organisation MVC et les protections de l’authentification et des formulaires.
+- Suivre le circuit `feature/prénom-fonctionnalité` → `develop` → `main` décrit dans AGENTS.md ; seul Idir fusionne dans `develop` et `main`.
+- Garder la structure `app/` (core, models, controllers, views), `config/`, `public/`, `sql/` et l’organisation MVC et les protections de l’authentification et des formulaires.
 - Ajouter une entrée datée et horodatée en heure de Paris dans le CHANGELOG pour chaque changement significatif.
 - Mettre à jour le README lorsque le fonctionnement ou la structure évolue.
 - Ne pas créer de commit ni publier sans demande de l’utilisateur.

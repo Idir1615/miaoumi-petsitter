@@ -6,9 +6,64 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 07/11/2026 à 10:31 — Idir — Intégration dans develop et main, ménage des branches
+
+- Fusion dans `develop` de `feature/idir-logo` (icône de navigation et favicon) puis de `feature/idir-structure` ; seul conflit, les deux entrées du CHANGELOG, conservées toutes les deux. L’icône a suivi les vues déplacées dans `app/views/`.
+- Vérifié sur le résultat fusionné : `php -l` sur tous les fichiers PHP, pages annonces, connexion, avis et 404 dans XAMPP sans erreur, images et CSS chargés, `tests/annonces.php` réussi (tables MySQL temporaires).
+- Suppression sur GitHub des branches déjà fusionnées : `feature/idir-annonces`, `feature/idir-donnees-demo`, `feature/idir-statut-annonces`, `feature/idir-logo`, `feature/idir-structure`. `feature/maria-avis-comptes` est conservée (checklists d’Idir et de Maria non fusionnées).
+- Suppression des anciennes branches locales `restructuration` et `maria-avis-comptes` ; activation du hook Git qui génère `logs/git-history.md`.
+- Ajout de ces échanges dans docs/PROMPTS.md (section 13) et mise à jour de ses consignes de reprise.
+- À la demande d’Idir, fusion de `develop` dans `main` (aucun conflit, `tests/annonces.php` réussi juste avant).
+
+### 07/11/2026 à 10:12 — Idir — Structure des dossiers alignée sur le cours (commit 24bd318)
+
+- Déplacement des modèles, contrôleurs, vues et du dossier core dans `app/` ; la connexion `core/Database.php` devient `config/database.php`.
+- Regroupement du SQL dans `sql/` : `Miaoumi (2).sql` devient `sql/miaoumi.sql`, avec `sql/donnees-demo.sql` et `sql/migrations/`.
+- Correction des chemins dans `public/index.php`, le bootstrap, la connexion, la page indisponible et le test des annonces ; aucun changement de fonctionnalité ni d’adresse de page.
+- Mise à jour des chemins dans le README (avec l’arborescence), ORAL.md, ROADMAP.md, le guide Windows et les commentaires SQL ; les documents historiques gardent les anciens chemins.
+- Remplacement de l’image du MCD dans le README (`docs/presentation/mcd-miaoumi.jpg`) par la version d’Idir réalisée avec Looping, qui ajoute l’attribut `ville` aux annonces.
+- Vérifié : `php -l` sur tous les fichiers PHP et exécution de chaque page via `index.php` en ligne de commande, sans erreur PHP ; dans XAMPP avec MySQL et les données de démo : liste, connexion, pages connectées, avis, 404 et formulaire d’annonce invalide (422, saisie conservée). Non vérifié : les actions qui écrivent en base (publier, postuler, clôturer, noter).
+
+### 03/11/2026 à 10:44 — Icône du logo dans la navigation et l’onglet — Idir
+
+- Icône brun doré tirée du logo d’Idir (chien et chat, sans ovale ni texte, traits épaissis) dans la barre de navigation (public/assets/miaoumi-icone.png) et comme icône d’onglet (public/assets/favicon.png) ; logo complet conservé dans le pied de page.
+- Vérifié par capture d’écran sur ordinateur ; un débordement horizontal observé à 390 px de large, antérieur à ce changement, reste à vérifier.
+
+### 03/11/2026 à 10:37 — MCD de l’équipe dans le README — Idir
+
+- Le diagramme Mermaid du MCD est remplacé par l’image du MCD fournie par Idir (docs/presentation/mcd-miaoumi.png), accompagnée du tableau des cardinalités de ses six associations.
+
+### 03/11/2026 à 10:27 — Leçons de révision du module Annonces — Idir
+
+- docs/ORAL.md : partie « Réviser pas à pas » avec cinq leçons sur les annonces (MVC et routeur, validation à la création, recherche et pagination, clôture, jeton CSRF et messages flash), chacune avec une question et une réponse modèle repliée ; les modules Candidatures, Avis et Comptes restent à rédiger.
+
+### 03/11/2026 à 10:23 — Révision commune de tout le projet — Idir
+
+- ROADMAP : section « Révision commune », chacun révise les trois modules et pas seulement le sien ; AGENTS.md demande aux assistants d’interroger aussi sur les modules des autres.
+
+### 03/11/2026 à 10:22 — Révisions : clôture et données de démo — Idir
+
+- docs/ORAL.md : méthodes `cloturer()` et `marquerPourvue()`, parcours « clôturer une garde » à savoir raconter, limites mises à jour (passage en pourvue à brancher par Ama, avis après clôture à décider par Maria) et nouvelles questions (confirmation, page 404, données de démo).
+
+### 03/11/2026 à 10:15 — Clôture des gardes, page introuvable et documentation (travail local consigné) — Idir
+
+- `Annonce::cloturer()` : seul le propriétaire clôt sa garde, qui passe au statut `terminee` ; refus d’un tiers, d’une annonce inexistante et d’une double clôture. Bouton « Terminer la garde » dans Mes annonces (POST avec jeton CSRF, route `cloturer-annonce`), message flash de confirmation ou d’erreur.
+- Clôture en deux temps : « Terminer la garde » ouvre une confirmation, seul « Confirmer la clôture » envoie le formulaire, pour éviter une clôture par erreur. Comptes de démonstration détaillés dans le README.
+- `Annonce::marquerPourvue()` : passe une annonce ouverte en `pourvue`, prête à être appelée par Ama dans `Candidature::decider()`.
+- Page « Page introuvable » affichée avec le gabarit commun au lieu d’un texte brut (`views/introuvable.php`).
+- README : MLD, diagramme de classes, logique métier et explication de `cloturer()` ; les paragraphes d’Ama et de Maria (dont `noteMoyenne()`) restent à ajouter.
+- Vérifié : `tests/annonces.php` (nouveaux cas de clôture et de passage en pourvue) et parcours sur XAMPP avec les comptes de démo (clôture refusée à un tiers, acceptée pour la propriétaire, refus en GET et sans jeton, 404 avec gabarit), puis réimport de `donnees-demo.sql`.
+
 ### 03/11/2026 à 10:09 — Répartition de la remise finale — Idir
 
 - docs/ROADMAP.md : tâches de la checklist de remise finale et des finitions réparties entre Idir (cloturer(), marquerPourvue(), page 404, documentation, intégration), Ama (passage en « pourvue », messages d’erreur, tests des candidatures) et Maria (noteMoyenne(), confirmations, messages d’erreur des avis), avec l’ordre des dépendances.
+
+### 03/11/2026 à 09:54 — Données de démonstration et correction du test des annonces (travail local consigné) — Idir
+
+- Ajout de `donnees-demo.sql` : 4 comptes fictifs, 4 annonces (ouverte, pourvue, deux terminées), 6 candidatures (en attente, acceptées, refusée) et 3 avis ; dates calculées depuis le jour de l’import, fichier réimportable.
+- Ajout de `migrations/002_avis_dates.sql` pour les bases locales dont la table `avis` a une colonne `date` au lieu de `dates` (cas constaté sur la base d’Idir, qui provoquait un avertissement sur la page des avis).
+- `tests/annonces.php` mis à jour : il appelait `pourGardien()` et `pourProprietaire()`, remplacées par `Candidature::pourUtilisateur()` ; le test repasse.
+- Vérifié sur XAMPP : import des données, connexion des comptes de démo, Mes annonces, filtre Terminées, Mes candidatures, page des avis et refus de postuler à sa propre annonce, sans erreur PHP. Le parcours complet avec écriture (postuler, accepter, laisser un avis) n’a pas été rejoué.
 
 ### 03/11/2026 à 09:38 — Vérification de fin de session par les assistants — Idir
 

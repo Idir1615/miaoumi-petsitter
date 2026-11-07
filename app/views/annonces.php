@@ -57,6 +57,17 @@ require __DIR__ . '/header.php';
                             <?php if (!empty($a['description'])): ?><p class="description-annonce"><?= nl2br(e($a['description'])) ?></p><?php endif; ?>
                             <a class="lien-avis" href="?page=avis&amp;annonce=<?= (int) $a['id'] ?>">Voir les avis / laisser un avis <span aria-hidden="true">→</span></a>
                             <?php if ($mesAnnonces): ?><a class="lien-avis" href="?page=candidatures-recues&amp;annonce=<?= (int) $a['id'] ?>">Candidatures reçues →</a><?php endif; ?>
+                            <?php if ($mesAnnonces && ($a['statut'] ?? '') !== 'terminee'): ?>
+                                <details class="cloture">
+                                    <summary class="bouton bouton-secondaire">Terminer la garde</summary>
+                                    <form class="form-cloture" method="post" action="?page=cloturer-annonce">
+                                        <p>Clôturer « <?= e($a['titre']) ?> » ? Cette action est définitive.</p>
+                                        <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                                        <input type="hidden" name="annonce" value="<?= (int) $a['id'] ?>">
+                                        <button type="submit">Confirmer la clôture</button>
+                                    </form>
+                                </details>
+                            <?php endif; ?>
                             <?php
                             $connecte = isset($_SESSION['utilisateur']['id']);
                             $annonceAccessible = !$mesAnnonces

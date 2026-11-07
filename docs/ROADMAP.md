@@ -8,7 +8,7 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
 
 - [x] Checklist de séance 2 complète pour le module Annonces.
 - [x] Branche `feature/idir-annonces` publiée (03/11/2026).
-- [ ] Réviser les sections 3 et 5 de docs/ORAL.md.
+- [ ] Réviser **tout** docs/ORAL.md : les trois modules, pas seulement les annonces (voir « Révision commune »).
 - [ ] Relire et fusionner les pull requests d’Ama et de Maria dans `develop`, puis `develop` dans `main`.
 
 ## Ama — Candidatures
@@ -29,8 +29,8 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
    - le message de candidature est conservé en cas d’erreur ;
    - toutes les données affichées passent par `e()` ;
    - header/footer et classes CSS communs.
-   Corrections éventuelles limitées à `models/Candidature.php`, `controllers/CandidatureController.php`, `views/candidatures.php`, `views/candidature-formulaire.php`.
-3. [ ] **Réviser** : expliquer à Ama chaque méthode de `models/Candidature.php` en une phrase (section 5 de docs/ORAL.md), puis l’interroger sur son code comme à l’oral et corriger ses réponses.
+   Corrections éventuelles limitées à `app/models/Candidature.php`, `app/controllers/CandidatureController.php`, `app/views/candidatures.php`, `app/views/candidature-formulaire.php`.
+3. [ ] **Réviser tout le projet** (voir « Révision commune ») : commencer par `app/models/Candidature.php`, puis les annonces, les avis et les comptes.
 
 ## Maria — Avis et comptes
 
@@ -44,12 +44,12 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
 2. [ ] **Quatre corrections**, une par une, en expliquant chaque changement à Maria :
    - a) `Utilisateur::creer()` valide les données **avant** l’INSERT (nom 1 à 100 caractères, e-mail valide de 150 caractères maximum, mot de passe de 8 à 72 octets) et renvoie les erreurs, comme `Annonce::creer()` ; adapter `AuthController::inscription()`.
    - b) Messages flash : remplacer `?page=connexion&inscrit=1` et `&ajoute=1` par `ajouterFlash()` avant la redirection ; ajouter un message après connexion et après déconnexion ; retirer les tests `$_GET['inscrit']` et `$_GET['ajoute']` des vues.
-   - c) `views/avis.php` : en cas d’erreur, la personne choisie dans la liste « cible » reste sélectionnée (valeur conservée par `AvisController`).
-   - d) `views/avis.php` : erreurs affichées avec les classes communes `message message-erreur`.
-   Fichiers autorisés : `models/Avis.php`, `models/Utilisateur.php`, `controllers/AvisController.php`, `controllers/AuthController.php`, `views/avis.php`, `views/auth.php`.
+   - c) `app/views/avis.php` : en cas d’erreur, la personne choisie dans la liste « cible » reste sélectionnée (valeur conservée par `AvisController`).
+   - d) `app/views/avis.php` : erreurs affichées avec les classes communes `message message-erreur`.
+   Fichiers autorisés : `app/models/Avis.php`, `app/models/Utilisateur.php`, `app/controllers/AvisController.php`, `app/controllers/AuthController.php`, `app/views/avis.php`, `app/views/auth.php`.
 3. [ ] **Vérifier** : `php -l` sur chaque fichier modifié, puis tester dans le navigateur (XAMPP) l’inscription valide et invalide, la connexion, la déconnexion et le dépôt d’un avis. Indiquer honnêtement ce qui a été testé ou non.
 4. [ ] **Publier** : entrée dans CHANGELOG.md (date, heure de Paris, prénom), un commit par correction à son nom, push de sa branche et pull request vers `develop`.
-5. [ ] **Réviser** : expliquer à Maria chaque méthode de `models/Avis.php` et `models/Utilisateur.php` en une phrase (section 5 de docs/ORAL.md), puis l’interroger sur son code comme à l’oral et corriger ses réponses.
+5. [ ] **Réviser tout le projet** (voir « Révision commune ») : commencer par `app/models/Avis.php` et `app/models/Utilisateur.php`, puis les annonces et les candidatures.
 
 ## Remise finale — répartition
 
@@ -59,11 +59,11 @@ Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car 
 
 ### Idir — Annonces, documentation, intégration
 
-1. [ ] **`Annonce::cloturer(int $annonce, int $proprietaire)`** : seul le propriétaire clôt sa garde ; l’annonce passe en `terminee`. Bouton « Terminer la garde » dans Mes annonces, en POST avec CSRF, puis redirection avec le message flash « La garde est clôturée. ». Erreur claire si l’annonce n’est pas à lui ou déjà terminée. Tests dans `tests/annonces.php`.
-2. [ ] **`Annonce::marquerPourvue(int $annonce)`** : passe une annonce ouverte en `pourvue` ; méthode fournie à Ama.
-3. [ ] **Page introuvable** : la réponse 404 du routeur (`public/index.php`) s’affiche avec le gabarit commun, pas en texte brut.
-4. [x] **Jeu de données SQL** : `donnees-demo.sql` (4 annonces, 6 candidatures, 3 avis), sur `feature/idir-donnees-demo`, à fusionner.
-5. [ ] **Documentation** dans le README : MLD à jour, diagramme de classes (modèles et contrôleurs), logique métier, paragraphe expliquant `cloturer()`. Intégrer le paragraphe de Maria sur `noteMoyenne()`.
+1. [x] **`Annonce::cloturer(int $annonce, int $proprietaire)`** : seul le propriétaire clôt sa garde ; l’annonce passe en `terminee`. Bouton « Terminer la garde » dans Mes annonces, en POST avec CSRF, puis redirection avec le message flash « La garde est clôturée. ». Erreur claire si l’annonce n’est pas à lui ou déjà terminée. Tests dans `tests/annonces.php`.
+2. [x] **`Annonce::marquerPourvue(int $annonce)`** : passe une annonce ouverte en `pourvue` ; méthode fournie à Ama.
+3. [x] **Page introuvable** : la réponse 404 du routeur (`public/index.php`) s’affiche avec le gabarit commun, pas en texte brut.
+4. [x] **Jeu de données SQL** : `sql/donnees-demo.sql` (4 annonces, 6 candidatures, 3 avis), sur `feature/idir-donnees-demo`, à fusionner.
+5. [~] **Documentation** dans le README (MLD, diagramme de classes, logique métier et `cloturer()` rédigés le 03/11/2026 ; reste à intégrer les paragraphes d’Ama et de Maria) : MLD à jour, diagramme de classes (modèles et contrôleurs), logique métier, paragraphe expliquant `cloturer()`. Intégrer le paragraphe de Maria sur `noteMoyenne()`.
 6. [ ] **Intégration** : relire et fusionner les pull requests dans `develop`, puis `develop` dans `main`, sans conflit résiduel.
 
 ### Ama — Candidatures
@@ -83,7 +83,20 @@ Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car 
 5. [ ] **Paragraphe** expliquant `noteMoyenne()` pour la documentation, à transmettre à Idir.
 6. [ ] **Historique Git** : commits à son nom sur `feature/maria-avis-comptes`.
 
+### Révision commune — tout le monde sait tout
+
+Le professeur peut interroger n’importe qui sur n’importe quelle partie. **Idir, Ama et Maria doivent chacun savoir expliquer les trois modules.** Pour chaque personne, l’assistant :
+
+- explique chaque méthode des **quatre** modèles en une phrase (`Annonce`, `Candidature`, `Avis`, `Utilisateur`, section 5 de docs/ORAL.md) ;
+- fait raconter les parcours de la section 3 (publier une annonce, clôturer une garde) et un parcours de candidature et d’avis ;
+- fait expliquer la sécurité (section 6), la base de données (section 4) et l’organisation Git (section 8) ;
+- pose les questions de la section 10, en insistant sur les modules que la personne n’a **pas** codés, puis corrige ses réponses.
+
+- [ ] Idir sait expliquer les candidatures, les avis et les comptes.
+- [ ] Ama sait expliquer les annonces, les avis et les comptes.
+- [ ] Maria sait expliquer les annonces et les candidatures.
+
 ### Équipe
 
-- [ ] Parcours complet sans erreur sur XAMPP avec `donnees-demo.sql` : publier → candidater → valider → clôturer → noter.
+- [ ] Parcours complet sans erreur sur XAMPP avec `sql/donnees-demo.sql` : publier → candidater → valider → clôturer → noter.
 - [ ] Oral blanc à trois avec les questions de docs/ORAL.md.

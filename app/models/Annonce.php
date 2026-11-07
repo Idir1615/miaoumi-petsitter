@@ -95,6 +95,36 @@ class Annonce
         return [];
     }
 
+    // Clôture une garde ; seul son propriétaire peut le faire. Une liste vide signifie que la garde est clôturée.
+    public function cloturer(int $annonce, int $proprietaire): array
+    {
+        $garde = $annonce > 0 ? $this->trouver($annonce) : null;
+        if (!$garde) {
+            return ['general' => 'Cette annonce est introuvable.'];
+        }
+        if ((int) $garde['id_proprietaire'] !== $proprietaire) {
+            return ['general' => 'Seul le propriétaire peut clôturer cette garde.'];
+        }
+        if ($garde['statut'] === 'terminee') {
+            return ['general' => 'Cette garde est déjà clôturée.'];
+        }
+        $requete = Database::getConnection()->prepare(
+            "UPDATE annonces SET statut = 'terminee' WHERE id = ? AND id_proprietaire = ? AND statut <> 'terminee'"
+        );
+        $requete->execute([$annonce, $proprietaire]);
+        return $requete->rowCount() === 1 ? [] : ['general' => 'Cette garde est déjà clôturée.'];
+    }
+
+    // Appelée quand une candidature est acceptée ; seule une annonce ouverte devient pourvue.
+    public function marquerPourvue(int $annonce): bool
+    {
+        $requete = Database::getConnection()->prepare(
+            "UPDATE annonces SET statut = 'pourvue' WHERE id = ? AND statut = 'ouverte'"
+        );
+        $requete->execute([$annonce]);
+        return $requete->rowCount() === 1;
+    }
+
     public function trouver(int $id): ?array
     {
         $requete = Database::getConnection()->prepare('SELECT * FROM annonces WHERE id = ?');

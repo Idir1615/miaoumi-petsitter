@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/../core/bootstrap.php';
+require __DIR__ . '/../app/core/bootstrap.php';
 
 // Le routeur associe chaque page à une méthode de contrôleur.
 $routes = [
@@ -8,6 +8,7 @@ $routes = [
     'mes-candidatures' => [CandidatureController::class, 'index'],
     'candidatures-recues' => [CandidatureController::class, 'index'],
     'creer-annonce' => [AnnonceController::class, 'creer'],
+    'cloturer-annonce' => [AnnonceController::class, 'cloturer'],
     'avis' => [AvisController::class, 'index'],
     'candidatures' => [CandidatureController::class, 'index'],
     'postuler' => [CandidatureController::class, 'postuler'],
@@ -20,7 +21,8 @@ $routes = [
 $page = $_GET['page'] ?? 'annonces';
 if (!is_string($page) || !isset($routes[$page])) {
     http_response_code(404);
-    exit('Page introuvable');
+    require __DIR__ . '/../app/views/introuvable.php';
+    exit;
 }
 
 try {
@@ -29,5 +31,5 @@ try {
     $controleur->$methode();
 } catch (PDOException | RuntimeException $exception) {
     http_response_code(503);
-    require __DIR__ . '/../views/indisponible.php';
+    require __DIR__ . '/../app/views/indisponible.php';
 }
