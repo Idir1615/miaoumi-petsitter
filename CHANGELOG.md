@@ -6,6 +6,11 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 03/11/2026 à 10:44 — Icône du logo dans la navigation et l’onglet — Idir
+
+- Icône brun doré tirée du logo d’Idir (chien et chat, sans ovale ni texte, traits épaissis) dans la barre de navigation (public/assets/miaoumi-icone.png) et comme icône d’onglet (public/assets/favicon.png) ; logo complet conservé dans le pied de page.
+- Vérifié par capture d’écran sur ordinateur ; un débordement horizontal observé à 390 px de large, antérieur à ce changement, reste à vérifier.
+
 ### 03/11/2026 à 10:37 — MCD de l’équipe dans le README — Idir
 
 - Le diagramme Mermaid du MCD est remplacé par l’image du MCD fournie par Idir (docs/presentation/mcd-miaoumi.png), accompagnée du tableau des cardinalités de ses six associations.
