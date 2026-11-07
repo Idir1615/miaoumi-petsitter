@@ -6,6 +6,15 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 07/11/2026 à 10:12 — Idir — Structure des dossiers alignée sur le cours (travail local consigné)
+
+- Déplacement des modèles, contrôleurs, vues et du dossier core dans `app/` ; la connexion `core/Database.php` devient `config/database.php`.
+- Regroupement du SQL dans `sql/` : `Miaoumi (2).sql` devient `sql/miaoumi.sql`, avec `sql/donnees-demo.sql` et `sql/migrations/`.
+- Correction des chemins dans `public/index.php`, le bootstrap, la connexion, la page indisponible et le test des annonces ; aucun changement de fonctionnalité ni d’adresse de page.
+- Mise à jour des chemins dans le README (avec l’arborescence), ORAL.md, ROADMAP.md, le guide Windows et les commentaires SQL ; les documents historiques gardent les anciens chemins.
+- Remplacement de l’image du MCD dans le README (`docs/presentation/mcd-miaoumi.jpg`) par la version d’Idir réalisée avec Looping, qui ajoute l’attribut `ville` aux annonces.
+- Vérifié : `php -l` sur tous les fichiers PHP et exécution de chaque page via `index.php` en ligne de commande, sans erreur PHP ; dans XAMPP avec MySQL et les données de démo : liste, connexion, pages connectées, avis, 404 et formulaire d’annonce invalide (422, saisie conservée). Non vérifié : les actions qui écrivent en base (publier, postuler, clôturer, noter).
+
 ### 03/11/2026 à 10:37 — MCD de l’équipe dans le README — Idir
 
 - Le diagramme Mermaid du MCD est remplacé par l’image du MCD fournie par Idir (docs/presentation/mcd-miaoumi.png), accompagnée du tableau des cardinalités de ses six associations.

@@ -41,7 +41,7 @@ Une interface aux tons brun doré et vert menthe, pensée autour des annonces, d
 Le MCD de l’équipe présente les quatre entités et leurs six associations ; les clés étrangères du schéma SQL mettent en œuvre ces associations.
 
 <p align="center">
-  <img src="docs/presentation/mcd-miaoumi.png" alt="MCD Miaoumi : entités utilisateurs, annonces, candidatures et avis reliées par les associations publier, envoyer, viser, rediger, recevoir et concerner" width="760">
+  <img src="docs/presentation/mcd-miaoumi.jpg" alt="MCD Miaoumi : entités utilisateurs, annonces, candidatures et avis reliées par les associations publier, envoyer, viser, rediger, recevoir et concerner" width="760">
 </p>
 
 | Association | Cardinalités |
@@ -55,11 +55,11 @@ Le MCD de l’équipe présente les quatre entités et leurs six associations ; 
 
 Un utilisateur peut publier plusieurs annonces, envoyer plusieurs candidatures, rédiger et recevoir plusieurs avis. Chaque candidature vise une annonce ; chaque avis concerne une annonce et relie un auteur à une personne évaluée.
 
-Le champ `ville`, ajouté ensuite pour la maquette, figure dans le [schéma SQL actuel](Miaoumi%20%282%29.sql) et sa [migration](migrations/001_ajout_ville.sql).
+Le champ `ville` de l’entité annonces, ajouté ensuite pour la maquette, figure dans le MCD, dans le [schéma SQL actuel](sql/miaoumi.sql) et dans sa [migration](sql/migrations/001_ajout_ville.sql) pour les bases plus anciennes.
 
 ## Modèle logique des données (MLD)
 
-Traduction du MCD en tables, telle qu’elle est appliquée par [`Miaoumi (2).sql`](Miaoumi%20%282%29.sql). Clé primaire **soulignée en gras**, clé étrangère précédée de `#`.
+Traduction du MCD en tables, telle qu’elle est appliquée par [`sql/miaoumi.sql`](sql/miaoumi.sql). Clé primaire **soulignée en gras**, clé étrangère précédée de `#`.
 
 - **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role)
 - **annonces** (**id**, titre, type_animal, ville, date_debut, date_fin, description, statut, `#id_proprietaire` → utilisateurs.id)
@@ -166,9 +166,9 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
    Circuit : `feature/prénom-fonctionnalité` → `develop` → `main`. Chacun propose ses changements par pull request vers `develop` ; seul Idir fusionne dans `develop` et `main` (voir [CONTRIBUTING.md](CONTRIBUTING.md)).
 
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
-4. Pour une base neuve, importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
-   Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `migrations/002_avis_dates.sql`.
-   Pour la démonstration, importer ensuite `donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
+4. Pour une base neuve, importer `sql/miaoumi.sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `sql/migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
+   Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `sql/migrations/002_avis_dates.sql`.
+   Pour la démonstration, importer ensuite `sql/donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
 5. Depuis la racine du projet, lancer :
 
    ```sh
@@ -181,7 +181,7 @@ Le serveur intégré PHP sert au développement local.
 
 ## Comptes de démonstration
 
-Après l’import de `donnees-demo.sql`, ces comptes fictifs sont disponibles. **Mot de passe commun : `demo1234`.** Ils servent uniquement à la démonstration locale.
+Après l’import de `sql/donnees-demo.sql`, ces comptes fictifs sont disponibles. **Mot de passe commun : `demo1234`.** Ils servent uniquement à la démonstration locale.
 
 | Compte | E-mail | À montrer |
 | --- | --- | --- |
@@ -194,31 +194,46 @@ Le jeu contient 4 annonces (ouverte, pourvue, deux terminées), 6 candidatures e
 
 ## Organisation
 
+La structure suit celle présentée en cours :
+
+```
+miaoumi/
+├── config/        database.php (connexion PDO), config.example.php
+├── app/
+│   ├── core/      bootstrap.php (session, CSRF, chargements), flash.php
+│   ├── models/    Utilisateur, Annonce, Candidature, Avis
+│   ├── controllers/
+│   └── views/
+├── public/        index.php (point d’entrée) et assets/
+└── sql/           miaoumi.sql, donnees-demo.sql et migrations/
+```
+
 | Fichier ou dossier | Rôle |
 | --- | --- |
 | `public/index.php` | Point d’entrée : associe une page à un contrôleur |
-| `controllers/` | Traitements des annonces et de l’authentification |
-| `models/` | Accès aux données des utilisateurs et annonces |
-| `core/bootstrap.php` | Chargement des classes, session et protection des formulaires |
-| `core/Database.php` | Connexion MySQL avec PDO |
+| `app/controllers/` | Traitements des annonces et de l’authentification |
+| `app/models/` | Accès aux données des utilisateurs et annonces |
+| `app/core/bootstrap.php` | Chargement des classes, session et protection des formulaires |
+| `config/database.php` | Connexion MySQL avec PDO |
 | `config/config.example.php` | Modèle de configuration locale |
-| `views/annonces.php` | Affichage des annonces |
-| `views/annonce-formulaire.php` | Publication d’une annonce avec conservation de la saisie |
-| `views/header.php`, `views/footer.php` | Présentation commune disponible pour les vues |
-| `core/flash.php` | Messages en session affichés une seule fois |
+| `app/views/annonces.php` | Affichage des annonces |
+| `app/views/annonce-formulaire.php` | Publication d’une annonce avec conservation de la saisie |
+| `app/views/header.php`, `app/views/footer.php` | Présentation commune disponible pour les vues |
+| `app/core/flash.php` | Messages en session affichés une seule fois |
 | `public/assets/style.css` | Classes CSS communes |
-| `views/auth.php` | Formulaires d’inscription et de connexion |
-| `views/navigation.php` | Navigation et état de connexion |
-| `models/Avis.php` | Lecture des avis, participants autorisés et enregistrement |
-| `controllers/AvisController.php` | Validation des formulaires d’avis et choix de la vue |
-| `views/avis.php` | Liste des avis et formulaire de dépôt |
-| `models/Candidature.php` | Dépôt, lecture et décision sur les candidatures |
-| `controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
-| `views/candidatures.php` | Candidatures envoyées et reçues |
-| `views/candidature-formulaire.php` | Formulaire de candidature |
+| `app/views/auth.php` | Formulaires d’inscription et de connexion |
+| `app/views/navigation.php` | Navigation et état de connexion |
+| `app/models/Avis.php` | Lecture des avis, participants autorisés et enregistrement |
+| `app/controllers/AvisController.php` | Validation des formulaires d’avis et choix de la vue |
+| `app/views/avis.php` | Liste des avis et formulaire de dépôt |
+| `app/models/Candidature.php` | Dépôt, lecture et décision sur les candidatures |
+| `app/controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
+| `app/views/candidatures.php` | Candidatures envoyées et reçues |
+| `app/views/candidature-formulaire.php` | Formulaire de candidature |
+| `sql/migrations/` | Évolutions pour les bases déjà importées |
 | `public/assets/` | Logo du projet |
-| `Miaoumi (2).sql` | Structure de la base de données |
-| `donnees-demo.sql` | Données de démonstration (comptes fictifs, annonces, candidatures, avis) |
+| `sql/miaoumi.sql` | Structure de la base de données |
+| `sql/donnees-demo.sql` | Données de démonstration (comptes fictifs, annonces, candidatures, avis) |
 | `CHANGELOG.md` | Résumé lisible des modifications |
 | `docs/GIT.md` | Guide Git pour débuter |
 | `docs/ORAL.md` | Support de révision de l’équipe pour l’oral |
@@ -237,9 +252,9 @@ Le projet utilise un MVC simple, sans framework. Les adresses des pages restent 
 3. Le **modèle** exécute les requêtes SQL avec la connexion fournie par `Database`.
 4. Le contrôleur transmet les données à une **vue**, qui produit le HTML.
 
-Exemple : pour afficher les annonces, `index.php` appelle `AnnonceController::index()`, qui récupère les données avec `Annonce::toutes()` puis charge `views/annonces.php`.
+Exemple : pour afficher les annonces, `index.php` appelle `AnnonceController::index()`, qui récupère les données avec `Annonce::toutes()` puis charge `app/views/annonces.php`.
 
-Pour les comptes, `AuthController` gère l’inscription, la connexion et la déconnexion ; `Utilisateur` enregistre les comptes et recherche un utilisateur par e-mail. Les formulaires restent dans `views/auth.php`. Les vues ne contiennent aucune requête SQL.
+Pour les comptes, `AuthController` gère l’inscription, la connexion et la déconnexion ; `Utilisateur` enregistre les comptes et recherche un utilisateur par e-mail. Les formulaires restent dans `app/views/auth.php`. Les vues ne contiennent aucune requête SQL.
 
 ## Publier une annonce
 

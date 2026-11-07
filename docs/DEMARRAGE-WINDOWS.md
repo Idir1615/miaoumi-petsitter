@@ -10,7 +10,7 @@ Si MySQL refuse de démarrer, lis son bouton **Logs** et conserve le message d�
 
 ## 2. Importer la base une seule fois
 
-Ouvre <http://localhost/phpmyadmin>, clique sur **Importer**, sélectionne le fichier `Miaoumi (2).sql` du projet et exécute l’importation. Il crée la base `miaoumi` et ses quatre tables.
+Ouvre <http://localhost/phpmyadmin>, clique sur **Importer**, sélectionne le fichier `sql/miaoumi.sql` du projet et exécute l’importation. Il crée la base `miaoumi` et ses quatre tables.
 
 Si les tables existent déjà, ne réimporte pas le fichier : vérifie simplement la présence de `utilisateurs`, `annonces`, `candidatures` et `avis` dans la base. Le script n’est pas prévu pour être réexécuté sur des tables existantes.
 

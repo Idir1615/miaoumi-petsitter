@@ -1,5 +1,5 @@
 -- Jeu de données de démonstration Miaoumi.
--- À importer APRÈS « Miaoumi (2).sql », dans la base miaoumi (phpMyAdmin > Importer).
+-- À importer APRÈS « sql/miaoumi.sql », dans la base miaoumi (phpMyAdmin > Importer).
 -- Comptes fictifs, mot de passe commun : demo1234
 -- Relançable : les comptes de démo existants sont supprimés d'abord (leurs annonces,
 -- candidatures et avis partent avec eux grâce à ON DELETE CASCADE).
