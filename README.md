@@ -175,6 +175,8 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
 4. Pour une base neuve, importer `sql/miaoumi.sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `sql/migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
    Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `sql/migrations/002_avis_dates.sql`.
+   Si les tables `annonces` et `utilisateurs` n’ont pas de colonne `photo`, exécuter une seule fois `sql/migrations/003_photos.sql`.
+   Pour envoyer des photos, activer l’extension GD de PHP : dans `C:\xampp\php\php.ini`, retirer le `;` devant `extension=gd`, puis redémarrer Apache.
    Pour la démonstration, importer ensuite `sql/donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
 5. Depuis la racine du projet, lancer :
 
@@ -291,6 +293,20 @@ La page d’authentification réunit les formulaires de connexion et d’inscrip
 ## Le profil public
 
 `?page=profil&id=…` affiche le nom d’un utilisateur, sa note moyenne et les avis qu’il a reçus, avec un lien vers la garde concernée. Le profil est accessible depuis « Mon profil » dans le menu du compte et depuis les noms affichés dans les avis et les candidatures. `ProfilController` utilise `Utilisateur::trouver()` (nom seulement, jamais l’e-mail), `Avis::recus()` et `Avis::noteMoyenne()`. Tant que `noteMoyenne()` n’est pas livrée, la note affiche « Pas encore d’avis ». Un identifiant absent ou inconnu renvoie la page introuvable (404).
+
+## Les photos et le RGPD
+
+Un propriétaire peut ajouter une photo de son animal en publiant une annonce, et chaque utilisateur peut mettre une photo sur son profil public. Les deux sont facultatives. Le traitement est regroupé dans `app/core/photos.php` :
+
+- **Contrôle du fichier** : JPEG ou PNG uniquement, type lu dans le contenu du fichier (`finfo`), 5 Mo et 8 000 pixels de côté maximum.
+- **Suppression des métadonnées** : l’image est recréée avec GD et redimensionnée (1 200 pixels maximum) ; la position GPS, l’appareil et la date de prise de vue disparaissent. L’orientation des photos de téléphone est appliquée avant.
+- **Nom aléatoire** (32 caractères hexadécimaux) : impossible de deviner l’adresse des photos des autres.
+- **Minimisation** : la base ne garde que le nom du fichier ; le formulaire d’annonce demande de ne photographier que l’animal, sans personne, plaque ni adresse visible ; le profil public n’affiche jamais l’e-mail.
+- **Consentement** : la photo de profil exige de cocher une case acceptant son affichage public.
+- **Droit à l’effacement** : « Supprimer ma photo » sur le profil et « Supprimer la photo » dans Mes annonces effacent le fichier du serveur.
+- **Stockage** : `public/uploads/` est ignoré par Git (aucune photo n’est publiée sur GitHub) ; un `.htaccess` y interdit l’exécution de scripts et la liste des fichiers.
+
+Limite connue : le site ne propose pas de supprimer un compte ; une suppression faite directement en base efface les lignes (`ON DELETE CASCADE`) mais pas les fichiers des photos.
 
 ## Les avis
 

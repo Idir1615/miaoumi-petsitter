@@ -1,5 +1,31 @@
 <?php $titre = 'Miaoumi — Profil de ' . $utilisateur['nom']; require __DIR__ . '/header.php'; ?>
-<h1>Profil de <?= e($utilisateur['nom']) ?></h1>
+<div class="profil-entete">
+    <?php if (!empty($utilisateur['photo'])): ?>
+        <img class="photo-profil" src="uploads/profils/<?= e($utilisateur['photo']) ?>" alt="Photo de profil de <?= e($utilisateur['nom']) ?>">
+    <?php else: ?>
+        <span class="photo-profil photo-vide" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($utilisateur['nom'], 0, 1))) ?></span>
+    <?php endif; ?>
+    <h1>Profil de <?= e($utilisateur['nom']) ?></h1>
+</div>
+<?php if ($estMoi && $photoDisponible): ?>
+    <details class="carte carte-photo">
+        <summary><?= empty($utilisateur['photo']) ? 'Ajouter une photo de profil' : 'Changer ou supprimer ma photo' ?></summary>
+        <form method="post" action="?page=photo-profil" enctype="multipart/form-data">
+            <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+            <p><label for="photo">Photo (JPEG ou PNG, 5 Mo maximum)</label><br><input id="photo" name="photo" type="file" accept="image/jpeg,image/png" required></p>
+            <p><label><input type="checkbox" name="consentement" value="oui" required> J’accepte que cette photo soit visible par tous sur mon profil public.</label></p>
+            <p class="meta">Facultative. La position GPS et les autres métadonnées sont supprimées, l’image est redimensionnée et renommée. Tu peux la supprimer à tout moment : elle est alors effacée du serveur.</p>
+            <button type="submit">Enregistrer la photo</button>
+        </form>
+        <?php if (!empty($utilisateur['photo'])): ?>
+            <form method="post" action="?page=photo-profil">
+                <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                <input type="hidden" name="action" value="supprimer">
+                <button class="bouton-secondaire" type="submit">Supprimer ma photo</button>
+            </form>
+        <?php endif; ?>
+    </details>
+<?php endif; ?>
 <div class="carte">
     <p class="meta">Note moyenne</p>
     <?php if ($moyenne === null): ?>

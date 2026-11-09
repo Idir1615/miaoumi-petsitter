@@ -6,6 +6,14 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 09/11/2026 à 21:08 — Idir — Photos des annonces et des profils, conformes au RGPD (travail local consigné)
+
+- Photo facultative de l’animal à la publication d’une annonce et photo de profil facultative avec case de consentement ; boutons pour les supprimer (droit à l’effacement).
+- `app/core/photos.php` : contrôle du type réel et de la taille, image recréée avec GD (métadonnées et position GPS supprimées), redimensionnée, renommée au hasard ; `public/uploads/` ignoré par Git et protégé par un `.htaccess`.
+- Migration `sql/migrations/003_photos.sql` (colonne `photo` dans `annonces` et `utilisateurs`) et schéma `sql/miaoumi.sql` mis à jour ; le site fonctionne aussi sans la migration (`photoDisponible()`).
+- README : section « Les photos et le RGPD » et installation (migration 003, activation de GD). Extension GD activée dans le `php.ini` local d’Idir.
+- Vérifié : `php -l`, affichage des photos sur les cartes, image servie et dossier non listable (403) dans XAMPP. Non vérifié à cette heure : l’envoi réel d’une photo, Apache n’ayant pas encore été redémarré avec GD.
+
 ### 07/11/2026 à 11:09 — Idir — Profil public (travail local consigné)
 
 - Nouvelle page `?page=profil&id=…` (`ProfilController`, `app/views/profil.php`) : nom, note moyenne et avis reçus avec l’auteur, la garde et la date ; état vide si aucun avis ; 404 avec le gabarit pour un identifiant absent ou inconnu.

@@ -10,13 +10,23 @@ class AnnonceController
             return;
         }
         $villeDisponible = (new Annonce())->villeDisponible();
+        $photoDisponible = (new Annonce())->photoDisponible();
         $donnees = array_fill_keys(['titre', 'type_animal', 'ville', 'date_debut', 'date_fin', 'description'], '');
         $erreurs = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($donnees as $champ => $valeur) {
                 $donnees[$champ] = is_string($_POST[$champ] ?? null) ? trim($_POST[$champ]) : '';
             }
-            $erreurs = (new Annonce())->creer($donnees, (int) $_SESSION['utilisateur']['id']);
+            $photo = $photoDisponible ? enregistrerPhoto($_FILES['photo'] ?? null, 'annonces') : [];
+            if (isset($photo['erreur'])) {
+                $erreurs = ['photo' => $photo['erreur']];
+            } else {
+                $donnees['photo'] = $photo['nom'] ?? null;
+                $erreurs = (new Annonce())->creer($donnees, (int) $_SESSION['utilisateur']['id']);
+                if ($erreurs) {
+                    supprimerPhoto($donnees['photo'], 'annonces');   // annonce refusée : on ne garde pas la photo
+                }
+            }
             if (!$erreurs) {
                 ajouterFlash('Ton annonce a été publiée.');
                 header('Location: ?page=annonces', true, 303);
@@ -28,6 +38,7 @@ class AnnonceController
     }
 
     public function cloturer(): void
+
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
@@ -45,6 +56,30 @@ class AnnonceController
             ajouterFlash($erreurs['general'], 'erreur');
         } else {
             ajouterFlash('La garde est clôturée.');
+        }
+        header('Location: ?page=mes-annonces', true, 303);
+    }
+
+    // Droit à l'effacement : le propriétaire retire la photo de son annonce.
+    public function supprimerPhoto(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            exit('Utilise le bouton « Supprimer la photo ».');
+        }
+        if (!isset($_SESSION['utilisateur']['id'])) {
+            ajouterFlash('Connecte-toi pour modifier tes annonces.', 'erreur');
+            header('Location: ?page=connexion', true, 303);
+            return;
+        }
+        $id = filter_var($_POST['annonce'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $photo = (new Annonce())->retirerPhoto((int) $id, (int) $_SESSION['utilisateur']['id']);
+        if ($photo) {
+            supprimerPhoto($photo, 'annonces');
+            ajouterFlash('La photo a été supprimée.');
+        } else {
+            ajouterFlash('Cette photo ne peut pas être supprimée.', 'erreur');
         }
         header('Location: ?page=mes-annonces', true, 303);
     }

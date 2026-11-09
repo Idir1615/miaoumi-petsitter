@@ -10,6 +10,7 @@ session_start([
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/flash.php';
+require_once __DIR__ . '/photos.php';
 require_once __DIR__ . '/../models/Utilisateur.php';
 require_once __DIR__ . '/../models/Annonce.php';
 require_once __DIR__ . '/../models/Avis.php';

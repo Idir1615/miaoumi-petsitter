@@ -16,6 +16,40 @@ class ProfilController
         $avis = $modele->recus($id);
         // noteMoyenne() est livrée par Maria ; en attendant, le profil affiche « Pas encore d’avis ».
         $moyenne = method_exists($modele, 'noteMoyenne') ? $modele->noteMoyenne($id) : null;
+        $photoDisponible = (new Utilisateur())->photoDisponible();
+        $estMoi = (int) ($_SESSION['utilisateur']['id'] ?? 0) === $id;
         require __DIR__ . '/../views/profil.php';
+    }
+
+    // Ajout, remplacement ou suppression de sa propre photo de profil.
+    public function photo(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            exit('Utilise le formulaire de ton profil.');
+        }
+        $id = (int) ($_SESSION['utilisateur']['id'] ?? 0);
+        if (!$id) {
+            ajouterFlash('Connecte-toi pour modifier ta photo.', 'erreur');
+            header('Location: ?page=connexion', true, 303);
+            return;
+        }
+        $modele = new Utilisateur();
+        if (($_POST['action'] ?? '') === 'supprimer') {
+            supprimerPhoto($modele->changerPhoto($id, null), 'profils');   // droit à l'effacement
+            ajouterFlash('Ta photo de profil a été supprimée.');
+        } elseif (($_POST['consentement'] ?? '') !== 'oui') {
+            ajouterFlash('Coche la case pour accepter que ta photo soit visible sur ton profil public.', 'erreur');
+        } else {
+            $photo = enregistrerPhoto($_FILES['photo'] ?? null, 'profils');
+            if (isset($photo['nom'])) {
+                supprimerPhoto($modele->changerPhoto($id, $photo['nom']), 'profils');
+                ajouterFlash('Ta photo de profil a été enregistrée.');
+            } else {
+                ajouterFlash($photo['erreur'] ?? 'Choisis une photo.', 'erreur');
+            }
+        }
+        header('Location: ?page=profil&id=' . $id, true, 303);
     }
 }
