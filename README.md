@@ -308,6 +308,14 @@ Un propriétaire peut ajouter une photo de son animal en publiant une annonce, e
 
 Limite connue : le site ne propose pas de supprimer un compte ; une suppression faite directement en base efface les lignes (`ON DELETE CASCADE`) mais pas les fichiers des photos.
 
+## Accepter une candidature et note moyenne
+
+Quand le propriétaire accepte une candidature, `Candidature::decider()` fait tout dans la même transaction : la candidature passe en `acceptee`, l’annonce passe en `pourvue` (`Annonce::marquerPourvue()`) et les autres candidatures encore en attente pour cette annonce passent en `refusee`. Une annonce pourvue n’accepte plus de nouvelles candidatures.
+
+`Avis::noteMoyenne()` calcule la moyenne des notes reçues par une personne (`SELECT AVG(note) FROM avis WHERE id_cible = ?`), arrondie à une décimale, ou `null` s’il n’y a aucun avis. Le profil public l’affiche (par exemple « 4,3 / 5 ») ou indique « Pas encore d’avis ».
+
+Le test `tests/parcours.php` vérifie ces deux règles avec des tables MySQL temporaires.
+
 ## Les avis
 
 Depuis une annonce, cliquer sur **Voir les avis / laisser un avis** (`?page=avis&annonce=ID`). Les avis affichent l’auteur, la personne évaluée, la note sur 5, le commentaire et la date d’enregistrement.

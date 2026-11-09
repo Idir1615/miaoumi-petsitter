@@ -14,8 +14,7 @@ class ProfilController
         }
         $modele = new Avis();
         $avis = $modele->recus($id);
-        // noteMoyenne() est livrée par Maria ; en attendant, le profil affiche « Pas encore d’avis ».
-        $moyenne = method_exists($modele, 'noteMoyenne') ? $modele->noteMoyenne($id) : null;
+        $moyenne = $modele->noteMoyenne($id);   // null s'il n'y a aucun avis : « Pas encore d’avis »
         $photoDisponible = (new Utilisateur())->photoDisponible();
         $estMoi = (int) ($_SESSION['utilisateur']['id'] ?? 0) === $id;
         require __DIR__ . '/../views/profil.php';

@@ -3,6 +3,7 @@
 // Les tables temporaires disparaissent à la fermeture de la connexion.
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../app/core/flash.php';
+require __DIR__ . '/../app/core/photos.php';
 require __DIR__ . '/../app/models/Annonce.php';
 require __DIR__ . '/../app/models/Candidature.php';
 require __DIR__ . '/../app/controllers/AnnonceController.php';
