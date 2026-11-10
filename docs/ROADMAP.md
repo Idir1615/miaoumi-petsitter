@@ -81,7 +81,7 @@ Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car 
 3. [ ] **Messages d’erreur** : « Annonce introuvable » sur la page des avis affiché avec le gabarit commun ; classes `message message-erreur` dans `avis.php`.
 4. [ ] **Avis après clôture** : vérifier que le dépôt d’avis fonctionne sur une annonce clôturée par `cloturer()` (après la livraison d’Idir).
 5. [ ] **Paragraphe** expliquant `noteMoyenne()` pour la documentation, à transmettre à Idir.
-6. [ ] **Historique Git** : commits à son nom sur `feature/maria-avis-comptes`.
+6. [x] **Historique Git** : commit à son nom `851b6d1`, poussé sur `feature/maria-avis-comptes` — Maria, 10/11/2026.
 
 ### Révision commune — tout le monde sait tout
 
