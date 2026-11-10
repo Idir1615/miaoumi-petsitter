@@ -30,7 +30,11 @@ class Annonce
         } else {
             $conditions[] = "statut = 'ouverte'";
         }
-        $sql = 'SELECT * FROM annonces' . ($conditions ? ' WHERE ' . implode(' AND ', $conditions) : '') . ' ORDER BY id DESC';
+        // Jointure pour le nom du propriétaire ; la sous-requête calcule sa note moyenne reçue.
+        $sql = 'SELECT annonces.*, u.nom AS nom_proprietaire,
+                    (SELECT ROUND(AVG(v.note), 1) FROM avis v WHERE v.id_cible = annonces.id_proprietaire) AS note_proprietaire
+                FROM annonces JOIN utilisateurs u ON u.id = annonces.id_proprietaire'
+            . ($conditions ? ' WHERE ' . implode(' AND ', $conditions) : '') . ' ORDER BY annonces.id DESC';
         $requete = Database::getConnection()->prepare($sql);
         $requete->execute($parametres);
         return $requete->fetchAll();
@@ -123,6 +127,29 @@ class Annonce
         );
         $requete->execute([$annonce]);
         return $requete->rowCount() === 1;
+    }
+
+    // Annonce avec le nom du propriétaire, pour la page de détail.
+    public function detail(int $id): ?array
+    {
+        $requete = Database::getConnection()->prepare(
+            'SELECT annonces.*, u.nom AS nom_proprietaire,
+                    (SELECT COUNT(*) FROM candidatures c WHERE c.id_annonce = annonces.id) AS nombre_candidatures
+             FROM annonces JOIN utilisateurs u ON u.id = annonces.id_proprietaire
+             WHERE annonces.id = ?'
+        );
+        $requete->execute([$id]);
+        return $requete->fetch() ?: null;
+    }
+
+    // Chiffres affichés sur la page d'accueil.
+    public function statistiques(): array
+    {
+        return Database::getConnection()->query(
+            "SELECT SUM(statut = 'ouverte') AS ouvertes, SUM(statut = 'terminee') AS terminees,
+                    COUNT(DISTINCT NULLIF(ville, '')) AS villes
+             FROM annonces"
+        )->fetch();
     }
 
     public function trouver(int $id): ?array

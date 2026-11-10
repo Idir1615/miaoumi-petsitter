@@ -4,7 +4,6 @@
         <section class="auth-carte" id="<?= e($mode) ?>">
             <h1><?= $inscription ? 'Inscription' : 'Connexion' ?></h1>
             <p class="intro"><?= $inscription ? 'Un même compte sert pour confier et pour garder.' : 'Retrouvez vos annonces et vos candidatures.' ?></p>
-            <?php if (!$inscription && ($_GET['inscrit'] ?? '') === '1'): ?><p class="message message-succes" role="status">Ton compte a été créé. Tu peux te connecter.</p><?php endif; ?>
             <?php if ($actif && $erreurs): ?><ul class="message message-erreur" role="alert"><?php foreach ($erreurs as $erreur): ?><li><?= e($erreur) ?></li><?php endforeach; ?></ul><?php endif; ?>
             <form method="post" action="?page=<?= e($mode) ?>">
                 <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">

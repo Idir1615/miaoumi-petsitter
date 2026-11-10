@@ -3,8 +3,10 @@
 // Les tables temporaires disparaissent à la fermeture de la connexion.
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../app/core/flash.php';
+require __DIR__ . '/../app/core/photos.php';
 require __DIR__ . '/../app/models/Annonce.php';
 require __DIR__ . '/../app/models/Candidature.php';
+require __DIR__ . '/../app/models/Avis.php';
 require __DIR__ . '/../app/controllers/AnnonceController.php';
 
 function verifier(bool $condition, string $message): void
@@ -20,12 +22,14 @@ function e(string $texte): string
 }
 
 $pdo = Database::getConnection();
-$pdo->exec('CREATE TEMPORARY TABLE utilisateurs (id INT PRIMARY KEY) ENGINE=InnoDB');
+// La liste joint le nom du propriétaire et calcule sa note moyenne : il faut nom et une table avis.
+$pdo->exec("CREATE TEMPORARY TABLE utilisateurs (id INT PRIMARY KEY, nom VARCHAR(100) DEFAULT 'Test') ENGINE=InnoDB");
+$pdo->exec('CREATE TEMPORARY TABLE avis (id INT AUTO_INCREMENT PRIMARY KEY, note INT, id_cible INT) ENGINE=InnoDB');
 $pdo->exec("CREATE TEMPORARY TABLE annonces (
     id INT AUTO_INCREMENT PRIMARY KEY, titre VARCHAR(150), type_animal VARCHAR(100),
     date_debut DATE, date_fin DATE, description TEXT, statut VARCHAR(50), id_proprietaire INT
 ) ENGINE=InnoDB");
-$pdo->exec('INSERT INTO utilisateurs VALUES (1)');
+$pdo->exec('INSERT INTO utilisateurs (id) VALUES (1)');
 $modele = new Annonce();
 verifier($modele->toutes() === [], 'La liste doit pouvoir être vide.');
 $_SESSION = ['csrf' => 'test'];
@@ -101,7 +105,6 @@ verifier($modele->rechercher("' OR 1=1 --", '', null) === [], 'Recherche non par
 verifier($modele->rechercher('', '', 999) === [], 'Annonces privées non filtrées.');
 $avecVille['ville'] = str_repeat('a', 101);
 verifier(isset($modele->creer($avecVille, 1)['ville']), 'Longueur de ville non validée.');
-$pdo->exec("ALTER TABLE utilisateurs ADD COLUMN nom VARCHAR(100) DEFAULT 'Test'");
 $pdo->exec('INSERT INTO utilisateurs (id) VALUES (2), (3)');
 $pdo->exec('CREATE TEMPORARY TABLE candidatures (id INT PRIMARY KEY, id_annonce INT, id_gardien INT, statut VARCHAR(50), message TEXT, date_candidature DATETIME) ENGINE=InnoDB');
 $pdo->exec("INSERT INTO candidatures VALUES (1,1,2,'en_attente','Test','2026-10-20 12:00:00')");

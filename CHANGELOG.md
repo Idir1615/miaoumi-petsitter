@@ -6,6 +6,33 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 09/11/2026 à 19:40 — Maria — Refonte visuelle et contenu de démonstration (travail local consigné, à valider avec Idir et Ama)
+
+- Accueil : bandeau avec chiffres du site (`Annonce::statistiques()`, `Avis::statistiques()`), étapes « Publiez, Choisissez, Notez » et trois derniers avis positifs (`Avis::derniers()`), affichés seulement sur la première page sans filtre.
+- Cartes d’annonces avec image, statut en pastille, nom et note moyenne du propriétaire (jointure et sous-requête `AVG` dans `Annonce::rechercher()`), bouton « Postuler » ; filtre « Poisson » ajouté.
+- Nouvelle page de détail `?page=annonce&id=…` (`AnnonceController::voir()`, `Annonce::detail()`, `app/views/annonce.php`) : caractéristiques, durée, propriétaire, description, avis.
+- Photos : `app/core/photos.php` (`photoAnimal()`) lit `public/assets/animaux/chat1.jpg`, `chien1.jpg`… et revient à six illustrations SVG ; mode d’emploi dans `public/assets/animaux/README.md`.
+- Profil (Idir) : avatar, étoiles, annonces en cours ; candidatures (Ama) : pastilles de statut, dates lisibles, liens vers l’annonce ; pied de page avec liens.
+- `sql/donnees-demo.sql` : 12 comptes, 25 annonces, 23 candidatures et 16 avis ; `SET NAMES utf8mb4` pour les accents. Les quatre scénarios du README sont conservés.
+- `tests/annonces.php` : tables temporaires complétées (colonne `nom`, table `avis`) pour la nouvelle requête de liste ; toutes les vérifications d’Idir sont conservées et réussies.
+- Vérifié sur MariaDB locale : test d’Idir, 24 contrôles avis/comptes et 30 contrôles de parcours complet (publier, postuler, décider, clôturer, noter, 404, CSRF), captures ordinateur et mobile 390 px. Non vérifié dans XAMPP.
+
+### 09/11/2026 à 19:10 — Maria — Avis et comptes : corrections de la checklist et note moyenne (travail local consigné)
+
+- `Utilisateur::creer()` valide le nom (1 à 100 caractères), l’e-mail (format, 150 caractères, non déjà utilisé) et le mot de passe (8 à 72 octets) **avant** l’INSERT et renvoie un tableau d’erreurs, comme `Annonce::creer()` ; le doublon simultané (erreur MySQL 1062) est aussi transformé en message. `AuthController::inscription()` ne garde que le contrôle de confirmation du mot de passe.
+- Messages flash après inscription, connexion, déconnexion et dépôt d’avis ; suppression de `?inscrit=1`, `&ajoute=1` et des tests `$_GET` correspondants dans les vues.
+- Page des avis : personne évaluée conservée après une erreur, erreurs en `message message-erreur`, champs avec les classes communes, notes en étoiles, dates au format JJ/MM/AAAA ; « Annonce introuvable » affiché avec le gabarit 404 commun.
+- Nouvelle méthode `Avis::noteMoyenne()` (`AVG`, `null` sans avis) utilisée par le profil d’Idir ; `Avis::gardeFinie()` ouvre les avis dès la clôture d’une garde, même avant sa date de fin.
+- Vérifié sur une base MariaDB locale avec `sql/donnees-demo.sql` et un script HTTP (24 contrôles) : inscription invalide sans ligne créée, e-mail déjà utilisé, saisie conservée sans mot de passe, flash affichés une seule fois, dépôt d’avis, doublon refusé, texte `<script>` échappé, avis après clôture, moyenne 4,5 et « Pas encore d’avis ». `php -l` sur les fichiers modifiés. Non vérifié dans XAMPP sous Windows.
+
+### 07/11/2026 à 11:09 — Idir — Profil public (travail local consigné)
+
+- Nouvelle page `?page=profil&id=…` (`ProfilController`, `app/views/profil.php`) : nom, note moyenne et avis reçus avec l’auteur, la garde et la date ; état vide si aucun avis ; 404 avec le gabarit pour un identifiant absent ou inconnu.
+- Ajout de `Utilisateur::trouver()` (id et nom seulement) et `Avis::recus()` dans les modèles de Maria (à lui signaler avant qu’elle reprenne ces fichiers) ; la note moyenne appelle `Avis::noteMoyenne()`, que Maria livre, et affiche « Pas encore d’avis » en attendant.
+- Liens vers les profils : « Mon profil » dans le menu du compte, noms des auteurs et des personnes évaluées dans les avis, noms dans les candidatures.
+- README : section « Le profil public », diagramme de classes et tableau des fichiers mis à jour.
+- Vérifié : `php -l`, pages profil (avec et sans avis, identifiant inconnu ou invalide), lien du menu et liens des candidatures dans XAMPP avec les données de démo, sans erreur PHP ; `tests/annonces.php` réussi.
+
 ### 07/11/2026 à 10:31 — Idir — Intégration dans develop et main, ménage des branches
 
 - Fusion dans `develop` de `feature/idir-logo` (icône de navigation et favicon) puis de `feature/idir-structure` ; seul conflit, les deux entrées du CHANGELOG, conservées toutes les deux. L’icône a suivi les vues déplacées dans `app/views/`.

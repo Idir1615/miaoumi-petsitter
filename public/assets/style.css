@@ -20,6 +20,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .menu-compte { position:relative; }
 .menu-compte-contenu { position:absolute; right:0; top:50px; z-index:5; min-width:210px; background:#fff; padding:18px; border:1px solid var(--bord); border-radius:10px; box-shadow:0 6px 22px #21353014; }
 .menu-compte-contenu button { margin-top:12px; }
+.menu-compte-contenu a { display:block; margin-top:10px; }
 .conteneur { max-width:1200px; padding:26px 38px 48px; margin:0 auto; min-height:calc(100vh - 148px); }
 h1 { font-size:28px; line-height:1.25; margin:0 0 8px; letter-spacing:-.5px; }
 h2 { font-size:17px; line-height:1.4; margin:0 0 14px; }
@@ -121,3 +122,112 @@ ul.message { padding-left:24px; }
 .mes-annonces-layout .meta,.mes-annonces-layout .description-annonce { grid-column:1; }
 .mes-annonces-layout .lien-avis { grid-column:2; text-align:right; }
 @media(max-width:480px) { .mes-annonces-layout .annonce-contenu { display:block; } .mes-annonces-layout .badge { margin-bottom:8px; } .mes-annonces-layout .lien-avis { text-align:left; } }
+/* Avis (Maria) */
+.fil-ariane { font-size:13px; margin-bottom:14px; }
+.titre-section { margin-top:32px; }
+.avis-entete { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.avis-entete p { margin:0; flex:1; font-weight:600; }
+.avatar-petit { width:34px; height:34px; font-size:14px; cursor:default; flex-shrink:0; }
+.etoiles { color:#d89b1c; font-size:17px; letter-spacing:2px; white-space:nowrap; }
+
+/* ==========================================================================
+   Refonte visuelle (Maria) : typographie, accueil, cartes avec photos,
+   détail d'annonce, profil, candidatures et pied de page.
+   Les règles ci-dessous complètent ou remplacent celles du haut du fichier.
+   ========================================================================== */
+:root { --ombre:0 1px 2px #2135300d, 0 6px 18px #2135300f; --ombre-forte:0 10px 30px #21353024; --or:#d89b1c; font-family:"Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
+body { font-size:15px; }
+h1 { font-weight:700; }
+.site-header { position:sticky; top:0; z-index:10; box-shadow:0 1px 0 var(--bord); }
+.carte,.formulaire,.auth-carte { box-shadow:var(--ombre); }
+
+/* Accueil */
+.accueil { display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:32px; align-items:center; padding:40px; margin-bottom:22px; border-radius:22px;
+  background:radial-gradient(circle at 90% 10%, #fbe6bf 0 120px, transparent 121px), radial-gradient(circle at 8% 110%, #c9eedd 0 140px, transparent 141px), linear-gradient(120deg,#fff 0%,#f6efe1 100%); border:1px solid var(--bord); }
+.accueil h1 { font-size:38px; line-height:1.15; letter-spacing:-1px; margin-bottom:14px; }
+.accueil-texte > p:not(.surtitre) { font-size:16px; color:#4c5d58; max-width:560px; margin-bottom:22px; }
+.surtitre { text-transform:uppercase; letter-spacing:1.5px; font-size:12px; font-weight:700; color:#20755f; margin-bottom:10px; }
+.chiffres { list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.chiffres li { background:#ffffffd9; border:1px solid var(--bord); border-radius:14px; padding:16px 18px; color:var(--discret); font-size:13px; box-shadow:var(--ombre); }
+.chiffres strong { display:block; font-size:30px; color:var(--accent); line-height:1.1; }
+.etapes { list-style:none; padding:0; margin:0 0 36px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.etapes li { display:flex; gap:14px; align-items:flex-start; background:#fff; border:1px solid var(--bord); border-radius:14px; padding:18px; }
+.etapes li > span { flex-shrink:0; width:36px; height:36px; border-radius:50%; display:grid; place-items:center; background:var(--menthe); color:#20755f; font-weight:700; }
+.etapes p { margin:2px 0 0; color:var(--discret); font-size:13px; }
+#liste-annonces { scroll-margin-top:110px; }
+
+/* Cartes d'annonces */
+.annonce-carte { display:flex; flex-direction:column; box-shadow:var(--ombre); transition:transform .15s ease, box-shadow .15s ease; }
+.annonce-carte:hover { transform:translateY(-3px); box-shadow:var(--ombre-forte); }
+.annonce-visuel { position:relative; height:170px; display:block; overflow:hidden; background:#e8efea; }
+.annonce-visuel img { width:100%; height:100%; display:block; }
+.photo { object-fit:cover; }
+.illustration { object-fit:cover; }
+.badge-statut { position:absolute; top:12px; left:12px; margin:0; box-shadow:0 1px 4px #0002; }
+.statut-ouverte, .statut-acceptee { background:var(--menthe); color:#1d6a55; }
+.statut-pourvue { background:#fff0d7; color:#89611b; }
+.statut-terminee { background:#e9ecef; color:#56615e; }
+.annonce-contenu { display:flex; flex-direction:column; flex:1; padding:16px; }
+.annonce-carte h2 { font-size:15px; }
+.annonce-carte h2 a { color:var(--texte); text-decoration:none; }
+.annonce-carte h2 a:hover { color:var(--accent); }
+.description-annonce { max-height:none; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; font-size:13px; }
+.proprietaire { display:flex; align-items:center; gap:8px; margin:10px 0 0; font-size:13px; font-weight:600; }
+.proprietaire a { color:var(--texte); text-decoration:none; }
+.note-courte { color:var(--or); font-weight:700; }
+.bouton-postuler { margin-top:auto; width:100%; }
+.annonce-contenu .lien-avis { margin-bottom:12px; }
+.mes-annonces-layout .annonce-carte:hover { transform:none; }
+
+/* Témoignages */
+.derniers-avis { margin-top:46px; }
+.derniers-avis h2 { font-size:22px; text-align:center; margin-bottom:20px; }
+.temoignage { margin:0; display:flex; flex-direction:column; gap:10px; }
+.temoignage blockquote { margin:0; font-size:15px; line-height:1.55; flex:1; }
+.temoignage figcaption { font-size:12px; color:var(--discret); }
+
+/* Détail d'une annonce */
+.detail { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:24px; align-items:start; }
+.detail-visuel { border-radius:18px; overflow:hidden; aspect-ratio:3/2; box-shadow:var(--ombre); background:#e8efea; }
+.detail-visuel img { width:100%; height:100%; display:block; }
+.detail-infos h1 { margin:10px 0 18px; }
+.detail-infos .badge-statut { position:static; }
+.caracteristiques { margin:0 0 20px; display:grid; gap:10px; }
+.caracteristiques div { display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid var(--bord); padding-bottom:8px; }
+.caracteristiques dt { color:var(--discret); }
+.caracteristiques dd { margin:0; font-weight:600; text-align:right; }
+.carte-proprietaire { padding:14px; border:1px solid var(--bord); border-radius:12px; margin-bottom:16px; text-decoration:none; color:var(--texte); font-weight:400; }
+.carte-proprietaire:hover { background:var(--fond); color:var(--texte); }
+.detail-description { margin-top:24px; }
+.detail-description p { font-size:15px; }
+
+/* Profil */
+.profil-entete { display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+.profil-entete h1 { margin:0; }
+.avatar-grand { width:84px; height:84px; font-size:34px; cursor:default; }
+.profil-note { margin-left:auto; text-align:right; display:flex; flex-direction:column; gap:2px; }
+.profil-note strong { font-size:22px; }
+.grille-compacte { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.mini-annonce { display:flex; gap:14px; align-items:center; padding:12px; text-decoration:none; color:var(--texte); }
+.mini-annonce img { width:96px; height:72px; border-radius:10px; flex-shrink:0; }
+.mini-annonce:hover { border-color:#b9cbc2; color:var(--texte); }
+
+/* Candidatures */
+.carte h3 { margin:6px 0 8px; }
+.carte h3 a { color:var(--texte); }
+.carte .badge-statut { position:static; }
+.statut-en_attente { background:#fff0d7; color:#89611b; }
+.message-candidature { background:var(--fond); border-radius:8px; padding:10px 12px; font-style:italic; color:#4c5d58; }
+.actions-decision { display:flex; gap:10px; margin-top:12px; }
+
+/* Pied de page */
+.site-footer { background:#fff; flex-wrap:wrap; justify-content:space-between; padding:24px 38px; gap:16px 30px; }
+.footer-marque { display:flex; align-items:center; gap:12px; }
+.footer-liens { display:flex; gap:18px; flex-wrap:wrap; }
+.footer-liens a { color:var(--texte); text-decoration:none; font-weight:600; }
+.footer-credit { margin:0; }
+
+@media(max-width:1100px) { .accueil { grid-template-columns:1fr; } .detail { grid-template-columns:1fr; } }
+@media(max-width:720px) { .accueil { padding:26px 20px; } .accueil h1 { font-size:28px; } .etapes { grid-template-columns:1fr; } .grille-compacte { grid-template-columns:1fr; } .profil-note { margin-left:0; text-align:left; } .site-footer { padding:20px 18px; } .navigation { flex-wrap:wrap; } .lien-navigation { font-size:12px; } }
+@media(max-width:420px) { .chiffres { grid-template-columns:1fr 1fr; } .chiffres strong { font-size:24px; } .bouton-deposer { display:none; } }
+section + section { margin-top:34px; }

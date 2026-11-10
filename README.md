@@ -80,6 +80,7 @@ classDiagram
     }
     class Utilisateur {
         +creer(nom, email, password) void
+        +trouver(id) array
         +trouverParEmail(email) array
     }
     class Annonce {
@@ -99,6 +100,7 @@ classDiagram
     }
     class Avis {
         +pourAnnonce(annonce) array
+        +recus(utilisateur) array
         +destinataires(annonce, auteur) array
         +creer(annonce, auteur, cible, note, commentaire) bool
     }
@@ -120,12 +122,17 @@ classDiagram
     class AvisController {
         +index() void
     }
+    class ProfilController {
+        +index() void
+    }
     AuthController ..> Utilisateur
     AnnonceController ..> Annonce
     CandidatureController ..> Candidature
     CandidatureController ..> Annonce
     AvisController ..> Avis
     AvisController ..> Annonce
+    ProfilController ..> Utilisateur
+    ProfilController ..> Avis
     Utilisateur ..> Database
     Annonce ..> Database
     Candidature ..> Database
@@ -138,7 +145,8 @@ classDiagram
 2. **Candidater** : un autre utilisateur postule à une annonce ouverte dont la date de fin n’est pas passée ; `Candidature::postuler()` refuse sa propre annonce et les doublons, dans une transaction qui verrouille l’annonce.
 3. **Valider** : le propriétaire accepte ou refuse une candidature en attente avec `Candidature::decider()`. `Annonce::marquerPourvue()` fait passer une annonce `ouverte` en `pourvue` ; son appel à l’acceptation est à brancher par Ama dans `decider()` (voir [docs/ROADMAP.md](docs/ROADMAP.md)).
 4. **Clôturer** : `Annonce::cloturer()` termine une garde. Elle vérifie que l’annonce existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée, puis passe son statut à `terminee`. La mise à jour reprend ces conditions dans sa clause `WHERE`, si bien qu’un second envoi ou un tiers ne peut rien modifier. Le bouton « Terminer la garde » de Mes annonces ouvre une demande de confirmation ; seul « Confirmer la clôture » envoie le POST protégé par le jeton CSRF ; le contrôleur redirige avec un message de confirmation ou d’erreur. Une garde terminée ne propose plus le bouton et n’accepte plus de candidature.
-5. **Noter** : après la garde, le propriétaire et chaque gardien accepté peuvent se laisser un avis de 1 à 5, une seule fois par personne évaluée (`Avis::creer()`). Le paragraphe sur `noteMoyenne()` sera ajouté par Maria avec la méthode.
+5. **Noter** : quand la garde est finie (date de fin passée ou clôture par `cloturer()`), le propriétaire et chaque gardien accepté peuvent se laisser un avis de 1 à 5, une seule fois par personne évaluée (`Avis::creer()`).
+6. **Note moyenne** : `Avis::noteMoyenne(int $utilisateur)` calcule la moyenne des notes **reçues** par un utilisateur avec la requête `SELECT AVG(note) FROM avis WHERE id_cible = ?`. La fonction SQL `AVG` renvoie `NULL` quand l’utilisateur n’a reçu aucun avis : la méthode renvoie alors `null` et le profil affiche « Pas encore d’avis ». Sinon, la moyenne est arrondie à une décimale (`round(..., 1)`) et affichée au format français, par exemple « 4,5 / 5 ».
 
 ---
 
@@ -179,6 +187,10 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 
 Le serveur intégré PHP sert au développement local.
 
+## Photos des animaux
+
+Les cartes et la page de détail affichent une image choisie par `photoAnimal()` (`app/core/photos.php`) d’après le type d’animal : déposer des photos nommées `chat1.jpg`, `chien1.jpg`, `lapin1.jpg`, `oiseau1.jpg`, `poisson1.jpg`, `autre1.jpg`… dans `public/assets/animaux/` (voir son README). Sans photo, une illustration SVG est affichée.
+
 ## Comptes de démonstration
 
 Après l’import de `sql/donnees-demo.sql`, ces comptes fictifs sont disponibles. **Mot de passe commun : `demo1234`.** Ils servent uniquement à la démonstration locale.
@@ -190,7 +202,7 @@ Après l’import de `sql/donnees-demo.sql`, ces comptes fictifs sont disponible
 | Sofia | `sofia@demo.miaoumi.fr` | Gardienne : candidature en attente sur Moka, acceptée sur Rex et Bulle ; peut laisser un avis à Lucas sur Bulle |
 | Karim | `karim@demo.miaoumi.fr` | Gardien : candidature en attente sur Moka, refusée sur Rex, acceptée sur Plume |
 
-Le jeu contient 4 annonces (ouverte, pourvue, deux terminées), 6 candidatures et 3 avis. Les dates sont calculées à partir du jour de l’import. Le fichier peut être réimporté pour remettre la démonstration à zéro : il remplace uniquement ces comptes et leurs données.
+Le jeu contient 12 comptes (Inès, Thomas, Amélie, Julien, Nadia, Hugo, Léa et Mehdi en plus des quatre ci-dessus, même mot de passe), 25 annonces dans une dizaine de villes, 23 candidatures et 16 avis : les quatre scénarios ci-dessus restent identiques. Les dates sont calculées à partir du jour de l’import. Le fichier peut être réimporté pour remettre la démonstration à zéro : il remplace uniquement ces comptes et leurs données.
 
 ## Organisation
 
@@ -230,6 +242,7 @@ miaoumi/
 | `app/controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
 | `app/views/candidatures.php` | Candidatures envoyées et reçues |
 | `app/views/candidature-formulaire.php` | Formulaire de candidature |
+| `app/controllers/ProfilController.php`, `app/views/profil.php` | Profil public : nom, note moyenne et avis reçus |
 | `sql/migrations/` | Évolutions pour les bases déjà importées |
 | `public/assets/` | Logo du projet |
 | `sql/miaoumi.sql` | Structure de la base de données |
@@ -280,11 +293,15 @@ La liste publique affiche les annonces `ouverte`, avec recherche dans le titre/l
 
 La page d’authentification réunit les formulaires de connexion et d’inscription côte à côte sur ordinateur, puis en colonne sur téléphone. Les erreurs restent liées au formulaire soumis. Les actions de sélection d’un gardien, de refus automatique des autres candidats et les statistiques de gardien le plus sollicité de la maquette ne sont pas encore implémentées.
 
+## Le profil public
+
+`?page=profil&id=…` affiche le nom d’un utilisateur, sa note moyenne et les avis qu’il a reçus, avec un lien vers la garde concernée. Le profil est accessible depuis « Mon profil » dans le menu du compte et depuis les noms affichés dans les avis et les candidatures. `ProfilController` utilise `Utilisateur::trouver()` (nom seulement, jamais l’e-mail), `Avis::recus()` et `Avis::noteMoyenne()`. Sans avis reçu, la note affiche « Pas encore d’avis ». Un identifiant absent ou inconnu renvoie la page introuvable (404).
+
 ## Les avis
 
 Depuis une annonce, cliquer sur **Voir les avis / laisser un avis** (`?page=avis&annonce=ID`). Les avis affichent l’auteur, la personne évaluée, la note sur 5, le commentaire et la date d’enregistrement.
 
-Pour publier, il faut être connecté et participer à la garde : le propriétaire peut évaluer un gardien dont la candidature porte le statut `acceptee`, et ce gardien peut évaluer le propriétaire. La date de fin doit être antérieure au jour courant en heure de Paris. Une personne ne peut pas se noter elle-même ni évaluer deux fois la même personne pour une annonce. Le commentaire est facultatif, limité à 2 000 caractères.
+Pour publier, il faut être connecté et participer à la garde : le propriétaire peut évaluer un gardien dont la candidature porte le statut `acceptee`, et ce gardien peut évaluer le propriétaire. La garde doit être finie : date de fin antérieure au jour courant en heure de Paris, ou garde clôturée par son propriétaire (`Avis::gardeFinie()`). Une personne ne peut pas se noter elle-même ni évaluer deux fois la même personne pour une annonce. Le commentaire est facultatif, limité à 2 000 caractères.
 
 Cette première version utilise les tables existantes, sans réimportation SQL. Pour tester un avis, utilise une annonce passée avec au moins une candidature acceptée. Le contrôle repose actuellement sur la date de fin et la candidature acceptée ; aucune confirmation de réalisation de la garde n’est encore prévue. Les avis publiés ne sont pas modifiables ou supprimables depuis le site à ce stade.
 
