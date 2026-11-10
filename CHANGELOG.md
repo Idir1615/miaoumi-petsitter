@@ -6,6 +6,30 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 09/11/2026 à 21:10 — Idir — Parcours complet : annonce pourvue et note moyenne (travail local consigné)
+
+- `Candidature::decider()` : à l’acceptation, l’annonce passe en « pourvue » et les autres candidatures en attente de cette annonce sont refusées, dans la même transaction. Message de confirmation adapté.
+- `Avis::noteMoyenne()` : moyenne des notes reçues, arrondie à une décimale, `null` sans avis ; affichée sur le profil public (le contournement `method_exists` est retiré).
+- Ces deux tâches figuraient dans les périmètres d’Ama (candidatures) et de Maria (avis) dans docs/ROADMAP.md. Faute de livraison avant l’oral du 10/11/2026, elles ont été réalisées par Idir ; elles sont cochées dans la feuille de route avec cette mention.
+- Nouveau test `tests/parcours.php` (tables temporaires) ; `tests/annonces.php` charge désormais `app/core/photos.php`.
+- Vérifié : `php -l` ; `tests/parcours.php` et `tests/annonces.php` réussis ; note moyenne affichée sur un profil dans XAMPP (4,0 / 5) et « Pas encore d’avis » sans avis ; aucune erreur PHP sur les pages principales. Photos (complément de l’entrée précédente) : envoi réel testé dans XAMPP avec GD, refus sans consentement et refus d’un faux fichier image, métadonnées supprimées (marqueur « GPS » absent du fichier enregistré), image redimensionnée à 1 200 pixels, suppression effaçant le fichier et la valeur en base.
+
+### 09/11/2026 à 21:08 — Idir — Photos des annonces et des profils, conformes au RGPD (travail local consigné)
+
+- Photo facultative de l’animal à la publication d’une annonce et photo de profil facultative avec case de consentement ; boutons pour les supprimer (droit à l’effacement).
+- `app/core/photos.php` : contrôle du type réel et de la taille, image recréée avec GD (métadonnées et position GPS supprimées), redimensionnée, renommée au hasard ; `public/uploads/` ignoré par Git et protégé par un `.htaccess`.
+- Migration `sql/migrations/003_photos.sql` (colonne `photo` dans `annonces` et `utilisateurs`) et schéma `sql/miaoumi.sql` mis à jour ; le site fonctionne aussi sans la migration (`photoDisponible()`).
+- README : section « Les photos et le RGPD » et installation (migration 003, activation de GD). Extension GD activée dans le `php.ini` local d’Idir.
+- Vérifié : `php -l`, affichage des photos sur les cartes, image servie et dossier non listable (403) dans XAMPP. Non vérifié à cette heure : l’envoi réel d’une photo, Apache n’ayant pas encore été redémarré avec GD.
+
+### 07/11/2026 à 11:09 — Idir — Profil public (travail local consigné)
+
+- Nouvelle page `?page=profil&id=…` (`ProfilController`, `app/views/profil.php`) : nom, note moyenne et avis reçus avec l’auteur, la garde et la date ; état vide si aucun avis ; 404 avec le gabarit pour un identifiant absent ou inconnu.
+- Ajout de `Utilisateur::trouver()` (id et nom seulement) et `Avis::recus()` dans les modèles de Maria (à lui signaler avant qu’elle reprenne ces fichiers) ; la note moyenne appelle `Avis::noteMoyenne()`, que Maria livre, et affiche « Pas encore d’avis » en attendant.
+- Liens vers les profils : « Mon profil » dans le menu du compte, noms des auteurs et des personnes évaluées dans les avis, noms dans les candidatures.
+- README : section « Le profil public », diagramme de classes et tableau des fichiers mis à jour.
+- Vérifié : `php -l`, pages profil (avec et sans avis, identifiant inconnu ou invalide), lien du menu et liens des candidatures dans XAMPP avec les données de démo, sans erreur PHP ; `tests/annonces.php` réussi.
+
 ### 07/11/2026 à 10:53 — Idir — Image du MLD et fiches de révision
 
 - Ajout de l’image du MLD réalisée par Idir avec Looping (`docs/presentation/mld-miaoumi.png`) dans la section MLD du README, au-dessus de la version texte. Les rôles des associations donnent aux clés étrangères les noms du schéma SQL : `id_proprietaire`, `id_annonce`, `id_gardien`, `id_auteur`, `id_cible`.

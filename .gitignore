@@ -4,6 +4,10 @@ vendor/
 # Historique local généré depuis Git
 logs/
 
+# Photos envoyées par les utilisateurs (données personnelles, jamais versionnées)
+public/uploads/*
+!public/uploads/.htaccess
+
 # Config locale (mot de passe BDD)
 config/config.php
 

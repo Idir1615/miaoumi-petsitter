@@ -14,6 +14,28 @@ class Avis
         return $requete->fetchAll();
     }
 
+    // Avis reçus par un utilisateur, pour son profil public.
+    public function recus(int $utilisateur): array
+    {
+        $requete = Database::getConnection()->prepare(
+            'SELECT avis.*, auteur.nom AS auteur, annonces.titre
+             FROM avis JOIN utilisateurs auteur ON auteur.id = avis.id_auteur
+             JOIN annonces ON annonces.id = avis.id_annonce
+             WHERE avis.id_cible = ? ORDER BY avis.id DESC'
+        );
+        $requete->execute([$utilisateur]);
+        return $requete->fetchAll();
+    }
+
+    // Moyenne des notes reçues par un utilisateur, arrondie à une décimale, ou null s'il n'a aucun avis.
+    public function noteMoyenne(int $utilisateur): ?float
+    {
+        $requete = Database::getConnection()->prepare('SELECT AVG(note) FROM avis WHERE id_cible = ?');
+        $requete->execute([$utilisateur]);
+        $moyenne = $requete->fetchColumn();
+        return $moyenne === null ? null : round((float) $moyenne, 1);
+    }
+
     public function destinataires(array $annonce, int $auteur): array
     {
         if ($annonce['date_fin'] >= (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d')) {

@@ -33,7 +33,7 @@
     <?php if (!$avis): ?><p>Aucun avis pour cette annonce.</p><?php endif; ?>
     <?php foreach ($avis as $evaluation): ?>
         <article class="carte avis-carte">
-            <h3><?= e($evaluation['auteur']) ?> → <?= e($evaluation['cible']) ?> : <?= (int) $evaluation['note'] ?> / 5</h3>
+            <h3><a href="?page=profil&amp;id=<?= (int) $evaluation['id_auteur'] ?>"><?= e($evaluation['auteur']) ?></a> → <a href="?page=profil&amp;id=<?= (int) $evaluation['id_cible'] ?>"><?= e($evaluation['cible']) ?></a> : <?= (int) $evaluation['note'] ?> / 5</h3>
             <p><?= nl2br(e($evaluation['commentaire'] ?? '')) ?></p>
             <p>Enregistré le <?= e($evaluation['dates']) ?></p>
         </article>

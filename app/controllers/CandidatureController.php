@@ -90,7 +90,9 @@ class CandidatureController
             return;
         }
 
-        ajouterFlash('La décision a été enregistrée.');
+        ajouterFlash($decision === 'acceptee'
+            ? 'Candidature acceptée : l’annonce est maintenant pourvue et les autres candidatures en attente sont refusées.'
+            : 'La candidature a été refusée.');
         $this->rediriger('?page=candidatures');
     }
 

@@ -76,7 +76,7 @@ class Candidature
         $pdo->beginTransaction();
         try {
             $requete = $pdo->prepare(
-                'SELECT c.id, c.statut, a.id_proprietaire
+                'SELECT c.id, c.statut, c.id_annonce, a.id_proprietaire
                  FROM candidatures c
                  JOIN annonces a ON a.id = c.id_annonce
                  WHERE c.id = ? FOR UPDATE'
@@ -90,13 +90,21 @@ class Candidature
                 return false;
             }
 
-            // Plusieurs candidatures peuvent être acceptées pour une même annonce.
             $requete = $pdo->prepare(
                 "UPDATE candidatures SET statut = ? WHERE id = ? AND statut = 'en_attente'"
             );
             $requete->execute([$decision, $candidature]);
+            $modifiee = $requete->rowCount() === 1;
+            // Accepter un gardien : l'annonce devient pourvue et les autres candidatures en attente sont refusées.
+            if ($modifiee && $decision === 'acceptee') {
+                (new Annonce())->marquerPourvue((int) $ligne['id_annonce']);
+                $pdo->prepare(
+                    "UPDATE candidatures SET statut = 'refusee'
+                     WHERE id_annonce = ? AND id <> ? AND statut = 'en_attente'"
+                )->execute([$ligne['id_annonce'], $candidature]);
+            }
             $pdo->commit();
-            return $requete->rowCount() === 1;
+            return $modifiee;
         } catch (Throwable $exception) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();

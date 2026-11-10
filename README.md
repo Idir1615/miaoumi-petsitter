@@ -86,6 +86,7 @@ classDiagram
     }
     class Utilisateur {
         +creer(nom, email, password) void
+        +trouver(id) array
         +trouverParEmail(email) array
     }
     class Annonce {
@@ -105,6 +106,7 @@ classDiagram
     }
     class Avis {
         +pourAnnonce(annonce) array
+        +recus(utilisateur) array
         +destinataires(annonce, auteur) array
         +creer(annonce, auteur, cible, note, commentaire) bool
     }
@@ -126,12 +128,17 @@ classDiagram
     class AvisController {
         +index() void
     }
+    class ProfilController {
+        +index() void
+    }
     AuthController ..> Utilisateur
     AnnonceController ..> Annonce
     CandidatureController ..> Candidature
     CandidatureController ..> Annonce
     AvisController ..> Avis
     AvisController ..> Annonce
+    ProfilController ..> Utilisateur
+    ProfilController ..> Avis
     Utilisateur ..> Database
     Annonce ..> Database
     Candidature ..> Database
@@ -174,6 +181,8 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
 4. Pour une base neuve, importer `sql/miaoumi.sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `sql/migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
    Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `sql/migrations/002_avis_dates.sql`.
+   Si les tables `annonces` et `utilisateurs` n’ont pas de colonne `photo`, exécuter une seule fois `sql/migrations/003_photos.sql`.
+   Pour envoyer des photos, activer l’extension GD de PHP : dans `C:\xampp\php\php.ini`, retirer le `;` devant `extension=gd`, puis redémarrer Apache.
    Pour la démonstration, importer ensuite `sql/donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
 5. Depuis la racine du projet, lancer :
 
@@ -236,6 +245,7 @@ miaoumi/
 | `app/controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
 | `app/views/candidatures.php` | Candidatures envoyées et reçues |
 | `app/views/candidature-formulaire.php` | Formulaire de candidature |
+| `app/controllers/ProfilController.php`, `app/views/profil.php` | Profil public : nom, note moyenne et avis reçus |
 | `sql/migrations/` | Évolutions pour les bases déjà importées |
 | `public/assets/` | Logo du projet |
 | `sql/miaoumi.sql` | Structure de la base de données |
@@ -285,6 +295,32 @@ La liste publique affiche les annonces `ouverte`, avec recherche dans le titre/l
 `?page=mes-annonces` affiche uniquement les annonces du compte connecté avec filtres de statut et nombres d’annonces/gardes terminées. `?page=mes-candidatures` présente les candidatures envoyées par le gardien et celles reçues sur les annonces du propriétaire. Le propriétaire peut accepter ou refuser chaque candidature en attente depuis cette page ; ses décisions sont protégées par une soumission POST et un jeton CSRF.
 
 La page d’authentification réunit les formulaires de connexion et d’inscription côte à côte sur ordinateur, puis en colonne sur téléphone. Les erreurs restent liées au formulaire soumis. Les actions de sélection d’un gardien, de refus automatique des autres candidats et les statistiques de gardien le plus sollicité de la maquette ne sont pas encore implémentées.
+
+## Le profil public
+
+`?page=profil&id=…` affiche le nom d’un utilisateur, sa note moyenne et les avis qu’il a reçus, avec un lien vers la garde concernée. Le profil est accessible depuis « Mon profil » dans le menu du compte et depuis les noms affichés dans les avis et les candidatures. `ProfilController` utilise `Utilisateur::trouver()` (nom seulement, jamais l’e-mail), `Avis::recus()` et `Avis::noteMoyenne()`. Tant que `noteMoyenne()` n’est pas livrée, la note affiche « Pas encore d’avis ». Un identifiant absent ou inconnu renvoie la page introuvable (404).
+
+## Les photos et le RGPD
+
+Un propriétaire peut ajouter une photo de son animal en publiant une annonce, et chaque utilisateur peut mettre une photo sur son profil public. Les deux sont facultatives. Le traitement est regroupé dans `app/core/photos.php` :
+
+- **Contrôle du fichier** : JPEG ou PNG uniquement, type lu dans le contenu du fichier (`finfo`), 5 Mo et 8 000 pixels de côté maximum.
+- **Suppression des métadonnées** : l’image est recréée avec GD et redimensionnée (1 200 pixels maximum) ; la position GPS, l’appareil et la date de prise de vue disparaissent. L’orientation des photos de téléphone est appliquée avant.
+- **Nom aléatoire** (32 caractères hexadécimaux) : impossible de deviner l’adresse des photos des autres.
+- **Minimisation** : la base ne garde que le nom du fichier ; le formulaire d’annonce demande de ne photographier que l’animal, sans personne, plaque ni adresse visible ; le profil public n’affiche jamais l’e-mail.
+- **Consentement** : la photo de profil exige de cocher une case acceptant son affichage public.
+- **Droit à l’effacement** : « Supprimer ma photo » sur le profil et « Supprimer la photo » dans Mes annonces effacent le fichier du serveur.
+- **Stockage** : `public/uploads/` est ignoré par Git (aucune photo n’est publiée sur GitHub) ; un `.htaccess` y interdit l’exécution de scripts et la liste des fichiers.
+
+Limite connue : le site ne propose pas de supprimer un compte ; une suppression faite directement en base efface les lignes (`ON DELETE CASCADE`) mais pas les fichiers des photos.
+
+## Accepter une candidature et note moyenne
+
+Quand le propriétaire accepte une candidature, `Candidature::decider()` fait tout dans la même transaction : la candidature passe en `acceptee`, l’annonce passe en `pourvue` (`Annonce::marquerPourvue()`) et les autres candidatures encore en attente pour cette annonce passent en `refusee`. Une annonce pourvue n’accepte plus de nouvelles candidatures.
+
+`Avis::noteMoyenne()` calcule la moyenne des notes reçues par une personne (`SELECT AVG(note) FROM avis WHERE id_cible = ?`), arrondie à une décimale, ou `null` s’il n’y a aucun avis. Le profil public l’affiche (par exemple « 4,3 / 5 ») ou indique « Pas encore d’avis ».
+
+Le test `tests/parcours.php` vérifie ces deux règles avec des tables MySQL temporaires.
 
 ## Les avis
 

@@ -48,7 +48,7 @@ require __DIR__ . '/header.php';
             <div class="grille">
                 <?php foreach ($annonces as $a): ?>
                     <article class="annonce-carte">
-                        <div class="annonce-visuel"><img src="assets/patte.svg" alt="" width="36" height="36"></div>
+                        <div class="annonce-visuel"><?php if (!empty($a['photo'])): ?><img class="photo-annonce" src="uploads/annonces/<?= e($a['photo']) ?>" alt="Photo de l’animal : <?= e($a['titre']) ?>" loading="lazy"><?php else: ?><img src="assets/patte.svg" alt="" width="36" height="36"><?php endif; ?></div>
                         <div class="annonce-contenu">
                             <span class="badge"><?= e(['ouverte'=>'Ouverte', 'pourvue'=>'Pourvue', 'terminee'=>'Terminée'][$a['statut'] ?? 'ouverte'] ?? $a['statut']) ?></span>
                             <h2><?= e($a['titre']) ?></h2>
@@ -57,6 +57,13 @@ require __DIR__ . '/header.php';
                             <?php if (!empty($a['description'])): ?><p class="description-annonce"><?= nl2br(e($a['description'])) ?></p><?php endif; ?>
                             <a class="lien-avis" href="?page=avis&amp;annonce=<?= (int) $a['id'] ?>">Voir les avis / laisser un avis <span aria-hidden="true">→</span></a>
                             <?php if ($mesAnnonces): ?><a class="lien-avis" href="?page=candidatures-recues&amp;annonce=<?= (int) $a['id'] ?>">Candidatures reçues →</a><?php endif; ?>
+                            <?php if ($mesAnnonces && !empty($a['photo'])): ?>
+                                <form class="form-photo" method="post" action="?page=supprimer-photo-annonce">
+                                    <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                                    <input type="hidden" name="annonce" value="<?= (int) $a['id'] ?>">
+                                    <button class="bouton-secondaire" type="submit">Supprimer la photo</button>
+                                </form>
+                            <?php endif; ?>
                             <?php if ($mesAnnonces && ($a['statut'] ?? '') !== 'terminee'): ?>
                                 <details class="cloture">
                                     <summary class="bouton bouton-secondaire">Terminer la garde</summary>

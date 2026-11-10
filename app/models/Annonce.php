@@ -7,6 +7,12 @@ class Annonce
         return (bool) Database::getConnection()->query("SHOW COLUMNS FROM annonces LIKE 'ville'")->fetch();
     }
 
+    // Vrai si la migration 003 (colonne photo) a été appliquée sur cette base.
+    public function photoDisponible(): bool
+    {
+        return (bool) Database::getConnection()->query("SHOW COLUMNS FROM annonces LIKE 'photo'")->fetch();
+    }
+
     public function rechercher(string $recherche, string $animal, ?int $proprietaire = null, string $ville = ''): array
     {
         $conditions = [];
@@ -81,16 +87,22 @@ class Annonce
         if (!$utilisateur->fetch()) {
             return ['general' => 'Ce compte n’existe plus. Reconnecte-toi.'];
         }
-        $avecVille = $this->villeDisponible();
-        $requete = $pdo->prepare(
-            'INSERT INTO annonces (titre, type_animal, date_debut, date_fin, description, statut, id_proprietaire'
-            . ($avecVille ? ', ville' : '') . ") VALUES (?, ?, ?, ?, ?, 'ouverte', ?" . ($avecVille ? ', ?' : '') . ')'
-        );
+        $colonnes = ['titre', 'type_animal', 'date_debut', 'date_fin', 'description', 'id_proprietaire'];
         $valeurs = [trim($donnees['titre']), trim($donnees['type_animal']),
             $donnees['date_debut'], $donnees['date_fin'], trim($donnees['description']), $proprietaire];
-        if ($avecVille) {
+        if ($this->villeDisponible()) {
+            $colonnes[] = 'ville';
             $valeurs[] = trim($ville);
         }
+        // La photo a déjà été contrôlée et nettoyée par enregistrerPhoto() ; on ne garde que son nom.
+        if (!empty($donnees['photo']) && $this->photoDisponible()) {
+            $colonnes[] = 'photo';
+            $valeurs[] = $donnees['photo'];
+        }
+        $requete = $pdo->prepare(
+            'INSERT INTO annonces (' . implode(', ', $colonnes) . ", statut) VALUES ("
+            . implode(', ', array_fill(0, count($valeurs), '?')) . ", 'ouverte')"
+        );
         $requete->execute($valeurs);
         return [];
     }
@@ -123,6 +135,18 @@ class Annonce
         );
         $requete->execute([$annonce]);
         return $requete->rowCount() === 1;
+    }
+
+    // Retire la photo d'une annonce de son propriétaire et renvoie le nom du fichier à effacer, ou null.
+    public function retirerPhoto(int $annonce, int $proprietaire): ?string
+    {
+        $garde = $annonce > 0 ? $this->trouver($annonce) : null;
+        if (!$garde || (int) $garde['id_proprietaire'] !== $proprietaire || empty($garde['photo'])) {
+            return null;
+        }
+        $requete = Database::getConnection()->prepare('UPDATE annonces SET photo = NULL WHERE id = ? AND id_proprietaire = ?');
+        $requete->execute([$annonce, $proprietaire]);
+        return $requete->rowCount() === 1 ? $garde['photo'] : null;
     }
 
     public function trouver(int $id): ?array

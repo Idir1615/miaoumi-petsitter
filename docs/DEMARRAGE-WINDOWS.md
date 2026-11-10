@@ -14,6 +14,10 @@ Ouvre <http://localhost/phpmyadmin>, clique sur **Importer**, sélectionne le fi
 
 Si les tables existent déjà, ne réimporte pas le fichier : vérifie simplement la présence de `utilisateurs`, `annonces`, `candidatures` et `avis` dans la base. Le script n’est pas prévu pour être réexécuté sur des tables existantes.
 
+Si la base existait déjà avant l’ajout des photos (pas de colonne `photo` dans `annonces` ni `utilisateurs`), exécute une seule fois `sql/migrations/003_photos.sql` dans l’onglet **SQL** de phpMyAdmin.
+
+Pour pouvoir envoyer des photos, ouvre `C:\xampp\php\php.ini`, retire le `;` devant la ligne `extension=gd`, enregistre, puis clique sur **Stop** puis **Start** pour Apache dans XAMPP.
+
 ## 3. Configurer le site
 
 Chaque copie du projet a besoin de son propre fichier `config/config.php` : il n’est pas distribué par Git. Le fichier d’exemple est prérempli pour une installation XAMPP locale standard.
