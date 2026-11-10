@@ -1,0 +1,5 @@
+# Photos envoyées par les utilisateurs : rien ici ne doit être exécuté ni listé.
+Options -Indexes
+<FilesMatch "\.(php|phtml|phar|phps)$">
+    Require all denied
+</FilesMatch>

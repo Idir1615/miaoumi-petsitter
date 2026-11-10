@@ -25,12 +25,12 @@
         <div class="grille">
             <?php foreach ($mesCandidatures as $candidature): ?>
                 <article class="carte">
-                    <h3><?= e($candidature['titre']) ?></h3>
-                    <p>Propriétaire : <?= e($candidature['nom_proprietaire']) ?></p>
-                    <p>Statut : <?= e($libellesStatuts[$candidature['statut']] ?? $candidature['statut']) ?></p>
-                    <p>Envoyée le <?= e($candidature['date_candidature']) ?></p>
+                    <span class="badge badge-statut statut-<?= e($candidature['statut']) ?>"><?= e($libellesStatuts[$candidature['statut']] ?? $candidature['statut']) ?></span>
+                    <h3><a href="?page=annonce&amp;id=<?= (int) $candidature['id_annonce'] ?>"><?= e($candidature['titre']) ?></a></h3>
+                    <p>Propriétaire : <a href="?page=profil&amp;id=<?= (int) $candidature['id_proprietaire'] ?>"><?= e($candidature['nom_proprietaire']) ?></a></p>
+                    <p class="meta">Envoyée le <?= e(date('d/m/Y à H:i', strtotime($candidature['date_candidature']))) ?></p>
                     <?php if (($candidature['message'] ?? '') !== ''): ?>
-                        <p><?= nl2br(e($candidature['message'])) ?></p>
+                        <p class="message-candidature">« <?= nl2br(e($candidature['message'])) ?> »</p>
                     <?php endif; ?>
                 </article>
             <?php endforeach; ?>
@@ -46,19 +46,19 @@
         <div class="grille">
             <?php foreach ($candidaturesRecues as $candidature): ?>
                 <article class="carte">
-                    <h3><?= e($candidature['titre']) ?></h3>
-                    <p>Candidat·e : <?= e($candidature['nom_gardien']) ?></p>
-                    <p>Statut : <?= e($libellesStatuts[$candidature['statut']] ?? $candidature['statut']) ?></p>
-                    <p>Reçue le <?= e($candidature['date_candidature']) ?></p>
+                    <span class="badge badge-statut statut-<?= e($candidature['statut']) ?>"><?= e($libellesStatuts[$candidature['statut']] ?? $candidature['statut']) ?></span>
+                    <h3><a href="?page=annonce&amp;id=<?= (int) $candidature['id_annonce'] ?>"><?= e($candidature['titre']) ?></a></h3>
+                    <p>Candidat·e : <a href="?page=profil&amp;id=<?= (int) $candidature['id_gardien'] ?>"><?= e($candidature['nom_gardien']) ?></a></p>
+                    <p class="meta">Reçue le <?= e(date('d/m/Y à H:i', strtotime($candidature['date_candidature']))) ?></p>
                     <?php if (($candidature['message'] ?? '') !== ''): ?>
-                        <p><?= nl2br(e($candidature['message'])) ?></p>
+                        <p class="message-candidature">« <?= nl2br(e($candidature['message'])) ?> »</p>
                     <?php endif; ?>
                     <?php if ($candidature['statut'] === 'en_attente'): ?>
-                        <form method="post" action="?page=decision-candidature">
+                        <form class="actions-decision" method="post" action="?page=decision-candidature">
                             <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
                             <input type="hidden" name="candidature" value="<?= (int) $candidature['id'] ?>">
                             <button type="submit" name="decision" value="acceptee">Accepter</button>
-                            <button type="submit" name="decision" value="refusee">Refuser</button>
+                            <button class="bouton-secondaire" type="submit" name="decision" value="refusee">Refuser</button>
                         </form>
                     <?php endif; ?>
                 </article>

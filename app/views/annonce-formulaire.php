@@ -3,7 +3,7 @@
 <h1>Publier une annonce</h1>
 <p class="intro">Décrivez la garde dont votre animal a besoin.</p>
 <?php if ($erreurs): ?><div class="message message-erreur" role="alert"><p>Ton annonce n’a pas été publiée. Vérifie les champs ci-dessous.</p><?php if (isset($erreurs['general'])): ?><p><?= e($erreurs['general']) ?></p><?php endif; ?></div><?php endif; ?>
-<form class="formulaire" method="post" action="?page=creer-annonce">
+<form class="formulaire" method="post" action="?page=creer-annonce" enctype="multipart/form-data">
     <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
     <div class="formulaire-grille">
     <?php foreach (['titre' => ['Titre', 'text', 150, 'Ex. Garde de Milo, week-end'], 'type_animal' => ['Type d’animal', 'text', 100, 'Ex. Chien, chat, lapin...'], 'date_debut' => ['Date de début', 'date', null, ''], 'date_fin' => ['Date de fin', 'date', null, '']] as $champ => $options): ?>
@@ -24,6 +24,14 @@
         <?php if (isset($erreurs['description'])): ?><p id="erreur-description" class="erreur-champ"><?= e($erreurs['description']) ?></p><?php endif; ?>
         <small class="intro">Facultative, 5 000 caractères maximum.</small>
     </div>
+    <?php if ($photoDisponible ?? false): ?>
+    <div class="champ large">
+        <label for="photo">Photo de l’animal (facultative)</label>
+        <input id="photo" name="photo" type="file" accept="image/jpeg,image/png" <?= isset($erreurs['photo']) ? 'aria-invalid="true" aria-describedby="erreur-photo"' : '' ?>>
+        <?php if (isset($erreurs['photo'])): ?><p id="erreur-photo" class="erreur-champ"><?= e($erreurs['photo']) ?></p><?php endif; ?>
+        <small class="intro">JPEG ou PNG, 5 Mo maximum. Photographie seulement l’animal : pas de personne, de plaque ni d’adresse visible. La photo est publique avec l’annonce ; sa position GPS et ses autres métadonnées sont supprimées, et tu peux la retirer à tout moment depuis « Mes annonces ».<?= $erreurs ? ' En cas d’erreur, choisis la photo à nouveau.' : '' ?></small>
+    </div>
+    <?php endif; ?>
     </div>
     <div class="actions-formulaire"><button type="submit">Publier l’annonce</button><a class="bouton bouton-secondaire" href="?page=annonces">Annuler</a></div>
 </form>

@@ -6,6 +6,60 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 10/11/2026 à 10:01 — Idir — Fusion du travail de Maria avec celui d’Idir (travail local consigné)
+
+- Intégration dans `develop` de `feature/maria-avis-comptes` (refonte visuelle, page détail, corrections avis et comptes, nouvelles données de démo) par-dessus le profil, le MLD, les photos et le parcours d’Idir.
+- Doublons réunis : une seule `Avis::noteMoyenne()` (celle de Maria) ; un seul `Utilisateur::trouver()` (celui d’Idir, qui renvoie aussi la photo) ; page profil de Maria (avatar, étoiles, annonces en cours) avec la photo de profil et son formulaire de consentement ; `app/core/photos.php` regroupe l’envoi de photos d’Idir et les images par type d’animal de Maria, la photo envoyée par le propriétaire passant en premier.
+- Conservés : passage en « pourvue » et refus automatique des autres candidatures (Idir), `Avis::gardeFinie()`, messages flash et validation dans `Utilisateur::creer()` (Maria), routes `annonce`, `photo-profil` et `supprimer-photo-annonce`.
+
+### 09/11/2026 à 21:10 — Idir — Parcours complet : annonce pourvue et note moyenne (travail local consigné)
+
+- `Candidature::decider()` : à l’acceptation, l’annonce passe en « pourvue » et les autres candidatures en attente de cette annonce sont refusées, dans la même transaction. Message de confirmation adapté.
+- `Avis::noteMoyenne()` : moyenne des notes reçues, arrondie à une décimale, `null` sans avis ; affichée sur le profil public (le contournement `method_exists` est retiré). Maria a livré en parallèle sa propre version, identique dans son principe : c’est la sienne qui est conservée lors de la fusion du 10/11/2026.
+- Le passage en « pourvue » figurait dans le périmètre d’Ama (candidatures) dans docs/ROADMAP.md ; faute de livraison avant la date d’oral prévue, il a été réalisé par Idir et coché avec cette mention.
+- Nouveau test `tests/parcours.php` (tables temporaires) ; `tests/annonces.php` charge désormais `app/core/photos.php`.
+- Vérifié : `php -l` ; `tests/parcours.php` et `tests/annonces.php` réussis ; note moyenne affichée sur un profil dans XAMPP (4,0 / 5) et « Pas encore d’avis » sans avis ; aucune erreur PHP sur les pages principales. Photos (complément de l’entrée précédente) : envoi réel testé dans XAMPP avec GD, refus sans consentement et refus d’un faux fichier image, métadonnées supprimées (marqueur « GPS » absent du fichier enregistré), image redimensionnée à 1 200 pixels, suppression effaçant le fichier et la valeur en base.
+
+### 09/11/2026 à 21:08 — Idir — Photos des annonces et des profils, conformes au RGPD (travail local consigné)
+
+- Photo facultative de l’animal à la publication d’une annonce et photo de profil facultative avec case de consentement ; boutons pour les supprimer (droit à l’effacement).
+- `app/core/photos.php` : contrôle du type réel et de la taille, image recréée avec GD (métadonnées et position GPS supprimées), redimensionnée, renommée au hasard ; `public/uploads/` ignoré par Git et protégé par un `.htaccess`.
+- Migration `sql/migrations/003_photos.sql` (colonne `photo` dans `annonces` et `utilisateurs`) et schéma `sql/miaoumi.sql` mis à jour ; le site fonctionne aussi sans la migration (`photoDisponible()`).
+- README : section « Les photos et le RGPD » et installation (migration 003, activation de GD). Extension GD activée dans le `php.ini` local d’Idir.
+- Vérifié : `php -l`, affichage des photos sur les cartes, image servie et dossier non listable (403) dans XAMPP. Non vérifié à cette heure : l’envoi réel d’une photo, Apache n’ayant pas encore été redémarré avec GD.
+
+### 09/11/2026 à 19:40 — Maria — Refonte visuelle et contenu de démonstration (travail local consigné, à valider avec Idir et Ama)
+
+- Accueil : bandeau avec chiffres du site (`Annonce::statistiques()`, `Avis::statistiques()`), étapes « Publiez, Choisissez, Notez » et trois derniers avis positifs (`Avis::derniers()`), affichés seulement sur la première page sans filtre.
+- Cartes d’annonces avec image, statut en pastille, nom et note moyenne du propriétaire (jointure et sous-requête `AVG` dans `Annonce::rechercher()`), bouton « Postuler » ; filtre « Poisson » ajouté.
+- Nouvelle page de détail `?page=annonce&id=…` (`AnnonceController::voir()`, `Annonce::detail()`, `app/views/annonce.php`) : caractéristiques, durée, propriétaire, description, avis.
+- Photos : `app/core/photos.php` (`photoAnimal()`) lit `public/assets/animaux/chat1.jpg`, `chien1.jpg`… et revient à six illustrations SVG ; mode d’emploi dans `public/assets/animaux/README.md`.
+- Profil (Idir) : avatar, étoiles, annonces en cours ; candidatures (Ama) : pastilles de statut, dates lisibles, liens vers l’annonce ; pied de page avec liens.
+- `sql/donnees-demo.sql` : 12 comptes, 25 annonces, 23 candidatures et 16 avis ; `SET NAMES utf8mb4` pour les accents. Les quatre scénarios du README sont conservés.
+- `tests/annonces.php` : tables temporaires complétées (colonne `nom`, table `avis`) pour la nouvelle requête de liste ; toutes les vérifications d’Idir sont conservées et réussies.
+- Vérifié sur MariaDB locale : test d’Idir, 24 contrôles avis/comptes et 30 contrôles de parcours complet (publier, postuler, décider, clôturer, noter, 404, CSRF), captures ordinateur et mobile 390 px. Non vérifié dans XAMPP.
+
+### 09/11/2026 à 19:10 — Maria — Avis et comptes : corrections de la checklist et note moyenne (travail local consigné)
+
+- `Utilisateur::creer()` valide le nom (1 à 100 caractères), l’e-mail (format, 150 caractères, non déjà utilisé) et le mot de passe (8 à 72 octets) **avant** l’INSERT et renvoie un tableau d’erreurs, comme `Annonce::creer()` ; le doublon simultané (erreur MySQL 1062) est aussi transformé en message. `AuthController::inscription()` ne garde que le contrôle de confirmation du mot de passe.
+- Messages flash après inscription, connexion, déconnexion et dépôt d’avis ; suppression de `?inscrit=1`, `&ajoute=1` et des tests `$_GET` correspondants dans les vues.
+- Page des avis : personne évaluée conservée après une erreur, erreurs en `message message-erreur`, champs avec les classes communes, notes en étoiles, dates au format JJ/MM/AAAA ; « Annonce introuvable » affiché avec le gabarit 404 commun.
+- Nouvelle méthode `Avis::noteMoyenne()` (`AVG`, `null` sans avis) utilisée par le profil d’Idir ; `Avis::gardeFinie()` ouvre les avis dès la clôture d’une garde, même avant sa date de fin.
+- Vérifié sur une base MariaDB locale avec `sql/donnees-demo.sql` et un script HTTP (24 contrôles) : inscription invalide sans ligne créée, e-mail déjà utilisé, saisie conservée sans mot de passe, flash affichés une seule fois, dépôt d’avis, doublon refusé, texte `<script>` échappé, avis après clôture, moyenne 4,5 et « Pas encore d’avis ». `php -l` sur les fichiers modifiés. Non vérifié dans XAMPP sous Windows.
+
+### 07/11/2026 à 11:09 — Idir — Profil public (travail local consigné)
+
+- Nouvelle page `?page=profil&id=…` (`ProfilController`, `app/views/profil.php`) : nom, note moyenne et avis reçus avec l’auteur, la garde et la date ; état vide si aucun avis ; 404 avec le gabarit pour un identifiant absent ou inconnu.
+- Ajout de `Utilisateur::trouver()` (id et nom seulement) et `Avis::recus()` dans les modèles de Maria (à lui signaler avant qu’elle reprenne ces fichiers) ; la note moyenne appelle `Avis::noteMoyenne()`, que Maria livre, et affiche « Pas encore d’avis » en attendant.
+- Liens vers les profils : « Mon profil » dans le menu du compte, noms des auteurs et des personnes évaluées dans les avis, noms dans les candidatures.
+- README : section « Le profil public », diagramme de classes et tableau des fichiers mis à jour.
+- Vérifié : `php -l`, pages profil (avec et sans avis, identifiant inconnu ou invalide), lien du menu et liens des candidatures dans XAMPP avec les données de démo, sans erreur PHP ; `tests/annonces.php` réussi.
+
+### 07/11/2026 à 10:53 — Idir — Image du MLD et fiches de révision
+
+- Ajout de l’image du MLD réalisée par Idir avec Looping (`docs/presentation/mld-miaoumi.png`) dans la section MLD du README, au-dessus de la version texte. Les rôles des associations donnent aux clés étrangères les noms du schéma SQL : `id_proprietaire`, `id_annonce`, `id_gardien`, `id_auteur`, `id_cible`.
+- Ajout de deux fiches de révision pour l’oral : `docs/FICHE-REVISION-MIAOUMI.pdf` (tout le code, 20 questions avec réponses) et `docs/FICHE-EXPRESS-ORAL.pdf` (2 pages, présentation du projet et ordre de révision). Elles décrivent le code du 07/11/2026 : `noteMoyenne()`, le profil public et le nouveau `decider()` y sont indiqués « à venir ».
+
 ### 07/11/2026 à 10:31 — Idir — Intégration dans develop et main, ménage des branches
 
 - Fusion dans `develop` de `feature/idir-logo` (icône de navigation et favicon) puis de `feature/idir-structure` ; seul conflit, les deux entrées du CHANGELOG, conservées toutes les deux. L’icône a suivi les vues déplacées dans `app/views/`.
@@ -14,6 +68,14 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 - Suppression des anciennes branches locales `restructuration` et `maria-avis-comptes` ; activation du hook Git qui génère `logs/git-history.md`.
 - Ajout de ces échanges dans docs/PROMPTS.md (section 13) et mise à jour de ses consignes de reprise.
 - À la demande d’Idir, fusion de `develop` dans `main` (aucun conflit, `tests/annonces.php` réussi juste avant).
+
+### 26/10/2026 à 20:51 — Idir — Checklist des annonces (travail local consigné)
+
+- Ajout de docs/CHECKLIST-IDIR.md : état des critères de fin de séance 2 pour le module annonces, vérifié par relecture du code ; restent la branche de module et l’explication de `rechercher()` et `villeDisponible()`.
+
+### 23/10/2026 à 15:51 — Idir — Checklist de Maria (travail local consigné)
+
+- Ajout de docs/CHECKLIST-MARIA.md : tâches restantes sur les avis et les comptes (flash, validation de `Utilisateur::creer()`, formulaire d’avis, tests), avec les lignes de code concernées.
 
 ### 07/11/2026 à 10:12 — Idir — Structure des dossiers alignée sur le cours (commit 24bd318)
 
@@ -90,7 +152,6 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 - Hook local `pre-push` refusant, pour une autre personne qu’Idir, un push sur `main` ou `develop` et la suppression de branches distantes, ainsi que les noms de branches non conformes ; contrôle GitHub des pull requests vers `develop` et `main`.
 - Suppression de l’ancienne branche commune `feature`, déjà entièrement fusionnée dans `main`, pour permettre les branches `feature/…` ; `develop` remise au niveau de `main`.
 - Mise à jour du README, de CONTRIBUTING, du guide Git et des consignes AGENTS. Le dépôt restant privé sur un compte gratuit, GitHub n’applique pas les règles de branche : leur respect repose sur l’équipe et le hook local.
-
 ### 20/10/2026 à 12:35 — Ama — Mise en cohérence de la documentation
 
 - Correction du README et de la checklist pour refléter les actions de candidature désormais disponibles et les vérifications encore à faire.

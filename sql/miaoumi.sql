@@ -6,7 +6,8 @@ CREATE TABLE utilisateurs (
     nom VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'user'
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
+    photo VARCHAR(64) NULL
 );
 
 CREATE TABLE annonces (
@@ -17,6 +18,7 @@ CREATE TABLE annonces (
     date_debut DATE NOT NULL,
     date_fin DATE NOT NULL,
     description TEXT,
+    photo VARCHAR(64) NULL,
     statut VARCHAR(50) NOT NULL DEFAULT 'ouverte',
     id_proprietaire INT NOT NULL,
     FOREIGN KEY (id_proprietaire) REFERENCES utilisateurs(id) ON DELETE CASCADE

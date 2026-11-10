@@ -61,6 +61,12 @@ Le champ `ville` de l’entité annonces, ajouté ensuite pour la maquette, figu
 
 Traduction du MCD en tables, telle qu’elle est appliquée par [`sql/miaoumi.sql`](sql/miaoumi.sql). Clé primaire **soulignée en gras**, clé étrangère précédée de `#`.
 
+<p align="center">
+  <img src="docs/presentation/mld-miaoumi.png" alt="MLD Miaoumi généré avec Looping : tables utilisateurs, annonces, candidatures et avis ; clés étrangères id_proprietaire, id_annonce, id_gardien, id_auteur et id_cible en italique" width="760">
+</p>
+
+Le MLD ci-dessus est généré par Looping à partir du MCD ; les clés étrangères y sont en italique et les flèches pointent vers la table référencée. Le détail en texte :
+
 - **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role)
 - **annonces** (**id**, titre, type_animal, ville, date_debut, date_fin, description, statut, `#id_proprietaire` → utilisateurs.id)
 - **candidatures** (**id**, message, statut, date_candidature, `#id_annonce` → annonces.id, `#id_gardien` → utilisateurs.id)
@@ -80,6 +86,7 @@ classDiagram
     }
     class Utilisateur {
         +creer(nom, email, password) void
+        +trouver(id) array
         +trouverParEmail(email) array
     }
     class Annonce {
@@ -99,6 +106,7 @@ classDiagram
     }
     class Avis {
         +pourAnnonce(annonce) array
+        +recus(utilisateur) array
         +destinataires(annonce, auteur) array
         +creer(annonce, auteur, cible, note, commentaire) bool
     }
@@ -120,12 +128,17 @@ classDiagram
     class AvisController {
         +index() void
     }
+    class ProfilController {
+        +index() void
+    }
     AuthController ..> Utilisateur
     AnnonceController ..> Annonce
     CandidatureController ..> Candidature
     CandidatureController ..> Annonce
     AvisController ..> Avis
     AvisController ..> Annonce
+    ProfilController ..> Utilisateur
+    ProfilController ..> Avis
     Utilisateur ..> Database
     Annonce ..> Database
     Candidature ..> Database
@@ -138,7 +151,8 @@ classDiagram
 2. **Candidater** : un autre utilisateur postule à une annonce ouverte dont la date de fin n’est pas passée ; `Candidature::postuler()` refuse sa propre annonce et les doublons, dans une transaction qui verrouille l’annonce.
 3. **Valider** : le propriétaire accepte ou refuse une candidature en attente avec `Candidature::decider()`. `Annonce::marquerPourvue()` fait passer une annonce `ouverte` en `pourvue` ; son appel à l’acceptation est à brancher par Ama dans `decider()` (voir [docs/ROADMAP.md](docs/ROADMAP.md)).
 4. **Clôturer** : `Annonce::cloturer()` termine une garde. Elle vérifie que l’annonce existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée, puis passe son statut à `terminee`. La mise à jour reprend ces conditions dans sa clause `WHERE`, si bien qu’un second envoi ou un tiers ne peut rien modifier. Le bouton « Terminer la garde » de Mes annonces ouvre une demande de confirmation ; seul « Confirmer la clôture » envoie le POST protégé par le jeton CSRF ; le contrôleur redirige avec un message de confirmation ou d’erreur. Une garde terminée ne propose plus le bouton et n’accepte plus de candidature.
-5. **Noter** : après la garde, le propriétaire et chaque gardien accepté peuvent se laisser un avis de 1 à 5, une seule fois par personne évaluée (`Avis::creer()`). Le paragraphe sur `noteMoyenne()` sera ajouté par Maria avec la méthode.
+5. **Noter** : quand la garde est finie (date de fin passée ou clôture par `cloturer()`), le propriétaire et chaque gardien accepté peuvent se laisser un avis de 1 à 5, une seule fois par personne évaluée (`Avis::creer()`).
+6. **Note moyenne** : `Avis::noteMoyenne(int $utilisateur)` calcule la moyenne des notes **reçues** par un utilisateur avec la requête `SELECT AVG(note) FROM avis WHERE id_cible = ?`. La fonction SQL `AVG` renvoie `NULL` quand l’utilisateur n’a reçu aucun avis : la méthode renvoie alors `null` et le profil affiche « Pas encore d’avis ». Sinon, la moyenne est arrondie à une décimale (`round(..., 1)`) et affichée au format français, par exemple « 4,5 / 5 ».
 
 ---
 
@@ -168,6 +182,8 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
 4. Pour une base neuve, importer `sql/miaoumi.sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `sql/migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
    Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `sql/migrations/002_avis_dates.sql`.
+   Si les tables `annonces` et `utilisateurs` n’ont pas de colonne `photo`, exécuter une seule fois `sql/migrations/003_photos.sql`.
+   Pour envoyer des photos, activer l’extension GD de PHP : dans `C:\xampp\php\php.ini`, retirer le `;` devant `extension=gd`, puis redémarrer Apache.
    Pour la démonstration, importer ensuite `sql/donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
 5. Depuis la racine du projet, lancer :
 
@@ -178,6 +194,10 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 6. Ouvrir <http://localhost:8000>. Si aucune annonce n’a été ajoutée à la base, le message « Aucune annonce pour le moment » est normal.
 
 Le serveur intégré PHP sert au développement local.
+
+## Photos des animaux
+
+Les cartes et la page de détail affichent une image choisie par `photoAnimal()` (`app/core/photos.php`) d’après le type d’animal : déposer des photos nommées `chat1.jpg`, `chien1.jpg`, `lapin1.jpg`, `oiseau1.jpg`, `poisson1.jpg`, `autre1.jpg`… dans `public/assets/animaux/` (voir son README). Sans photo, une illustration SVG est affichée.
 
 ## Comptes de démonstration
 
@@ -190,7 +210,7 @@ Après l’import de `sql/donnees-demo.sql`, ces comptes fictifs sont disponible
 | Sofia | `sofia@demo.miaoumi.fr` | Gardienne : candidature en attente sur Moka, acceptée sur Rex et Bulle ; peut laisser un avis à Lucas sur Bulle |
 | Karim | `karim@demo.miaoumi.fr` | Gardien : candidature en attente sur Moka, refusée sur Rex, acceptée sur Plume |
 
-Le jeu contient 4 annonces (ouverte, pourvue, deux terminées), 6 candidatures et 3 avis. Les dates sont calculées à partir du jour de l’import. Le fichier peut être réimporté pour remettre la démonstration à zéro : il remplace uniquement ces comptes et leurs données.
+Le jeu contient 12 comptes (Inès, Thomas, Amélie, Julien, Nadia, Hugo, Léa et Mehdi en plus des quatre ci-dessus, même mot de passe), 25 annonces dans une dizaine de villes, 23 candidatures et 16 avis : les quatre scénarios ci-dessus restent identiques. Les dates sont calculées à partir du jour de l’import. Le fichier peut être réimporté pour remettre la démonstration à zéro : il remplace uniquement ces comptes et leurs données.
 
 ## Organisation
 
@@ -230,6 +250,7 @@ miaoumi/
 | `app/controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
 | `app/views/candidatures.php` | Candidatures envoyées et reçues |
 | `app/views/candidature-formulaire.php` | Formulaire de candidature |
+| `app/controllers/ProfilController.php`, `app/views/profil.php` | Profil public : nom, note moyenne et avis reçus |
 | `sql/migrations/` | Évolutions pour les bases déjà importées |
 | `public/assets/` | Logo du projet |
 | `sql/miaoumi.sql` | Structure de la base de données |
@@ -280,11 +301,37 @@ La liste publique affiche les annonces `ouverte`, avec recherche dans le titre/l
 
 La page d’authentification réunit les formulaires de connexion et d’inscription côte à côte sur ordinateur, puis en colonne sur téléphone. Les erreurs restent liées au formulaire soumis. Les actions de sélection d’un gardien, de refus automatique des autres candidats et les statistiques de gardien le plus sollicité de la maquette ne sont pas encore implémentées.
 
+## Le profil public
+
+`?page=profil&id=…` affiche le nom d’un utilisateur, sa note moyenne et les avis qu’il a reçus, avec un lien vers la garde concernée. Le profil est accessible depuis « Mon profil » dans le menu du compte et depuis les noms affichés dans les avis et les candidatures. `ProfilController` utilise `Utilisateur::trouver()` (nom seulement, jamais l’e-mail), `Avis::recus()` et `Avis::noteMoyenne()`. Le profil montre aussi les annonces en cours de la personne et les notes en étoiles. Sans avis reçu, la note affiche « Pas encore d’avis ». Sur son propre profil, l’utilisateur peut ajouter, changer ou supprimer sa photo (voir ci-dessous). Un identifiant absent ou inconnu renvoie la page introuvable (404).
+
+## Les photos et le RGPD
+
+Un propriétaire peut ajouter une photo de son animal en publiant une annonce, et chaque utilisateur peut mettre une photo sur son profil public. Les deux sont facultatives. Sans photo envoyée, les cartes affichent une photo ou une illustration selon le type d’animal (`photoAnimal()`, images de `public/assets/animaux/`). Le traitement des photos envoyées est regroupé dans `app/core/photos.php` :
+
+- **Contrôle du fichier** : JPEG ou PNG uniquement, type lu dans le contenu du fichier (`finfo`), 5 Mo et 8 000 pixels de côté maximum.
+- **Suppression des métadonnées** : l’image est recréée avec GD et redimensionnée (1 200 pixels maximum) ; la position GPS, l’appareil et la date de prise de vue disparaissent. L’orientation des photos de téléphone est appliquée avant.
+- **Nom aléatoire** (32 caractères hexadécimaux) : impossible de deviner l’adresse des photos des autres.
+- **Minimisation** : la base ne garde que le nom du fichier ; le formulaire d’annonce demande de ne photographier que l’animal, sans personne, plaque ni adresse visible ; le profil public n’affiche jamais l’e-mail.
+- **Consentement** : la photo de profil exige de cocher une case acceptant son affichage public.
+- **Droit à l’effacement** : « Supprimer ma photo » sur le profil et « Supprimer la photo » dans Mes annonces effacent le fichier du serveur.
+- **Stockage** : `public/uploads/` est ignoré par Git (aucune photo n’est publiée sur GitHub) ; un `.htaccess` y interdit l’exécution de scripts et la liste des fichiers.
+
+Limite connue : le site ne propose pas de supprimer un compte ; une suppression faite directement en base efface les lignes (`ON DELETE CASCADE`) mais pas les fichiers des photos.
+
+## Accepter une candidature et note moyenne
+
+Quand le propriétaire accepte une candidature, `Candidature::decider()` fait tout dans la même transaction : la candidature passe en `acceptee`, l’annonce passe en `pourvue` (`Annonce::marquerPourvue()`) et les autres candidatures encore en attente pour cette annonce passent en `refusee`. Une annonce pourvue n’accepte plus de nouvelles candidatures.
+
+`Avis::noteMoyenne()` (Maria) calcule la moyenne des notes reçues par une personne (`SELECT AVG(note) FROM avis WHERE id_cible = ?`), arrondie à une décimale, ou `null` s’il n’y a aucun avis. Le profil public l’affiche (par exemple « 4,3 / 5 ») ou indique « Pas encore d’avis ».
+
+Le test `tests/parcours.php` vérifie ces deux règles avec des tables MySQL temporaires.
+
 ## Les avis
 
 Depuis une annonce, cliquer sur **Voir les avis / laisser un avis** (`?page=avis&annonce=ID`). Les avis affichent l’auteur, la personne évaluée, la note sur 5, le commentaire et la date d’enregistrement.
 
-Pour publier, il faut être connecté et participer à la garde : le propriétaire peut évaluer un gardien dont la candidature porte le statut `acceptee`, et ce gardien peut évaluer le propriétaire. La date de fin doit être antérieure au jour courant en heure de Paris. Une personne ne peut pas se noter elle-même ni évaluer deux fois la même personne pour une annonce. Le commentaire est facultatif, limité à 2 000 caractères.
+Pour publier, il faut être connecté et participer à la garde : le propriétaire peut évaluer un gardien dont la candidature porte le statut `acceptee`, et ce gardien peut évaluer le propriétaire. La garde doit être finie : date de fin antérieure au jour courant en heure de Paris, ou garde clôturée par son propriétaire (`Avis::gardeFinie()`). Une personne ne peut pas se noter elle-même ni évaluer deux fois la même personne pour une annonce. Le commentaire est facultatif, limité à 2 000 caractères.
 
 Cette première version utilise les tables existantes, sans réimportation SQL. Pour tester un avis, utilise une annonce passée avec au moins une candidature acceptée. Le contrôle repose actuellement sur la date de fin et la candidature acceptée ; aucune confirmation de réalisation de la garde n’est encore prévue. Les avis publiés ne sont pas modifiables ou supprimables depuis le site à ce stade.
 

@@ -20,6 +20,7 @@ $authPage = in_array($pageCourante, ['connexion', 'inscription'], true);
             <summary class="avatar" aria-label="Menu du compte de <?= e($_SESSION['utilisateur']['nom']) ?>"><?= e(mb_strtoupper(mb_substr($_SESSION['utilisateur']['nom'], 0, 1))) ?></summary>
             <div class="menu-compte-contenu">
                 <span>Bonjour <?= e($_SESSION['utilisateur']['nom']) ?> !</span>
+                <a href="?page=profil&amp;id=<?= (int) $_SESSION['utilisateur']['id'] ?>">Mon profil</a>
                 <form method="post" action="?page=deconnexion">
                     <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
                     <button class="bouton-secondaire" type="submit">Se déconnecter</button>
