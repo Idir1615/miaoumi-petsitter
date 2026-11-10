@@ -1,0 +1,26 @@
+name: Règles de branches
+
+on:
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  nom-de-branche:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vérifier le circuit feature → develop → main
+        env:
+          BRANCHE: ${{ github.head_ref }}
+          CIBLE: ${{ github.base_ref }}
+        run: |
+          if [ "$CIBLE" = "main" ]; then
+            if [ "$BRANCHE" = "develop" ]; then echo "Fusion develop → main conforme"; exit 0; fi
+            echo "::error::Seule develop peut être fusionnée dans main (reçu : $BRANCHE)."
+            exit 1
+          fi
+          if echo "$BRANCHE" | grep -Eq '^feature/(idir|ama|maria)-[a-z0-9]+(-[a-z0-9]+)*$'; then
+            echo "Branche conforme : $BRANCHE"
+          else
+            echo "::error::La branche « $BRANCHE » doit s'appeler feature/prénom-fonctionnalité, par exemple feature/ama-candidatures."
+            exit 1
+          fi

@@ -38,50 +38,107 @@ Une interface aux tons brun doré et vert menthe, pensée autour des annonces, d
 
 ## Modèle conceptuel des données (MCD)
 
-Le MCD partagé par l’équipe est retranscrit ci-dessous en diagramme pour rester lisible directement sur GitHub. Il présente les quatre entités et leurs relations ; les clés étrangères du schéma SQL mettent en œuvre ces associations.
+Le MCD de l’équipe présente les quatre entités et leurs six associations ; les clés étrangères du schéma SQL mettent en œuvre ces associations.
 
-```mermaid
-erDiagram
-    UTILISATEURS ||--o{ ANNONCES : publier
-    UTILISATEURS ||--o{ CANDIDATURES : envoyer
-    ANNONCES ||--o{ CANDIDATURES : viser
-    UTILISATEURS ||--o{ AVIS : rediger
-    UTILISATEURS ||--o{ AVIS : recevoir
-    ANNONCES ||--o{ AVIS : concerner
+<p align="center">
+  <img src="docs/presentation/mcd-miaoumi.jpg" alt="MCD Miaoumi : entités utilisateurs, annonces, candidatures et avis reliées par les associations publier, envoyer, viser, rediger, recevoir et concerner" width="760">
+</p>
 
-    UTILISATEURS {
-        int id PK
-        string nom
-        string email
-        string password
-        string role
-    }
-    ANNONCES {
-        int id PK
-        string titre
-        string type_animal
-        date date_debut
-        date date_fin
-        text description
-        string statut
-    }
-    CANDIDATURES {
-        int id PK
-        text message
-        string statut
-        datetime date_candidature
-    }
-    AVIS {
-        int id PK
-        int note
-        text commentaire
-        datetime dates
-    }
-```
+| Association | Cardinalités |
+| --- | --- |
+| publier | un utilisateur publie 0,n annonces ; une annonce est publiée par 1,1 utilisateur |
+| envoyer | un utilisateur envoie 0,n candidatures ; une candidature est envoyée par 1,1 utilisateur |
+| viser | une annonce reçoit 0,n candidatures ; une candidature vise 1,1 annonce |
+| rediger | un utilisateur rédige 0,n avis ; un avis a 1,1 auteur |
+| recevoir | un utilisateur reçoit 0,n avis ; un avis concerne 1,1 personne évaluée |
+| concerner | une annonce a 0,n avis ; un avis concerne 1,1 annonce |
 
 Un utilisateur peut publier plusieurs annonces, envoyer plusieurs candidatures, rédiger et recevoir plusieurs avis. Chaque candidature vise une annonce ; chaque avis concerne une annonce et relie un auteur à une personne évaluée.
 
-Le diagramme reprend le MCD fourni au début du projet. Le champ `ville`, ajouté ensuite pour la maquette, figure dans le [schéma SQL actuel](Miaoumi%20%282%29.sql) et sa [migration](migrations/001_ajout_ville.sql).
+Le champ `ville` de l’entité annonces, ajouté ensuite pour la maquette, figure dans le MCD, dans le [schéma SQL actuel](sql/miaoumi.sql) et dans sa [migration](sql/migrations/001_ajout_ville.sql) pour les bases plus anciennes.
+
+## Modèle logique des données (MLD)
+
+Traduction du MCD en tables, telle qu’elle est appliquée par [`sql/miaoumi.sql`](sql/miaoumi.sql). Clé primaire **soulignée en gras**, clé étrangère précédée de `#`.
+
+- **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role)
+- **annonces** (**id**, titre, type_animal, ville, date_debut, date_fin, description, statut, `#id_proprietaire` → utilisateurs.id)
+- **candidatures** (**id**, message, statut, date_candidature, `#id_annonce` → annonces.id, `#id_gardien` → utilisateurs.id)
+- **avis** (**id**, note, commentaire, dates, `#id_annonce` → annonces.id, `#id_auteur` → utilisateurs.id, `#id_cible` → utilisateurs.id)
+
+Toutes les clés étrangères sont en `ON DELETE CASCADE` : supprimer un compte supprime ses annonces, candidatures et avis. Valeurs de statut utilisées : annonces `ouverte`, `pourvue`, `terminee` ; candidatures `en_attente`, `acceptee`, `refusee`.
+
+## Diagramme de classes
+
+Classes PHP du projet (MVC sans framework). Les contrôleurs reçoivent la requête depuis `public/index.php`, appellent les modèles, puis affichent une vue ou redirigent ; les modèles obtiennent la connexion PDO par `Database`.
+
+```mermaid
+classDiagram
+    class Database {
+        -PDO pdo$
+        +getConnection()$ PDO
+    }
+    class Utilisateur {
+        +creer(nom, email, password) void
+        +trouverParEmail(email) array
+    }
+    class Annonce {
+        +villeDisponible() bool
+        +rechercher(recherche, animal, proprietaire, ville) array
+        +creer(donnees, proprietaire) array
+        +cloturer(annonce, proprietaire) array
+        +marquerPourvue(annonce) bool
+        +trouver(id) array
+        +toutes() array
+    }
+    class Candidature {
+        +pourUtilisateur(utilisateur) array
+        +postuler(annonce, gardien, message) bool
+        +decider(candidature, proprietaire, decision) bool
+        -estAccessible(annonce) bool
+    }
+    class Avis {
+        +pourAnnonce(annonce) array
+        +destinataires(annonce, auteur) array
+        +creer(annonce, auteur, cible, note, commentaire) bool
+    }
+    class AuthController {
+        +inscription() void
+        +connexion() void
+        +deconnexion() void
+    }
+    class AnnonceController {
+        +index() void
+        +creer() void
+        +cloturer() void
+    }
+    class CandidatureController {
+        +index() void
+        +postuler() void
+        +decision() void
+    }
+    class AvisController {
+        +index() void
+    }
+    AuthController ..> Utilisateur
+    AnnonceController ..> Annonce
+    CandidatureController ..> Candidature
+    CandidatureController ..> Annonce
+    AvisController ..> Avis
+    AvisController ..> Annonce
+    Utilisateur ..> Database
+    Annonce ..> Database
+    Candidature ..> Database
+    Avis ..> Database
+```
+
+## Logique métier
+
+1. **Publier** : un utilisateur connecté crée une annonce ; `Annonce::creer()` valide les champs et les dates (début aujourd’hui ou plus tard, fin après le début) avant l’insertion. L’annonce démarre au statut `ouverte` et le propriétaire est lu dans la session.
+2. **Candidater** : un autre utilisateur postule à une annonce ouverte dont la date de fin n’est pas passée ; `Candidature::postuler()` refuse sa propre annonce et les doublons, dans une transaction qui verrouille l’annonce.
+3. **Valider** : le propriétaire accepte ou refuse une candidature en attente avec `Candidature::decider()`. `Annonce::marquerPourvue()` fait passer une annonce `ouverte` en `pourvue` ; son appel à l’acceptation est à brancher par Ama dans `decider()` (voir [docs/ROADMAP.md](docs/ROADMAP.md)).
+4. **Clôturer** : `Annonce::cloturer()` termine une garde. Elle vérifie que l’annonce existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée, puis passe son statut à `terminee`. La mise à jour reprend ces conditions dans sa clause `WHERE`, si bien qu’un second envoi ou un tiers ne peut rien modifier. Le bouton « Terminer la garde » de Mes annonces ouvre une demande de confirmation ; seul « Confirmer la clôture » envoie le POST protégé par le jeton CSRF ; le contrôleur redirige avec un message de confirmation ou d’erreur. Une garde terminée ne propose plus le bouton et n’accepte plus de candidature.
+5. **Noter** : après la garde, le propriétaire et chaque gardien accepté peuvent se laisser un avis de 1 à 5, une seule fois par personne évaluée (`Avis::creer()`). Le paragraphe sur `noteMoyenne()` sera ajouté par Maria avec la méthode.
 
 ---
 
@@ -89,7 +146,7 @@ Le diagramme reprend le MCD fourni au début du projet. Le champ `ville`, ajout�
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Une annonce peut avoir plusieurs candidatures acceptées. Les avis sont consultables publiquement et leur dépôt est réservé aux participants après la date de fin de la garde. Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Une annonce peut avoir plusieurs candidatures acceptées. Le propriétaire peut clôturer sa garde depuis Mes annonces ; elle passe alors au statut terminée. Les avis sont consultables publiquement et leur dépôt est réservé aux participants après la date de fin de la garde. Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
@@ -101,11 +158,17 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 2. Dans le terminal, sélectionner la branche de travail :
 
    ```sh
-   git switch feature
+   git switch develop
+   git pull --ff-only
+   git switch -c feature/prenom-fonctionnalite
    ```
 
+   Circuit : `feature/prénom-fonctionnalité` → `develop` → `main`. Chacun propose ses changements par pull request vers `develop` ; seul Idir fusionne dans `develop` et `main` (voir [CONTRIBUTING.md](CONTRIBUTING.md)).
+
 3. Copier `config/config.example.php` vers `config/config.php`. L’exemple est prérempli pour XAMPP local standard ; adapter les identifiants si nécessaire. Ce fichier est ignoré par Git pour protéger les mots de passe. Chaque copie du projet doit avoir sa propre configuration locale.
-4. Pour une base neuve, importer `Miaoumi (2).sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
+4. Pour une base neuve, importer `sql/miaoumi.sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `sql/migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
+   Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `sql/migrations/002_avis_dates.sql`.
+   Pour la démonstration, importer ensuite `sql/donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
 5. Depuis la racine du projet, lancer :
 
    ```sh
@@ -116,37 +179,69 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 
 Le serveur intégré PHP sert au développement local.
 
+## Comptes de démonstration
+
+Après l’import de `sql/donnees-demo.sql`, ces comptes fictifs sont disponibles. **Mot de passe commun : `demo1234`.** Ils servent uniquement à la démonstration locale.
+
+| Compte | E-mail | À montrer |
+| --- | --- | --- |
+| Claire | `claire@demo.miaoumi.fr` | Propriétaire : annonce ouverte « Garde de Moka » avec 2 candidatures en attente à accepter ou refuser, bouton « Terminer la garde » ; garde terminée « Week-end avec Plume » avec avis dans les deux sens |
+| Lucas | `lucas@demo.miaoumi.fr` | Propriétaire : annonce pourvue « Promenades pour Rex » ; garde terminée « Nourrir Bulle et Caillou » |
+| Sofia | `sofia@demo.miaoumi.fr` | Gardienne : candidature en attente sur Moka, acceptée sur Rex et Bulle ; peut laisser un avis à Lucas sur Bulle |
+| Karim | `karim@demo.miaoumi.fr` | Gardien : candidature en attente sur Moka, refusée sur Rex, acceptée sur Plume |
+
+Le jeu contient 4 annonces (ouverte, pourvue, deux terminées), 6 candidatures et 3 avis. Les dates sont calculées à partir du jour de l’import. Le fichier peut être réimporté pour remettre la démonstration à zéro : il remplace uniquement ces comptes et leurs données.
+
 ## Organisation
+
+La structure suit celle présentée en cours :
+
+```
+miaoumi/
+├── config/        database.php (connexion PDO), config.example.php
+├── app/
+│   ├── core/      bootstrap.php (session, CSRF, chargements), flash.php
+│   ├── models/    Utilisateur, Annonce, Candidature, Avis
+│   ├── controllers/
+│   └── views/
+├── public/        index.php (point d’entrée) et assets/
+└── sql/           miaoumi.sql, donnees-demo.sql et migrations/
+```
 
 | Fichier ou dossier | Rôle |
 | --- | --- |
 | `public/index.php` | Point d’entrée : associe une page à un contrôleur |
-| `controllers/` | Traitements des annonces et de l’authentification |
-| `models/` | Accès aux données des utilisateurs et annonces |
-| `core/bootstrap.php` | Chargement des classes, session et protection des formulaires |
-| `core/Database.php` | Connexion MySQL avec PDO |
+| `app/controllers/` | Traitements des annonces et de l’authentification |
+| `app/models/` | Accès aux données des utilisateurs et annonces |
+| `app/core/bootstrap.php` | Chargement des classes, session et protection des formulaires |
+| `config/database.php` | Connexion MySQL avec PDO |
 | `config/config.example.php` | Modèle de configuration locale |
-| `views/annonces.php` | Affichage des annonces |
-| `views/annonce-formulaire.php` | Publication d’une annonce avec conservation de la saisie |
-| `views/header.php`, `views/footer.php` | Présentation commune disponible pour les vues |
-| `core/flash.php` | Messages en session affichés une seule fois |
+| `app/views/annonces.php` | Affichage des annonces |
+| `app/views/annonce-formulaire.php` | Publication d’une annonce avec conservation de la saisie |
+| `app/views/header.php`, `app/views/footer.php` | Présentation commune disponible pour les vues |
+| `app/core/flash.php` | Messages en session affichés une seule fois |
 | `public/assets/style.css` | Classes CSS communes |
-| `views/auth.php` | Formulaires d’inscription et de connexion |
-| `views/navigation.php` | Navigation et état de connexion |
-| `models/Avis.php` | Lecture des avis, participants autorisés et enregistrement |
-| `controllers/AvisController.php` | Validation des formulaires d’avis et choix de la vue |
-| `views/avis.php` | Liste des avis et formulaire de dépôt |
-| `models/Candidature.php` | Dépôt, lecture et décision sur les candidatures |
-| `controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
-| `views/candidatures.php` | Candidatures envoyées et reçues |
-| `views/candidature-formulaire.php` | Formulaire de candidature |
+| `app/views/auth.php` | Formulaires d’inscription et de connexion |
+| `app/views/navigation.php` | Navigation et état de connexion |
+| `app/models/Avis.php` | Lecture des avis, participants autorisés et enregistrement |
+| `app/controllers/AvisController.php` | Validation des formulaires d’avis et choix de la vue |
+| `app/views/avis.php` | Liste des avis et formulaire de dépôt |
+| `app/models/Candidature.php` | Dépôt, lecture et décision sur les candidatures |
+| `app/controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
+| `app/views/candidatures.php` | Candidatures envoyées et reçues |
+| `app/views/candidature-formulaire.php` | Formulaire de candidature |
+| `sql/migrations/` | Évolutions pour les bases déjà importées |
 | `public/assets/` | Logo du projet |
-| `Miaoumi (2).sql` | Structure de la base de données |
+| `sql/miaoumi.sql` | Structure de la base de données |
+| `sql/donnees-demo.sql` | Données de démonstration (comptes fictifs, annonces, candidatures, avis) |
 | `CHANGELOG.md` | Résumé lisible des modifications |
 | `docs/GIT.md` | Guide Git pour débuter |
+| `docs/ORAL.md` | Support de révision de l’équipe pour l’oral |
+| `docs/ROADMAP.md` | Tâches en cours de chaque membre, lues par les assistants IA |
 | `docs/PROMPTS.md` | Historique des demandes et décisions partagé avec l’équipe |
 | `scripts/` | Outils pour générer les journaux |
-| `AGENTS.md` | Consignes pour les assistants qui modifient le projet |
+| `.githooks/pre-push`, `.github/CODEOWNERS`, `.github/workflows/` | Règles de branches : circuit feature/prénom-fonctionnalité → develop → main |
+| `AGENTS.md`, `CLAUDE.md` | Consignes pour les assistants IA (Codex lit AGENTS.md, Claude Code lit CLAUDE.md qui y renvoie) |
 
 ## Comprendre le MVC
 
@@ -157,9 +252,9 @@ Le projet utilise un MVC simple, sans framework. Les adresses des pages restent 
 3. Le **modèle** exécute les requêtes SQL avec la connexion fournie par `Database`.
 4. Le contrôleur transmet les données à une **vue**, qui produit le HTML.
 
-Exemple : pour afficher les annonces, `index.php` appelle `AnnonceController::index()`, qui récupère les données avec `Annonce::toutes()` puis charge `views/annonces.php`.
+Exemple : pour afficher les annonces, `index.php` appelle `AnnonceController::index()`, qui récupère les données avec `Annonce::toutes()` puis charge `app/views/annonces.php`.
 
-Pour les comptes, `AuthController` gère l’inscription, la connexion et la déconnexion ; `Utilisateur` enregistre les comptes et recherche un utilisateur par e-mail. Les formulaires restent dans `views/auth.php`. Les vues ne contiennent aucune requête SQL.
+Pour les comptes, `AuthController` gère l’inscription, la connexion et la déconnexion ; `Utilisateur` enregistre les comptes et recherche un utilisateur par e-mail. Les formulaires restent dans `app/views/auth.php`. Les vues ne contiennent aucune requête SQL.
 
 ## Publier une annonce
 
@@ -212,6 +307,8 @@ Pour activer les journaux automatiques sur Windows, exécuter une fois à la rac
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-hooks.ps1
 ```
+
+Cette commande active aussi le hook `pre-push` qui protège `main` et `develop` et vérifie le nom des branches.
 
 Après chaque **commit**, un historique local est généré dans `logs/git-history.md`. Il indique la date, l’auteur, le message et les fichiers concernés. Il ne surveille pas chaque sauvegarde de fichier. Pour le régénérer à la demande :
 

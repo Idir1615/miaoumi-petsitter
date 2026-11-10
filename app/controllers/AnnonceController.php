@@ -27,6 +27,28 @@ class AnnonceController
         require __DIR__ . '/../views/annonce-formulaire.php';
     }
 
+    public function cloturer(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            exit('Utilise le bouton « Terminer la garde ».');
+        }
+        if (!isset($_SESSION['utilisateur']['id'])) {
+            ajouterFlash('Connecte-toi pour clôturer une garde.', 'erreur');
+            header('Location: ?page=connexion', true, 303);
+            return;
+        }
+        $id = filter_var($_POST['annonce'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $erreurs = (new Annonce())->cloturer((int) $id, (int) $_SESSION['utilisateur']['id']);
+        if ($erreurs) {
+            ajouterFlash($erreurs['general'], 'erreur');
+        } else {
+            ajouterFlash('La garde est clôturée.');
+        }
+        header('Location: ?page=mes-annonces', true, 303);
+    }
+
     public function index(): void
     {
         $mesAnnonces = ($_GET['page'] ?? '') === 'mes-annonces';
