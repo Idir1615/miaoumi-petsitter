@@ -1,12 +1,28 @@
-<?php $titre = 'Miaoumi — Profil de ' . $utilisateur['nom']; require __DIR__ . '/header.php'; ?>
-<div class="profil-entete">
+<?php
+$titre = 'Miaoumi — Profil de ' . $utilisateur['nom'];
+$etoiles = static fn(int $note): string => str_repeat('★', $note) . str_repeat('☆', 5 - $note);
+require __DIR__ . '/header.php';
+?>
+<section class="profil-entete carte">
     <?php if (!empty($utilisateur['photo'])): ?>
         <img class="photo-profil" src="uploads/profils/<?= e($utilisateur['photo']) ?>" alt="Photo de profil de <?= e($utilisateur['nom']) ?>">
     <?php else: ?>
-        <span class="photo-profil photo-vide" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($utilisateur['nom'], 0, 1))) ?></span>
+        <span class="avatar avatar-grand" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($utilisateur['nom'], 0, 1))) ?></span>
     <?php endif; ?>
-    <h1>Profil de <?= e($utilisateur['nom']) ?></h1>
-</div>
+    <div>
+        <h1><?= e($utilisateur['nom']) ?></h1>
+        <p class="meta">Membre Miaoumi · propriétaire et gardien</p>
+    </div>
+    <div class="profil-note">
+        <?php if ($moyenne === null): ?>
+            <strong>Pas encore d’avis</strong>
+        <?php else: ?>
+            <span class="etoiles" aria-hidden="true"><?= $etoiles((int) round($moyenne)) ?></span>
+            <strong><?= e(number_format((float) $moyenne, 1, ',', '')) ?> / 5</strong>
+        <?php endif; ?>
+        <span class="meta"><?= count($avis) ?> avis reçu<?= count($avis) > 1 ? 's' : '' ?></span>
+    </div>
+</section>
 <?php if ($estMoi && $photoDisponible): ?>
     <details class="carte carte-photo">
         <summary><?= empty($utilisateur['photo']) ? 'Ajouter une photo de profil' : 'Changer ou supprimer ma photo' ?></summary>
@@ -26,23 +42,30 @@
         <?php endif; ?>
     </details>
 <?php endif; ?>
-<div class="carte">
-    <p class="meta">Note moyenne</p>
-    <?php if ($moyenne === null): ?>
-        <p><strong>Pas encore d’avis</strong></p>
-    <?php else: ?>
-        <p><strong><?= e(number_format((float) $moyenne, 1, ',', '')) ?> / 5</strong></p>
-    <?php endif; ?>
-    <p class="meta"><?= count($avis) ?> avis reçu<?= count($avis) > 1 ? 's' : '' ?></p>
-</div>
 
-<h2>Avis reçus</h2>
+<?php if ($annonces): ?>
+    <h2 class="titre-section">Annonces en cours (<?= count($annonces) ?>)</h2>
+    <div class="grille grille-compacte">
+        <?php foreach ($annonces as $a): $image = photoAnimal($a); ?>
+            <a class="mini-annonce carte" href="?page=annonce&amp;id=<?= (int) $a['id'] ?>">
+                <img class="<?= $image['photo'] ? 'photo' : 'illustration' ?>" src="<?= e($image['src']) ?>" alt="">
+                <span><strong><?= e($a['titre']) ?></strong><br><span class="meta"><?= e($a['type_animal']) ?><?= !empty($a['ville']) ? ' · ' . e($a['ville']) : '' ?> · du <?= e(date('d/m', strtotime($a['date_debut']))) ?> au <?= e(date('d/m', strtotime($a['date_fin']))) ?></span></span>
+            </a>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<h2 class="titre-section">Avis reçus</h2>
 <?php if (!$avis): ?>
     <div class="etat-vide"><p>Aucun avis reçu pour le moment.</p></div>
 <?php endif; ?>
 <?php foreach ($avis as $evaluation): ?>
     <article class="carte avis-carte">
-        <h3><?= (int) $evaluation['note'] ?> / 5 — par <a href="?page=profil&amp;id=<?= (int) $evaluation['id_auteur'] ?>"><?= e($evaluation['auteur']) ?></a></h3>
+        <div class="avis-entete">
+            <span class="avatar avatar-petit" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($evaluation['auteur'], 0, 1))) ?></span>
+            <p>par <a href="?page=profil&amp;id=<?= (int) $evaluation['id_auteur'] ?>"><?= e($evaluation['auteur']) ?></a></p>
+            <span class="etoiles" aria-label="<?= (int) $evaluation['note'] ?> sur 5"><?= $etoiles((int) $evaluation['note']) ?></span>
+        </div>
         <?php if (($evaluation['commentaire'] ?? '') !== ''): ?><p><?= nl2br(e($evaluation['commentaire'])) ?></p><?php endif; ?>
         <p class="meta">Garde « <a href="?page=avis&amp;annonce=<?= (int) $evaluation['id_annonce'] ?>"><?= e($evaluation['titre']) ?></a> » · <?= e(date('d/m/Y', strtotime($evaluation['dates']))) ?></p>
     </article>

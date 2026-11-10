@@ -2,12 +2,42 @@
 
 class Utilisateur
 {
-    public function creer(string $nom, string $email, string $password): void
+    // Valide puis enregistre un compte. Retourne les erreurs ; une liste vide signifie que le compte a été créé.
+    public function creer(string $nom, string $email, string $password): array
     {
+        $nom = trim($nom);
+        $email = trim($email);
+        $erreurs = [];
+        if ($nom === '' || mb_strlen($nom) > 100) {
+            $erreurs['nom'] = 'Le nom est obligatoire (100 caractères maximum).';
+        }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false || strlen($email) > 150) {
+            $erreurs['email'] = 'Saisis une adresse e-mail valide (150 caractères maximum).';
+        }
+        // strlen compte les octets : password_hash (bcrypt) ignore tout ce qui dépasse 72 octets.
+        if (strlen($password) < 8 || strlen($password) > 72) {
+            $erreurs['password'] = 'Le mot de passe doit contenir entre 8 et 72 octets.';
+        }
+        if (!isset($erreurs['email']) && $this->trouverParEmail($email)) {
+            $erreurs['email'] = 'Cette adresse e-mail est déjà utilisée.';
+        }
+        if ($erreurs) {
+            return $erreurs;
+        }
+
         $requete = Database::getConnection()->prepare(
             'INSERT INTO utilisateurs (nom, email, password) VALUES (?, ?, ?)'
         );
-        $requete->execute([$nom, $email, password_hash($password, PASSWORD_DEFAULT)]);
+        try {
+            $requete->execute([$nom, $email, password_hash($password, PASSWORD_DEFAULT)]);
+        } catch (PDOException $exception) {
+            // 1062 = doublon sur la colonne UNIQUE email (deux inscriptions au même moment).
+            if (($exception->errorInfo[1] ?? null) === 1062) {
+                return ['email' => 'Cette adresse e-mail est déjà utilisée.'];
+            }
+            throw $exception;
+        }
+        return [];
     }
 
     // Vrai si la migration 003 (colonne photo) a été appliquée sur cette base.

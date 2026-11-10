@@ -13,32 +13,18 @@ class AuthController
             $email = trim($this->champ('email'));
             $password = $this->champ('password');
 
-            if ($nom === '' || mb_strlen($nom) > 100) {
-                $erreurs[] = 'Le nom est obligatoire (100 caractères maximum).';
-            }
-            if (!$this->emailValide($email)) {
-                $erreurs[] = 'Saisis une adresse e-mail valide (150 caractères maximum).';
-            }
-            if (strlen($password) < 8 || strlen($password) > 72) {
-                $erreurs[] = 'Le mot de passe doit contenir entre 8 et 72 octets.';
-            }
+            // La confirmation concerne le formulaire, pas la donnée : elle reste dans le contrôleur.
             if ($password !== $this->champ('confirmation')) {
-                $erreurs[] = 'Les mots de passe ne correspondent pas.';
-            }
-
-            if (!$erreurs) {
-                try {
-                    $modele = new Utilisateur();
-                    $modele->creer($nom, $email, $password);
-                    $this->rediriger('?page=connexion&inscrit=1');
-                } catch (PDOException $exception) {
-                    if (($exception->errorInfo[1] ?? null) === 1062) {
-                        $erreurs[] = 'Cette adresse e-mail est déjà utilisée.';
-                    } else {
-                        throw $exception;
-                    }
+                $erreurs['confirmation'] = 'Les mots de passe ne correspondent pas.';
+            } else {
+                // Le modèle valide nom, e-mail et mot de passe avant l'INSERT.
+                $erreurs = (new Utilisateur())->creer($nom, $email, $password);
+                if (!$erreurs) {
+                    ajouterFlash('Ton compte a été créé. Tu peux te connecter.');
+                    $this->rediriger('?page=connexion');
                 }
             }
+            http_response_code(422);
         }
 
         require __DIR__ . '/../views/auth.php';
@@ -78,6 +64,7 @@ class AuthController
                     if ($annonceApresConnexion) {
                         $destination = '?page=postuler&annonce=' . $annonceApresConnexion;
                     }
+                    ajouterFlash('Bonjour ' . $utilisateur['nom'] . ', tu es connecté·e.');
                     $this->rediriger($destination);
                 }
                 $erreurs[] = 'E-mail ou mot de passe incorrect.';
@@ -97,6 +84,8 @@ class AuthController
 
         $_SESSION = [];
         session_regenerate_id(true);
+        // La session vide reste ouverte : le message sera lu sur la page suivante.
+        ajouterFlash('Tu es déconnecté·e. À bientôt !');
         $this->rediriger('?page=connexion');
     }
 

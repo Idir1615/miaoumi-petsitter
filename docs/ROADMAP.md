@@ -70,18 +70,18 @@ Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car 
 
 1. [x] **Passer l’annonce en « pourvue »** : dans `Candidature::decider()`, quand une candidature est acceptée, appeler `Annonce::marquerPourvue()` (après la livraison d’Idir) — **fait par Idir le 09/11/2026** (avant l’oral, Ama et Maria n’ayant pas pu le livrer à temps ; à leur expliquer), vérifié par `tests/parcours.php`.
 2. [x] **Autres candidatures** : décider avec Idir si elles sont refusées automatiquement à l’acceptation, puis l’appliquer. Décision (consigne du professeur, étape 4 du parcours) : les autres candidatures en attente sont refusées — **fait par Idir le 09/11/2026** (avant l’oral, Ama et Maria n’ayant pas pu le livrer à temps ; à leur expliquer), vérifié par `tests/parcours.php`.
-3. [ ] **Messages d’erreur clairs** : candidature en double, annonce déjà pourvue ou terminée, décision par un tiers ; jamais de page blanche.
+3. [x] **Messages d’erreur clairs** : candidature en double, annonce déjà pourvue ou terminée, décision par un tiers ; jamais de page blanche. — Maria, 09/11/2026 ; vérifié après fusion par Idir le 10/11/2026 (avis d’une annonce inexistante : page introuvable 404 avec le gabarit).
 4. [ ] **Tests** des candidatures (doublon, propre annonce, décision par un tiers), sur le modèle de `tests/annonces.php`.
 5. [ ] **Paragraphe** pour la documentation : règles de candidature et d’acceptation, à transmettre à Idir.
 
 ### Maria — Avis et comptes
 
-1. [x] **`Avis::noteMoyenne(int $utilisateur)`** : moyenne des notes reçues (`AVG`), `null` s’il n’y a aucun avis ; affichée avec une décimale, ou « Pas encore d’avis » quand elle est absente — **fait par Idir le 09/11/2026** (avant l’oral, Ama et Maria n’ayant pas pu le livrer à temps ; à leur expliquer), vérifié par `tests/parcours.php`. Affichée sur le profil public.
-2. [ ] **Confirmations** : messages flash après inscription, connexion, déconnexion et dépôt d’avis (remplace `inscrit=1` et `ajoute=1`) — voir aussi la section séance 2.
+1. [x] **`Avis::noteMoyenne(int $utilisateur)`** : moyenne des notes reçues (`AVG`), `null` s’il n’y a aucun avis ; affichée avec une décimale, ou « Pas encore d’avis » quand elle est absente. — Maria, 09/11/2026 ; vérifié après fusion par Idir le 10/11/2026 (tests/parcours.php, note affichée sur le profil). Idir en avait écrit une version équivalente ; celle de Maria est conservée.
+2. [x] **Confirmations** : messages flash après inscription, connexion, déconnexion et dépôt d’avis (remplace `inscrit=1` et `ajoute=1`) — voir aussi la section séance 2. — Maria, 09/11/2026 ; vérifié après fusion par Idir le 10/11/2026 (message après connexion affiché, plus aucun inscrit=1 ni ajoute=1 dans le code).
 3. [ ] **Messages d’erreur** : « Annonce introuvable » sur la page des avis affiché avec le gabarit commun ; classes `message message-erreur` dans `avis.php`.
 4. [ ] **Avis après clôture** : vérifier que le dépôt d’avis fonctionne sur une annonce clôturée par `cloturer()` (après la livraison d’Idir).
 5. [ ] **Paragraphe** expliquant `noteMoyenne()` pour la documentation, à transmettre à Idir.
-6. [ ] **Historique Git** : commits à son nom sur `feature/maria-avis-comptes`.
+6. [x] **Historique Git** : commit à son nom `851b6d1`, poussé sur `feature/maria-avis-comptes` — Maria, 10/11/2026.
 
 ### Révision commune — tout le monde sait tout
 

@@ -7,6 +7,7 @@ $routes = [
     'mes-annonces' => [AnnonceController::class, 'index'],
     'mes-candidatures' => [CandidatureController::class, 'index'],
     'candidatures-recues' => [CandidatureController::class, 'index'],
+    'annonce' => [AnnonceController::class, 'voir'],
     'creer-annonce' => [AnnonceController::class, 'creer'],
     'cloturer-annonce' => [AnnonceController::class, 'cloturer'],
     'avis' => [AvisController::class, 'index'],

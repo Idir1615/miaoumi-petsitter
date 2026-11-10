@@ -110,6 +110,38 @@ class AnnonceController
         $numero = filter_var($_GET['numero'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
         $numero = max(1, min($nombrePages, $numero));
         $annonces = array_slice($annoncesCompletes, ($numero - 1) * 6, 6);
+
+        // Bandeau d'accueil : seulement sur la liste publique, première page, sans filtre.
+        $accueil = null;
+        if (!$mesAnnonces && $numero === 1 && $recherche === '' && $animal === '' && $ville === '') {
+            $avis = new Avis();
+            $accueil = [
+                'annonces' => $modele->statistiques(),
+                'avis' => $avis->statistiques(),
+                'derniersAvis' => $avis->derniers(3),
+            ];
+        }
         require __DIR__ . '/../views/annonces.php';
+    }
+
+    // Page de détail d'une annonce : ?page=annonce&id=…
+    public function voir(): void
+    {
+        $id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $annonce = $id ? (new Annonce())->detail($id) : null;
+        if (!$annonce) {
+            http_response_code(404);
+            ajouterFlash('Annonce introuvable.', 'erreur');
+            require __DIR__ . '/../views/introuvable.php';
+            return;
+        }
+        $avisModele = new Avis();
+        $avis = $avisModele->pourAnnonce($id);
+        $noteProprietaire = $avisModele->noteMoyenne((int) $annonce['id_proprietaire']);
+        $utilisateur = (int) ($_SESSION['utilisateur']['id'] ?? 0);
+        $aujourdHui = (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d');
+        $peutPostuler = $annonce['statut'] === 'ouverte' && $annonce['date_fin'] >= $aujourdHui
+            && $utilisateur !== (int) $annonce['id_proprietaire'];
+        require __DIR__ . '/../views/annonce.php';
     }
 }

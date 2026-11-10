@@ -14,7 +14,9 @@ class ProfilController
         }
         $modele = new Avis();
         $avis = $modele->recus($id);
-        $moyenne = $modele->noteMoyenne($id);   // null s'il n'y a aucun avis : « Pas encore d’avis »
+        $moyenne = $modele->noteMoyenne($id);
+        // Annonces encore actives du membre (ouvertes ou pourvues), réutilise la recherche d'Idir.
+        $annonces = array_values(array_filter((new Annonce())->rechercher('', '', $id), fn($a) => $a['statut'] !== 'terminee'));
         $photoDisponible = (new Utilisateur())->photoDisponible();
         $estMoi = (int) ($_SESSION['utilisateur']['id'] ?? 0) === $id;
         require __DIR__ . '/../views/profil.php';
@@ -52,3 +54,4 @@ class ProfilController
         header('Location: ?page=profil&id=' . $id, true, 303);
     }
 }
+
