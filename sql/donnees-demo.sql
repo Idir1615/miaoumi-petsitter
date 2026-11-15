@@ -202,3 +202,13 @@ INSERT INTO candidatures (message, statut, date_candidature, id_annonce, id_gard
     ('Mon appartement est très calme, Câline sera tranquille.', 'en_attente', NOW() - INTERVAL 4 HOUR, @caline, @claire),
     ('Je peux la prendre, j’ai déjà accueilli un chat craintif.', 'en_attente', NOW() - INTERVAL 1 DAY, @caline, @thomas),
     ('Les chats âgés, c’est ma spécialité.', 'en_attente', NOW() - INTERVAL 2 DAY, @gribouille, @lea);
+
+-- ---------------------------------------------------------------------------
+-- Favoris (nécessite la table favoris : sql/miaoumi.sql ou sql/migrations/004_favoris.sql)
+-- ---------------------------------------------------------------------------
+
+INSERT INTO favoris (id_gardien, id_annonce, date_ajout) VALUES
+    (@sofia, @oslo, NOW() - INTERVAL 2 DAY),
+    (@sofia, @biscuit, NOW() - INTERVAL 1 DAY),
+    (@karim, @moka, NOW() - INTERVAL 3 HOUR),
+    (@hugo, @moka, NOW() - INTERVAL 1 HOUR);

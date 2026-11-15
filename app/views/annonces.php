@@ -93,6 +93,7 @@ require __DIR__ . '/header.php';
                             <?php endif; ?>
                             <a class="lien-avis" href="?page=avis&amp;annonce=<?= (int) $a['id'] ?>">Voir les avis / laisser un avis <span aria-hidden="true">→</span></a>
                             <?php if ($mesAnnonces): ?><a class="lien-avis" href="?page=candidatures-recues&amp;annonce=<?= (int) $a['id'] ?>">Candidatures reçues →</a><?php endif; ?>
+                            <?php if ($mesAnnonces && ($a['statut'] ?? '') === 'ouverte'): ?><a class="bouton bouton-secondaire" href="?page=modifier-annonce&amp;id=<?= (int) $a['id'] ?>">Modifier ou supprimer</a><?php endif; ?>
                             <?php if ($mesAnnonces && !empty($a['photo'])): ?>
                                 <form class="form-photo" method="post" action="?page=supprimer-photo-annonce">
                                     <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">

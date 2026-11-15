@@ -38,17 +38,17 @@ class ProfilController
         }
         $modele = new Utilisateur();
         if (($_POST['action'] ?? '') === 'supprimer') {
-            supprimerPhoto($modele->changerPhoto($id, null), 'profils');   // droit à l'effacement
+            PhotoUploader::supprimer((string) $modele->changerPhoto($id, null), 'profils');   // droit à l'effacement
             ajouterFlash('Ta photo de profil a été supprimée.');
         } elseif (($_POST['consentement'] ?? '') !== 'oui') {
             ajouterFlash('Coche la case pour accepter que ta photo soit visible sur ton profil public.', 'erreur');
         } else {
-            $photo = enregistrerPhoto($_FILES['photo'] ?? null, 'profils');
-            if (isset($photo['nom'])) {
-                supprimerPhoto($modele->changerPhoto($id, $photo['nom']), 'profils');
+            try {
+                $nom = PhotoUploader::enregistrer($_FILES['photo'] ?? [], 'profils');
+                PhotoUploader::supprimer((string) $modele->changerPhoto($id, $nom), 'profils'); // l'ancienne photo est effacée
                 ajouterFlash('Ta photo de profil a été enregistrée.');
-            } else {
-                ajouterFlash($photo['erreur'] ?? 'Choisis une photo.', 'erreur');
+            } catch (RuntimeException $exception) {
+                ajouterFlash($exception->getMessage(), 'erreur');
             }
         }
         header('Location: ?page=profil&id=' . $id, true, 303);

@@ -1,6 +1,6 @@
 <?php
 $titre = 'Miaoumi — ' . $annonce['titre'];
-$image = photoAnimal($annonce);
+$image = photoAnimal($annonce); // photoUrl() de l'annonce, avec en plus le type d'image (photo ou illustration)
 $libellesStatut = ['ouverte' => 'Ouverte', 'pourvue' => 'Pourvue', 'terminee' => 'Terminée'];
 $debut = new DateTimeImmutable($annonce['date_debut']);
 $fin = new DateTimeImmutable($annonce['date_fin']);
@@ -27,10 +27,35 @@ require __DIR__ . '/header.php';
         </a>
         <?php if ($peutPostuler): ?>
             <a class="bouton bouton-large" href="?page=postuler&amp;annonce=<?= (int) $annonce['id'] ?>"><?= $utilisateur ? 'Postuler à cette annonce' : 'Se connecter pour postuler' ?></a>
-        <?php elseif ($utilisateur === (int) $annonce['id_proprietaire']): ?>
+        <?php elseif ($estProprietaire): ?>
             <a class="bouton bouton-secondaire bouton-large" href="?page=mes-annonces">Gérer dans Mes annonces</a>
         <?php else: ?>
             <p class="meta">Cette annonce n’accepte plus de candidatures.</p>
+        <?php endif; ?>
+        <?php if ($utilisateur && !$estProprietaire): ?>
+            <form method="post" action="?page=basculer_favori">
+                <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                <input type="hidden" name="id" value="<?= (int) $annonce['id'] ?>">
+                <input type="hidden" name="retour" value="fiche">
+                <button class="bouton-secondaire bouton-large" type="submit"><?= $estFavori ? '★ Retirer des favoris' : '☆ Ajouter aux favoris' ?></button>
+            </form>
+        <?php endif; ?>
+        <?php if ($estProprietaire): ?>
+            <p class="meta"><?= (int) $interesses ?> gardien<?= $interesses > 1 ? 's' : '' ?> intéressé<?= $interesses > 1 ? 's' : '' ?> (en favori)</p>
+        <?php endif; ?>
+        <?php if ($peutModifier): ?>
+            <div class="actions-formulaire">
+                <a class="bouton bouton-secondaire" href="?page=modifier-annonce&amp;id=<?= (int) $annonce['id'] ?>">Modifier</a>
+                <details class="cloture">
+                    <summary class="bouton bouton-secondaire">Supprimer</summary>
+                    <form class="form-cloture" method="post" action="?page=supprimer-annonce">
+                        <p>Supprimer « <?= e($annonce['titre']) ?> » ? Ses candidatures seront aussi supprimées.</p>
+                        <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                        <input type="hidden" name="annonce" value="<?= (int) $annonce['id'] ?>">
+                        <button type="submit">Confirmer la suppression</button>
+                    </form>
+                </details>
+            </div>
         <?php endif; ?>
     </div>
 </div>
