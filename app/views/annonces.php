@@ -16,6 +16,8 @@ require __DIR__ . '/header.php';
 ?>
 <?php if ($accueil): ?>
     <section class="accueil">
+        <img class="accueil-photo" src="<?= e($accueil['photo']) ?>" alt="" width="1200" height="826">
+        <svg class="accueil-coeurs" viewBox="0 0 80 70" aria-hidden="true" focusable="false"><path d="M50 30s-12-7-14-14c-2-6 2-11 7-11 3 0 5 2 7 5 2-3 4-5 7-5 5 0 9 5 7 11-2 7-14 14-14 14z"/><path d="M18 62s-8-5-9-9c-1-4 1-7 5-7 2 0 3 1 4 3 1-2 2-3 4-3 4 0 6 3 5 7-1 4-9 9-9 9z"/></svg>
         <div class="accueil-texte">
             <p class="surtitre">Garde d’animaux entre particuliers</p>
             <h1>Des animaux bien entourés, des propriétaires rassurés.</h1>
@@ -26,22 +28,22 @@ require __DIR__ . '/header.php';
             </div>
         </div>
         <ul class="chiffres" aria-label="Miaoumi en chiffres">
-            <li><strong><?= (int) $accueil['annonces']['ouvertes'] ?></strong> gardes ouvertes</li>
-            <li><strong><?= (int) $accueil['annonces']['terminees'] ?></strong> gardes réalisées</li>
-            <li><strong><?= (int) $accueil['annonces']['villes'] ?></strong> villes</li>
-            <li><strong><?= $accueil['avis']['moyenne'] !== null ? e(number_format((float) $accueil['avis']['moyenne'], 1, ',', '')) : '—' ?></strong> note moyenne (<?= (int) $accueil['avis']['total'] ?> avis)</li>
+            <li><?= icone('calendrier', 24) ?><strong><?= (int) $accueil['annonces']['ouvertes'] ?></strong> gardes ouvertes</li>
+            <li><?= icone('valide', 24) ?><strong><?= (int) $accueil['annonces']['terminees'] ?></strong> gardes réalisées</li>
+            <li><?= icone('lieu', 24) ?><strong><?= (int) $accueil['annonces']['villes'] ?></strong> villes</li>
+            <li><?= icone('etoile', 24) ?><strong><?= $accueil['avis']['moyenne'] !== null ? e(number_format((float) $accueil['avis']['moyenne'], 1, ',', '')) : '—' ?></strong> note moyenne (<?= (int) $accueil['avis']['total'] ?> avis)</li>
         </ul>
     </section>
     <ol class="etapes">
-        <li><span>1</span><div><strong>Publiez</strong><p>Décrivez votre animal, les dates et ses habitudes.</p></div></li>
-        <li><span>2</span><div><strong>Choisissez</strong><p>Recevez des candidatures et acceptez le gardien idéal.</p></div></li>
-        <li><span>3</span><div><strong>Notez</strong><p>Après la garde, laissez-vous un avis l’un à l’autre.</p></div></li>
+        <li><span class="etape-numero">1</span><span class="etape-icone"><?= icone('crayon', 26) ?></span><div><strong>Publiez</strong><p>Décrivez votre animal, les dates et ses habitudes.</p></div></li>
+        <li><span class="etape-numero">2</span><span class="etape-icone"><?= icone('personnes', 26) ?></span><div><strong>Choisissez</strong><p>Recevez des candidatures et acceptez le gardien idéal.</p></div></li>
+        <li><span class="etape-numero">3</span><span class="etape-icone"><?= icone('etoile', 26) ?></span><div><strong>Notez</strong><p>Après la garde, laissez-vous un avis l’un à l’autre.</p></div></li>
     </ol>
 <?php endif; ?>
 
 <div class="titre-page" id="liste-annonces">
     <h1><?= $mesAnnonces ? 'Mes annonces' : ($accueil ? 'Gardes près de chez vous' : 'Annonces de garde') ?></h1>
-    <?php if ($mesAnnonces): ?><a class="bouton" href="?page=creer-annonce">Publier une annonce</a><?php endif; ?>
+    <?php if ($mesAnnonces): ?><a class="bouton" href="?page=creer-annonce">Publier une annonce</a><?php else: ?><p class="compteur"><?= $total ?> annonce<?= $total > 1 ? 's' : '' ?> ouverte<?= $total > 1 ? 's' : '' ?></p><?php endif; ?>
 </div>
 <?php if ($mesAnnonces): ?>
     <div class="statistiques"><div class="carte"><p class="meta">Annonces publiées</p><strong><?= (int) $statistiques['total'] ?></strong></div><div class="carte"><p class="meta">Gardes terminées</p><strong><?= (int) $statistiques['terminees'] ?></strong></div></div>
@@ -49,12 +51,12 @@ require __DIR__ . '/header.php';
 <?php endif; ?>
 <div class="annonces-layout <?= $mesAnnonces ? 'mes-annonces-layout' : '' ?>">
     <aside class="filtres carte">
-        <h2>Filtres</h2>
+        <h2><?= icone('filtres', 22) ?> Filtres</h2>
         <form method="get" action="">
             <input type="hidden" name="page" value="<?= e($pageListe) ?>">
-            <?php if ($villeDisponible): ?><div class="champ"><label for="ville">Ville</label><input id="ville" name="ville" placeholder="Ex. Paris" maxlength="100" value="<?= e($ville) ?>"></div><?php endif; ?>
-            <div class="champ"><label for="mots-cles">Rechercher</label><input id="mots-cles" name="q" placeholder="Ex. Garde de Milo" value="<?= e($recherche) ?>" maxlength="150"></div>
-            <div class="champ"><label for="animal">Type d’animal</label><select id="animal" name="animal">
+            <?php if ($villeDisponible): ?><div class="champ champ-icone"><label for="ville">Ville</label><?= icone('lieu') ?><input id="ville" name="ville" placeholder="Ex. Paris" maxlength="100" value="<?= e($ville) ?>"></div><?php endif; ?>
+            <div class="champ champ-icone"><label for="mots-cles">Rechercher</label><?= icone('recherche') ?><input id="mots-cles" name="q" placeholder="Ex. Garde de Milo" value="<?= e($recherche) ?>" maxlength="150"></div>
+            <div class="champ champ-icone"><label for="animal">Type d’animal</label><?= icone('patte') ?><select id="animal" name="animal">
                 <option value="">Tous</option>
                 <?php foreach (['Chien', 'Chat', 'Lapin', 'Oiseau', 'Poisson', 'Autre'] as $type): ?><option value="<?= e($type) ?>" <?= $animal === $type ? 'selected' : '' ?>><?= e($type) ?></option><?php endforeach; ?>
             </select></div>
@@ -63,7 +65,7 @@ require __DIR__ . '/header.php';
         </form>
     </aside>
     <section class="resultats" aria-label="Annonces">
-        <p class="compteur"><?= $total ?> annonce<?= $total > 1 ? 's' : '' ?> <?= $mesAnnonces ? 'publiée' . ($total > 1 ? 's' : '') : 'ouverte' . ($total > 1 ? 's' : '') ?></p>
+        <?php if ($mesAnnonces): ?><p class="compteur"><?= $total ?> annonce<?= $total > 1 ? 's' : '' ?> publiée<?= $total > 1 ? 's' : '' ?></p><?php endif; ?>
         <?php if (empty($annonces)): ?>
             <div class="etat-vide">
                 <img src="assets/patte.svg" alt="" width="35" height="35">
@@ -74,15 +76,33 @@ require __DIR__ . '/header.php';
         <?php else: ?>
             <div class="grille">
                 <?php foreach ($annonces as $a): $image = photoAnimal($a); ?>
+                    <?php
+                    $connecte = isset($_SESSION['utilisateur']['id']);
+                    $estSaPropreAnnonce = $connecte && (int) $_SESSION['utilisateur']['id'] === (int) $a['id_proprietaire'];
+                    $enFavori = in_array((int) $a['id'], $favorisIds ?? [], true);
+                    ?>
                     <article class="annonce-carte">
-                        <a class="annonce-visuel" href="?page=annonce&amp;id=<?= (int) $a['id'] ?>" tabindex="-1" aria-hidden="true">
-                            <img class="<?= $image['photo'] ? 'photo' : 'illustration' ?>" src="<?= e($image['src']) ?>" alt="" loading="lazy">
+                        <div class="annonce-media">
+                            <a class="annonce-visuel" href="?page=annonce&amp;id=<?= (int) $a['id'] ?>" tabindex="-1" aria-hidden="true">
+                                <img class="<?= $image['photo'] ? 'photo' : 'illustration' ?>" src="<?= e($image['src']) ?>" alt="" loading="lazy">
+                            </a>
                             <span class="badge badge-statut statut-<?= e($a['statut']) ?>"><?= e($libellesStatut[$a['statut']] ?? $a['statut']) ?></span>
-                        </a>
+                            <?php if (!$mesAnnonces && !$estSaPropreAnnonce): ?>
+                                <?php if ($connecte): ?>
+                                    <form class="favori-carte" method="post" action="?page=basculer_favori">
+                                        <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
+                                        <input type="hidden" name="id" value="<?= (int) $a['id'] ?>">
+                                        <button type="submit" class="bouton-coeur <?= $enFavori ? 'actif' : '' ?>" aria-pressed="<?= $enFavori ? 'true' : 'false' ?>" aria-label="<?= $enFavori ? 'Retirer des favoris' : 'Ajouter aux favoris' ?> : <?= e($a['titre']) ?>"><?= icone('coeur', 20) ?></button>
+                                    </form>
+                                <?php else: ?>
+                                    <a class="bouton-coeur" href="?page=connexion" aria-label="Se connecter pour ajouter aux favoris"><?= icone('coeur', 20) ?></a>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        </div>
                         <div class="annonce-contenu">
                             <h2><a href="?page=annonce&amp;id=<?= (int) $a['id'] ?>"><?= e($a['titre']) ?></a></h2>
-                            <p class="meta"><?= e($a['type_animal']) ?><?= !empty($a['ville']) ? ' · ' . e($a['ville']) : '' ?></p>
-                            <p class="meta">Du <time datetime="<?= e($a['date_debut']) ?>"><?= e(date('d/m', strtotime($a['date_debut']))) ?></time> au <time datetime="<?= e($a['date_fin']) ?>"><?= e(date('d/m', strtotime($a['date_fin']))) ?></time></p>
+                            <p class="meta meta-icone"><?= icone('patte', 16) ?><?= e($a['type_animal']) ?><?= !empty($a['ville']) ? ' · ' . e($a['ville']) : '' ?></p>
+                            <p class="meta meta-icone"><?= icone('calendrier', 16) ?>Du <time datetime="<?= e($a['date_debut']) ?>"><?= e(date('d/m', strtotime($a['date_debut']))) ?></time> au <time datetime="<?= e($a['date_fin']) ?>"><?= e(date('d/m', strtotime($a['date_fin']))) ?></time></p>
                             <?php if (!empty($a['description'])): ?><p class="description-annonce"><?= e($a['description']) ?></p><?php endif; ?>
                             <?php if (!$mesAnnonces && isset($a['nom_proprietaire'])): ?>
                                 <p class="proprietaire">
@@ -113,12 +133,9 @@ require __DIR__ . '/header.php';
                                 </details>
                             <?php endif; ?>
                             <?php
-                            $connecte = isset($_SESSION['utilisateur']['id']);
                             $annonceAccessible = !$mesAnnonces
                                 && ($a['statut'] ?? '') === 'ouverte'
                                 && $a['date_fin'] >= $aujourdHui;
-                            $estSaPropreAnnonce = $connecte
-                                && (int) $_SESSION['utilisateur']['id'] === (int) $a['id_proprietaire'];
                             ?>
                             <?php if ($annonceAccessible && !$estSaPropreAnnonce): ?>
                                 <a class="bouton bouton-postuler" href="?page=postuler&amp;annonce=<?= (int) $a['id'] ?>"><?= $connecte ? 'Postuler' : 'Se connecter pour postuler' ?></a>

@@ -46,6 +46,14 @@ class Favori
         return $requete->fetchAll();
     }
 
+    // Identifiants des annonces en favori d'un gardien, pour remplir le cœur sur les cartes de la liste.
+    public function idsParGardien(int $gardien): array
+    {
+        $requete = Database::getConnection()->prepare('SELECT id_annonce FROM favoris WHERE id_gardien = ?');
+        $requete->execute([$gardien]);
+        return array_map('intval', $requete->fetchAll(PDO::FETCH_COLUMN));
+    }
+
     // Nombre de gardiens qui ont mis l'annonce en favori (affiché à son propriétaire seulement).
     public function compterPourAnnonce(int $annonce): int
     {

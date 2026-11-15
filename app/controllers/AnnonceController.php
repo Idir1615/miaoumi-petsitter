@@ -234,6 +234,8 @@ class AnnonceController
         $numero = filter_var($_GET['numero'] ?? 1, FILTER_VALIDATE_INT) ?: 1;
         $numero = max(1, min($nombrePages, $numero));
         $annonces = array_slice($annoncesCompletes, ($numero - 1) * 6, 6);
+        // Cœur des cartes : rempli pour les annonces déjà en favori de l'utilisateur connecté.
+        $favorisIds = isset($_SESSION['utilisateur']['id']) ? (new Favori())->idsParGardien((int) $_SESSION['utilisateur']['id']) : [];
 
         // Bandeau d'accueil : seulement sur la liste publique, première page, sans filtre.
         $accueil = null;
@@ -243,6 +245,8 @@ class AnnonceController
                 'annonces' => $modele->statistiques(),
                 'avis' => $avis->statistiques(),
                 'derniersAvis' => $avis->derniers(3),
+                // Photo de la bannière : public/assets/accueil.jpg si elle a été déposée, sinon la photo du chien.
+                'photo' => is_file(__DIR__ . '/../../public/assets/accueil.jpg') ? 'assets/accueil.jpg' : 'assets/animaux/chien1.jpg',
             ];
         }
         require __DIR__ . '/../views/annonces.php';

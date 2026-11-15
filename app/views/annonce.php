@@ -37,7 +37,7 @@ require __DIR__ . '/header.php';
                 <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
                 <input type="hidden" name="id" value="<?= (int) $annonce['id'] ?>">
                 <input type="hidden" name="retour" value="fiche">
-                <button class="bouton-secondaire bouton-large" type="submit"><?= $estFavori ? '★ Retirer des favoris' : '☆ Ajouter aux favoris' ?></button>
+                <button class="bouton-secondaire bouton-large bouton-favori-fiche <?= $estFavori ? 'actif' : '' ?>" type="submit" aria-pressed="<?= $estFavori ? 'true' : 'false' ?>"><?= icone('coeur') ?> <?= $estFavori ? 'Retirer des favoris' : 'Ajouter aux favoris' ?></button>
             </form>
         <?php endif; ?>
         <?php if ($estProprietaire): ?>

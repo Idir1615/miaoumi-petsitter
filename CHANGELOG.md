@@ -6,6 +6,15 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 15/11/2026 à 14:12 — Idir — Refonte visuelle de l’interface et photos variées (travail local consigné)
+
+- Mise en page modernisée d’après les maquettes fournies par Idir, **avec les couleurs d’origine du site** (variables CSS existantes : marron doré `#6c4f13`, vert menthe `#daf1e6`, vert foncé `#213530`/`#20755f`, crème `#f6efe1`, jaune pastel `#fbe6bf`) ; une première version en vert forêt a été abandonnée à la demande d’Idir. Bloc « Refonte 2 » à la fin de `public/assets/style.css`.
+- Navigation : logo plus grand, recherche arrondie avec loupe, boutons modernisés, lien actif souligné, transitions au survol. Accueil : grande bannière avec la photo d’un chien et d’un chat fondue dans le fond, titre imposant, quatre statistiques réelles dans des cartes avec icônes ; étapes « Publiez, Choisissez, Notez » dans une barre horizontale avec numéros en cercles menthe. Filtres avec icônes ; cartes d’annonces avec grande photo, badge de statut, icônes, hauteurs harmonisées et **cœur favori fonctionnel** (POST vers `basculer_favori`, rempli si l’annonce est en favori, lien vers la connexion pour un visiteur).
+- Photos : la même image revenait sur toutes les annonces d’un type (une seule photo de chien). Ajout de 24 photos d’animaux et de la photo de bannière `public/assets/accueil.jpg`, prises sur Wikimedia Commons et **uniquement libres de droits** (domaine public ou CC0), réduites à 1 000 px ; crédits dans `public/assets/animaux/CREDITS.md`.
+- Icônes SVG intégrées (`app/core/icones.php`, fonction `icone()`), sans police ni service externe ; `Favori::idsParGardien()` pour l’état des cœurs. Aucune fonctionnalité retirée, logique métier inchangée.
+- docs/FICHE-REVISION.md complétée : icônes, variables CSS, responsive, choix de l’image par annonce, `Favori::idsParGardien()`, et cinq questions « Interface et design » (mobile, cœur des cartes, icônes sans service externe, droits des photos, statistiques réelles).
+- Vérifié : `php -l`, les quatre scripts de test, pages principales (200, 404 pour une page inconnue), captures de l’accueil, de la liste connectée, de la fiche, de Mes annonces, de Mes favoris et du formulaire de modification sur ordinateur (1 440 px) et de l’accueil sur mobile (390 px), aucune erreur PHP dans le journal du serveur.
+
 ### 15/11/2026 à 13:44 — Idir — Rapport du sujet « photos et favoris » et fiche de révision (travail local consigné)
 
 - Rapport d’une demi-page `docs/RAPPORT-PHOTOS-FAVORIS.md` (ce qui fonctionne, écarts avec le sujet, difficulté, décision).
