@@ -124,7 +124,12 @@ Navigateur ── ?page=creer-annonce ──► public/index.php (routeur, seul 
 - `definirPhoto()` : enregistre le nom de la photo, ou `NULL`. `photoUrl()` : adresse de l’image (photo envoyée, sinon image du type d’animal).
 - `cloturer()` : vérifie l’annonce, le propriétaire et le statut, puis passe à `terminee` (conditions répétées dans le `WHERE`).
 - `marquerPourvue()` : `ouverte` → `pourvue` ; appelée quand une candidature est acceptée.
-- `detail()`, `statistiques()`, `trouver()`, `toutes()`, `retirerPhoto()`, `villeDisponible()`, `photoDisponible()`.
+- `detail()` : la fiche d’une annonce, avec le nom du propriétaire (`JOIN`) et le nombre de candidatures (**sous-requête** `SELECT COUNT(*)`) ; `null` si elle n’existe pas (le contrôleur affiche alors 404).
+- `trouver()` : une annonce brute (`SELECT * … WHERE id = ?`) ; sert aux contrôleurs pour vérifier qu’elle existe et à qui elle est.
+- `statistiques()` : chiffres de la bannière en une requête : `SUM(statut = 'ouverte')` (une comparaison vaut 1 ou 0, donc la somme compte), `SUM(statut = 'terminee')` et `COUNT(DISTINCT NULLIF(ville, ''))` (villes différentes, sans les vides).
+- `retirerPhoto()` : vérifie que l’annonce existe, est à lui et a une photo, puis met `photo = NULL` (propriétaire répété dans le `WHERE`) ; renvoie le nom de l’ancien fichier pour que le contrôleur l’efface du disque.
+- `toutes()` : toutes les annonces, la plus récente en premier ; utilisée par `tests/annonces.php`, pas par les pages.
+- `villeDisponible()` / `photoDisponible()` : `SHOW COLUMNS … LIKE 'ville'` : vrai si la migration a été appliquée ; le code s’adapte aux bases anciennes au lieu de planter.
 
 ### Candidature (`app/models/Candidature.php`)
 - `postuler()` : **transaction** avec `SELECT … FOR UPDATE` qui verrouille l’annonce ; refuse une annonce non ouverte ou expirée, sa propre annonce et les doublons, puis insère en `en_attente`.
@@ -136,7 +141,10 @@ Navigateur ── ?page=creer-annonce ──► public/index.php (routeur, seul 
 - `destinataires()` : personnes que l’on a le droit de noter (garde finie, candidature acceptée, pas déjà notée).
 - `creer()` : transaction ; revérifie la note (1 à 5), le commentaire (2 000 caractères maximum) et le droit de noter cette cible, puis insère.
 - `noteMoyenne()` : `SELECT AVG(note) … WHERE id_cible = ?` ; `null` sans avis (`AVG` renvoie `NULL`), sinon arrondie à une décimale.
-- `pourAnnonce()`, `recus()`, `derniers()`, `statistiques()`.
+- `pourAnnonce()` : avis d’une annonce, avec le nom de l’auteur **et** de la cible : on joint **deux fois** la table `utilisateurs` avec deux alias (`auteur`, `cible`).
+- `recus()` : avis reçus par un utilisateur (`WHERE id_cible = ?`), avec l’auteur et le titre de l’annonce ; affichés sur son profil.
+- `derniers($limite)` : les derniers avis positifs (note ≥ 4, avec commentaire) pour l’accueil ; `LIMIT ?` lié avec `bindValue(…, PDO::PARAM_INT)`, car `LIMIT` exige un entier.
+- `statistiques()` : `COUNT(*)` et `ROUND(AVG(note), 1)` sur tous les avis, pour la bannière.
 
 ### Utilisateur (`app/models/Utilisateur.php`)
 - `creer()` : valide le nom (1 à 100), l’e-mail (format, 150 caractères maximum, pas déjà pris) et le mot de passe (8 à 72 octets) **avant** l’INSERT, puis le hache avec `password_hash()`.
@@ -153,7 +161,18 @@ Navigateur ── ?page=creer-annonce ──► public/index.php (routeur, seul 
 
 ### PhotoUploader (`app/core/PhotoUploader.php`)
 - `enregistrer($_FILES['photo'])` : renvoie le **nom** du fichier enregistré, ou lève une `RuntimeException` dont le message s’affiche dans le formulaire.
-- `supprimer($nom)` : efface le fichier, sans erreur s’il n’existe plus.
+- `supprimer($nom)` : efface le fichier, sans erreur s’il n’existe plus ; garde seulement `basename()` et vérifie la forme du nom (pas de `../`).
+- `url($nom)` : chemin public `uploads/annonces/…` si le nom est valide, sinon `null`.
+- Privées : `nomValide()` (regex `^[a-f0-9]{32}\.(jpg|png|webp)$`, la forme exacte des noms que le serveur génère), `dossier()` (n’accepte que `annonces` ou `profils`, crée le dossier si besoin), `retirerMetadonnees()` (recrée l’image avec GD pour enlever l’EXIF, dont la position GPS).
+- `enregistrer()` en détail : erreur d’envoi (`UPLOAD_ERR_*`) → message ; taille ≤ 2 Mo ; type lu dans le contenu avec `finfo` (JPEG, PNG, WebP seulement) ; dimensions ≤ 4 000 px ; nom `bin2hex(random_bytes(16))` + extension ; `move_uploaded_file()`.
+
+### Fonctions utiles hors modèles (`app/core/`)
+- `photoAnimal($annonce)` : photo envoyée si elle existe, sinon l’illustration SVG du type d’animal (`cleAnimal()` met en minuscules, enlève accents et pluriel ; `autre.svg` par défaut).
+- `ajouterFlash()` / `lireFlash()` : message rangé en session, lu puis effacé (une seule fois).
+- `e()` : `htmlspecialchars` pour tout affichage. `icone()` : icône SVG.
+- `verifierCompteConnecte()` / `estAdmin()` : modération (voir plus haut).
+
+**Astuce pour réviser** : pour chaque modèle, savoir dire (1) quelle table il interroge, (2) quelle méthode **écrit** (INSERT/UPDATE/DELETE) et ce qu’elle vérifie avant, (3) où il y a une **transaction** (`postuler`, `decider`, `Avis::creer`), un **`JOIN`**, un **`COUNT`/`AVG`**.
 
 ---
 
