@@ -7,6 +7,7 @@ CREATE TABLE utilisateurs (
     email VARCHAR(150) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'user',
+    actif TINYINT(1) NOT NULL DEFAULT 1,
     photo VARCHAR(64) NULL
 );
 

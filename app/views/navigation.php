@@ -23,6 +23,7 @@ $authPage = in_array($pageCourante, ['connexion', 'inscription'], true);
                 <span>Bonjour <?= e($_SESSION['utilisateur']['nom']) ?> !</span>
                 <a href="?page=profil&amp;id=<?= (int) $_SESSION['utilisateur']['id'] ?>">Mon profil</a>
                 <a href="?page=mes_favoris">Mes favoris</a>
+                <?php if (estAdmin()): ?><a href="?page=admin-utilisateurs">Modération</a><?php endif; ?>
                 <form method="post" action="?page=deconnexion">
                     <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
                     <button class="bouton-secondaire" type="submit">Se déconnecter</button>
