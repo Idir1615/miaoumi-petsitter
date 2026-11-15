@@ -16,6 +16,7 @@ session_start([
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/flash.php';
+require_once __DIR__ . '/icones.php';
 require_once __DIR__ . '/PhotoUploader.php';
 require_once __DIR__ . '/photos.php';
 require_once __DIR__ . '/../models/Utilisateur.php';

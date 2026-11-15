@@ -25,9 +25,10 @@ require __DIR__ . '/header.php';
                 </a>
                 <div class="annonce-contenu">
                     <h2><a href="?page=annonce&amp;id=<?= (int) $a['id'] ?>"><?= e($a['titre']) ?></a></h2>
-                    <p class="meta"><?= e($a['type_animal']) ?><?= !empty($a['ville']) ? ' · ' . e($a['ville']) : '' ?></p>
-                    <p class="meta">Du <?= e(date('d/m', strtotime($a['date_debut']))) ?> au <?= e(date('d/m', strtotime($a['date_fin']))) ?> · <a href="?page=profil&amp;id=<?= (int) $a['id_proprietaire'] ?>"><?= e($a['nom_proprietaire']) ?></a></p>
-                    <form method="post" action="?page=basculer_favori">
+                    <p class="meta meta-icone"><?= icone('patte', 16) ?><?= e($a['type_animal']) ?><?= !empty($a['ville']) ? ' · ' . e($a['ville']) : '' ?></p>
+                    <p class="meta meta-icone"><?= icone('calendrier', 16) ?>Du <?= e(date('d/m', strtotime($a['date_debut']))) ?> au <?= e(date('d/m', strtotime($a['date_fin']))) ?></p>
+                    <p class="proprietaire"><span class="avatar avatar-petit" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($a['nom_proprietaire'], 0, 1))) ?></span><a href="?page=profil&amp;id=<?= (int) $a['id_proprietaire'] ?>"><?= e($a['nom_proprietaire']) ?></a></p>
+                    <form class="form-retirer" method="post" action="?page=basculer_favori">
                         <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
                         <input type="hidden" name="id" value="<?= (int) $a['id'] ?>">
                         <input type="hidden" name="retour" value="mes_favoris">

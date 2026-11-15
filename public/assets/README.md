@@ -19,3 +19,7 @@ Dépose ici les photos des annonces, nommées **type + numéro** :
 `photoAnimal()` (`app/core/photos.php`) choisit la photo d'après le type d'animal et le numéro de l'annonce : une annonce garde toujours la même image. Sans photo pour un type, l'illustration de `illustrations/` est affichée.
 
 Utiliser des photos libres de droits (par exemple Unsplash ou Pexels) ou ses propres photos.
+
+## Photo de la bannière d'accueil
+
+La bannière affiche `public/assets/accueil.jpg` si ce fichier existe, sinon `animaux/chien1.jpg`. `accueil.jpg` montre actuellement un chien et un chat (domaine public). Pour la changer, remplacer ce fichier par une autre image libre de droits (paysage, environ 1 400 × 900 pixels) : aucun code à modifier. Les crédits de toutes les photos ajoutées sont dans `animaux/CREDITS.md`.

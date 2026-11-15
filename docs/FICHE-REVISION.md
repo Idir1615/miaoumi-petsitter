@@ -5,7 +5,7 @@ Pour Idir, Ama et Maria. Le professeur évalue deux choses :
 1. **Le projet fonctionne et a une finalité** → parties A et B (pitch, démonstration).
 2. **La maîtrise technique du code** → parties C à J (architecture, base, méthodes, sécurité, questions).
 
-N’importe qui peut être interrogé sur n’importe quel module : **chacun révise tout**. Cette fiche décrit le code du 15/11/2026 (branche `feature/idir-mise-a-jour-docs`). Elle remplace les PDF du 07/11/2026 (`FICHE-REVISION-MIAOUMI.pdf`, `FICHE-EXPRESS-ORAL.pdf`), qui ne connaissent ni la note moyenne, ni le nouveau `decider()`, ni les photos et les favoris.
+N’importe qui peut être interrogé sur n’importe quel module : **chacun révise tout**. Cette fiche décrit le code du 15/11/2026, refonte visuelle comprise. Elle remplace les PDF du 07/11/2026 (`FICHE-REVISION-MIAOUMI.pdf`, `FICHE-EXPRESS-ORAL.pdf`), qui ne connaissent ni la note moyenne, ni le nouveau `decider()`, ni les photos et les favoris.
 
 **Méthode** : lire une partie, cacher la page, la réexpliquer à voix haute, puis s’entraîner sur les questions de la partie J (les réponses sont repliées).
 
@@ -21,9 +21,9 @@ N’importe qui peut être interrogé sur n’importe quel module : **chacun ré
 
 | Personne | Partie |
 | --- | --- |
-| **Idir** | Annonces (publier, rechercher, paginer, clôturer, modifier, supprimer), socle commun (gabarit, CSS, messages flash, routeur, CSRF), profil public, photos et RGPD, favoris, intégration Git. A aussi branché le passage en « pourvue » dans `decider()`. |
+| **Idir** | Annonces (publier, rechercher, paginer, clôturer, modifier, supprimer), socle commun (gabarit, CSS, messages flash, routeur, CSRF), profil public, photos et RGPD, favoris, refonte visuelle de l’interface (photos variées, icônes, cœur favori sur les cartes), intégration Git. A aussi branché le passage en « pourvue » dans `decider()`. |
 | **Ama** | Candidatures : postuler, consulter, accepter ou refuser. |
-| **Maria** | Comptes (inscription, connexion, validation dans `Utilisateur::creer()`), avis, note moyenne, page de détail, refonte visuelle, données de démo. |
+| **Maria** | Comptes (inscription, connexion, validation dans `Utilisateur::creer()`), avis, note moyenne, page de détail, première refonte visuelle (accueil, cartes avec photos), données de démo. |
 
 ---
 
@@ -33,11 +33,11 @@ N’importe qui peut être interrogé sur n’importe quel module : **chacun ré
 
 | Étape | Compte | Ce qu’on montre | Ce qu’on dit (technique) |
 | --- | --- | --- | --- |
-| 1 | visiteur | Accueil : chiffres, recherche (ville, animal, mot-clé), pagination | `Annonce::rechercher()` construit le `WHERE` avec des `?` ; 6 annonces par page avec `array_slice()` |
+| 1 | visiteur | Accueil : bannière, chiffres **réels**, recherche (ville, animal, mot-clé), pagination | Chiffres calculés en SQL (`statistiques()`) ; `Annonce::rechercher()` construit le `WHERE` avec des `?` ; 6 annonces par page avec `array_slice()` |
 | 2 | visiteur | Clic sur « Mes annonces » : redirection vers la connexion | Chaque contrôleur vérifie la session |
 | 3 | `claire@demo.miaoumi.fr` | Publier une annonce **avec photo** ; essayer une date de fin avant le début | Validation dans le modèle **avant** l’INSERT, code 422, saisie conservée ; `PhotoUploader` |
 | 4 | Claire | Modifier l’annonce : remplacer la photo, puis cocher « Supprimer la photo actuelle » | L’ancien fichier est effacé du disque, pas de fichier orphelin |
-| 5 | `sofia@demo.miaoumi.fr` | Mettre l’annonce en favori, ouvrir « Mes favoris », postuler | Clé primaire composée ; POST + CSRF ; transaction `FOR UPDATE` |
+| 5 | `sofia@demo.miaoumi.fr` | Cliquer sur le **cœur** d’une carte, ouvrir « Mes favoris », postuler | Le cœur est un petit formulaire POST + CSRF ; clé primaire composée ; transaction `FOR UPDATE` |
 | 6 | Sofia | Tenter d’ouvrir `?page=modifier-annonce&id=…` d’une annonce de Claire | **403** : propriétaire seulement |
 | 7 | Claire | « Candidatures reçues » sur « Garde de Moka » : accepter une candidature | `decider()` : annonce « pourvue », autres candidatures refusées, dans la même transaction |
 | 8 | Claire | « Terminer la garde » (confirmation), puis laisser un avis à Sofia | `cloturer()` ; avis possible dès la clôture (`gardeFinie()`) |
@@ -66,6 +66,8 @@ Navigateur ── ?page=creer-annonce ──► public/index.php (routeur, seul 
 - **Contrôleur** : lit la requête (`$_GET`, `$_POST`, `$_FILES`, `$_SESSION`), vérifie les droits, appelle le modèle, puis affiche une vue **ou** redirige.
 - **Routeur** (`public/index.php`) : un tableau `$routes` associe chaque `?page=…` à `[Contrôleur, méthode]`. Page inconnue : **404**. Base indisponible (`PDOException`) : page `indisponible.php` avec **503**.
 - **`bootstrap.php`** : démarre la session (cookie `HttpOnly`, `SameSite=Lax`, sessions stockées dans `storage/sessions/`), charge les classes avec `require_once`, définit `e()` et refuse tout POST sans jeton CSRF valide (**403**).
+- **`app/core/icones.php`** : fonction `icone('coeur')` qui renvoie une petite icône SVG écrite dans la page (aucun fichier ni service externe).
+- **`public/assets/style.css`** : une seule feuille de style ; les couleurs sont des **variables CSS** (`--accent` marron doré, `--menthe`, `--texte` vert foncé…) définies une fois dans `:root` et réutilisées partout.
 - **`config/database.php`** : classe `Database`, connexion PDO **unique** (patron singleton, propriété `static`), configurée par `config/config.php`, qui contient le mot de passe et n’est donc **jamais versionné**.
 
 **Patron Post/Redirect/Get** : après un POST réussi, le contrôleur ajoute un message flash et **redirige (303)**. Recharger la page ne renvoie donc pas le formulaire, et le message s’affiche une seule fois.
@@ -140,6 +142,7 @@ Navigateur ── ?page=creer-annonce ──► public/index.php (routeur, seul 
 - `existe()`, `retirer()`, `compterPourAnnonce()` (`COUNT`, montré au propriétaire seulement).
 - `ajouter()` : `INSERT IGNORE INTO favoris … SELECT ?, id FROM annonces WHERE id = ? AND id_proprietaire <> ?`. La ligne n’est insérée que si l’annonce existe et n’est pas la sienne ; un doublon est ignoré grâce à la clé primaire.
 - `parGardien()` : annonces + nom du propriétaire, `ORDER BY date_ajout DESC` (la dernière ajoutée en premier).
+- `idsParGardien()` : identifiants des annonces en favori, pour remplir le cœur des cartes de la liste.
 
 ### PhotoUploader (`app/core/PhotoUploader.php`)
 - `enregistrer($_FILES['photo'])` : renvoie le **nom** du fichier enregistré, ou lève une `RuntimeException` dont le message s’affiche dans le formulaire.
@@ -190,6 +193,9 @@ Règle générale : **connecté ?** (sinon redirection vers la connexion) → **
 - **`ON DELETE CASCADE`**, **clé primaire composée**, **table de liaison**, **jointure** (`JOIN`), **sous-requête**, **`AVG`**, **`COUNT`**.
 - **Upload** : `$_FILES['photo']` contient `name` (jamais utilisé), `type` (envoyé par le navigateur, jamais cru), `tmp_name`, `error`, `size` ; `move_uploaded_file()` déplace seulement un vrai fichier envoyé.
 - **Pagination** : `array_slice($annonces, ($numero - 1) * 6, 6)`, numéro de page ramené entre 1 et le nombre de pages.
+- **Variables CSS** : `--accent:#6c4f13` déclarée dans `:root`, utilisée avec `var(--accent)` ; changer la couleur à un seul endroit change tout le site.
+- **Responsive** : des `@media (max-width: …)` changent la mise en page : 3 colonnes de cartes sur ordinateur, 2 sur tablette, 1 sur mobile ; la bannière passe en une colonne.
+- **Image par annonce** : `photoAnimal()` prend la photo envoyée par le propriétaire, sinon une photo du type d’animal (`chien1.jpg` à `chien7.jpg`…) choisie d’après le rang de l’annonce, pour que deux annonces voisines n’aient pas la même image.
 
 ---
 
@@ -372,6 +378,33 @@ Parce qu’aucune vérification n’est parfaite : un fichier peut être à la f
 <details><summary>Pourquoi vos noms diffèrent-ils un peu du contrat du sujet ?</summary>
 
 Le sujet est écrit pour le projet PetSitter du professeur (objets hydratés, routes `?action=`). Miaoumi a sa propre structure : routes `?page=`, modèles qui renvoient des tableaux, vues à plat dans `app/views/`. Nous avons gardé les noms du contrat (`PhotoUploader`, `enregistrer`, `supprimer`, `definirPhoto`, `photoUrl`, `Favori`, `existe`, `ajouter`, `retirer`, `parGardien`, `basculer_favori`, `mes_favoris`, `FavoriController`) en les adaptant : par exemple, `photoUrl($annonce)` reçoit l’annonce en paramètre.
+</details>
+
+### Interface et design
+
+<details><summary>Comment avez-vous rendu le site agréable sur mobile ?</summary>
+
+Avec des media queries CSS : sous 1 100 px, la bannière passe en une colonne et les cartes en deux colonnes ; sous 420 px, une seule colonne. La balise `<meta name="viewport">` du gabarit dit au téléphone d’utiliser sa vraie largeur. Nous avons vérifié avec des captures à 390 px de large.
+</details>
+
+<details><summary>Comment le cœur d’une carte sait-il s’il doit être rempli ?</summary>
+
+`AnnonceController::index()` demande `Favori::idsParGardien()` pour l’utilisateur connecté ; la vue vérifie si l’identifiant de chaque annonce est dans cette liste (`in_array`) et ajoute la classe `actif`. Le cœur est un vrai formulaire POST avec le jeton CSRF vers `basculer_favori` ; pour un visiteur, c’est un lien vers la connexion, et il n’apparaît pas sur sa propre annonce.
+</details>
+
+<details><summary>Pourquoi des icônes SVG écrites dans la page plutôt qu’une bibliothèque ou Google Fonts ?</summary>
+
+Pas de dépendance ni de requête vers un autre site : la page reste rapide, fonctionne hors ligne, et l’adresse IP des visiteurs n’est pas envoyée à un tiers (point RGPD). Les icônes prennent la couleur du texte (`currentColor`) et sont marquées `aria-hidden`, car elles sont décoratives.
+</details>
+
+<details><summary>Avez-vous le droit d’utiliser ces photos ?</summary>
+
+Oui : les photos ajoutées viennent de Wikimedia Commons et sont toutes en **domaine public ou CC0**, donc utilisables et modifiables librement, même sans citer l’auteur. Nous les créditons quand même dans `public/assets/animaux/CREDITS.md`. Les photos envoyées par les utilisateurs, elles, ne sont jamais publiées sur GitHub.
+</details>
+
+<details><summary>Les statistiques de la bannière sont-elles écrites en dur ?</summary>
+
+Non : `Annonce::statistiques()` compte les annonces ouvertes, terminées et les villes (`SUM`, `COUNT(DISTINCT …)`), et `Avis::statistiques()` calcule le nombre d’avis et la moyenne (`AVG`). Elles changent dès qu’une annonce ou un avis est ajouté.
 </details>
 
 ### Git et travail d’équipe
