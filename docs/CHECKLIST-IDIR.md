@@ -15,5 +15,5 @@ Vérifiée le **26/10/2026 à 20:51 (Europe/Paris)** par **Idir avec l’assista
 
 ## Reste à faire
 
-- [ ] Choisir avec Ama et Maria la convention de branche : Git refuse `feature/annonces` tant que la branche `feature` existe (renommer `feature`, ou utiliser `feature-annonces`).
-- [ ] Ajouter l’explication de `rechercher()` et `villeDisponible()`.
+- [x] Choisir avec Ama et Maria la convention de branche : Git refuse `feature/annonces` tant que la branche `feature` existe (renommer `feature`, ou utiliser `feature-annonces`). — Réglé : convention `feature/prénom-fonctionnalité`, `feature/idir-annonces` publiée le 03/11/2026, l’ancienne branche `feature` n’existe plus sur GitHub (constaté par Idir le 15/11/2026).
+- [x] Ajouter l’explication de `rechercher()` et `villeDisponible()`. — Présente dans docs/ORAL.md, section 5 (constaté par Idir le 15/11/2026).
