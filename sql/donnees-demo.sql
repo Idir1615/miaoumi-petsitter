@@ -26,6 +26,9 @@ INSERT INTO utilisateurs (nom, email, password) VALUES ('Nadia', 'nadia@demo.mia
 INSERT INTO utilisateurs (nom, email, password) VALUES ('Hugo', 'hugo@demo.miaoumi.fr', @hash);     SET @hugo = LAST_INSERT_ID();
 INSERT INTO utilisateurs (nom, email, password) VALUES ('Léa', 'lea@demo.miaoumi.fr', @hash);       SET @lea = LAST_INSERT_ID();
 INSERT INTO utilisateurs (nom, email, password) VALUES ('Mehdi', 'mehdi@demo.miaoumi.fr', @hash);   SET @mehdi = LAST_INSERT_ID();
+-- Modération (migration 005) : un compte administrateur et un compte suspendu, qui ne peut pas se connecter.
+INSERT INTO utilisateurs (nom, email, password, role) VALUES ('Modération', 'admin@demo.miaoumi.fr', @hash, 'admin');
+INSERT INTO utilisateurs (nom, email, password, actif) VALUES ('Bastien', 'bastien@demo.miaoumi.fr', @hash, 0);
 
 -- ---------------------------------------------------------------------------
 -- Scénarios décrits dans le README (à garder pour la démonstration)

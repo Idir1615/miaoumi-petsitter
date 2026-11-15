@@ -68,9 +68,40 @@ class Utilisateur
     public function trouverParEmail(string $email): ?array
     {
         $requete = Database::getConnection()->prepare(
-            'SELECT id, nom, password FROM utilisateurs WHERE email = ?'
+            'SELECT id, nom, password, role, actif FROM utilisateurs WHERE email = ?'
         );
         $requete->execute([$email]);
         return $requete->fetch() ?: null;
+    }
+
+    // État relu à chaque page pour l'utilisateur connecté : nom, rôle et compte actif ou non ; null si le compte n'existe plus.
+    public function etatCompte(int $id): ?array
+    {
+        $requete = Database::getConnection()->prepare('SELECT nom, role, actif FROM utilisateurs WHERE id = ?');
+        $requete->execute([$id]);
+        return $requete->fetch() ?: null;
+    }
+
+    // Modération : tous les comptes avec leur nombre d'annonces, les administrateurs en premier.
+    public function tous(): array
+    {
+        return Database::getConnection()->query(
+            "SELECT u.id, u.nom, u.email, u.role, u.actif, COUNT(a.id) AS nb_annonces
+             FROM utilisateurs u
+             LEFT JOIN annonces a ON a.id_proprietaire = u.id
+             GROUP BY u.id, u.nom, u.email, u.role, u.actif
+             ORDER BY u.role = 'admin' DESC, u.nom"
+        )->fetchAll();
+    }
+
+    // Suspend (false) ou réactive (true) un compte. Un administrateur ne peut pas être suspendu :
+    // la règle est dans le WHERE, donc un administrateur ne peut pas non plus se suspendre lui-même.
+    public function changerActif(int $id, bool $actif): bool
+    {
+        $requete = Database::getConnection()->prepare(
+            "UPDATE utilisateurs SET actif = ? WHERE id = ? AND role <> 'admin'"
+        );
+        $requete->execute([$actif ? 1 : 0, $id]);
+        return $requete->rowCount() === 1;
     }
 }

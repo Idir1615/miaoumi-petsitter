@@ -6,6 +6,15 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 15/11/2026 à 15:51 — Idir — Modération : suspendre un utilisateur (travail local consigné)
+
+- Sujet « Modération » du cours adapté à Miaoumi (PHP sans Symfony) : colonne `utilisateurs.actif` (1 par défaut, migration `sql/migrations/005_moderation.sql`, ajoutée aussi à `sql/miaoumi.sql`) ; la colonne `role` existante distingue les administrateurs (`admin`).
+- Connexion : un compte suspendu voit « Ce compte est suspendu » (403) ; le contrôle a lieu après la vérification du mot de passe pour ne pas révéler l’existence d’une adresse. Un compte suspendu (ou supprimé) déjà connecté est déconnecté à sa requête suivante : `verifierCompteConnecte()` (`app/core/moderation.php`), appelée par `public/index.php`, relit `actif` et `role` en base à chaque page.
+- Back-office : page « Modération » (`?page=admin-utilisateurs`, lien dans le menu du compte des administrateurs) avec la liste des comptes et un bouton Suspendre / Réactiver (`POST ?page=suspendre-utilisateur`, jeton CSRF, 403 pour un non-admin, 405 en GET, 404 pour un compte inexistant). `AdminController`, `Utilisateur::etatCompte()`, `tous()` et `changerActif()` (`WHERE role <> 'admin'` : un administrateur n’est jamais suspendu).
+- Comptes de démonstration ajoutés : `admin@demo.miaoumi.fr` (administrateur) et `bastien@demo.miaoumi.fr` (suspendu), mot de passe `demo1234`.
+- `tests/moderation.php` ajouté ; README, docs/FICHE-REVISION.md (pitch, répartition, démo, routes, base, trajet d’une requête, sécurité, notions authentification/autorisation et `LEFT JOIN`, huit questions « Modération », 11e phrase à placer) et docs/ROADMAP.md mis à jour.
+- Vérifié : `php -l`, les cinq scripts de test, parcours HTTP local (visiteur redirigé, compte suspendu refusé, utilisatrice refusée en 403, suspension puis déconnexion de la session ouverte, réactivation, admin non suspendable, GET 405, sans jeton 403, compte inexistant 404), capture de la page de modération, aucune erreur PHP dans le journal du serveur.
+
 ### 15/11/2026 à 14:26 — Idir — Illustration à la place d’une photo prise au hasard (travail local consigné)
 
 - Sans photo envoyée par le propriétaire, une annonce affiche de nouveau l’illustration de son type d’animal (une patte pour « Autre »), comme dans la refonte de Maria, au lieu d’une photo choisie au hasard : `photoAnimal()` simplifiée, `rangAnnonce()` supprimée. Les 24 photos d’animaux ajoutées plus tôt dans la journée sont retirées ; seule reste la photo de bannière `accueil.jpg` (domaine public).

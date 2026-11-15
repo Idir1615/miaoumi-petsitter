@@ -95,6 +95,17 @@ Réalisé par Idir le 15/11/2026, à l’approche de l’oral, sur `feature/idir
 - [x] Rapport d’une demi-page : docs/RAPPORT-PHOTOS-FAVORIS.md — Idir, 15/11/2026 ; archive zip du projet générée depuis `main`.
 - [ ] Recette croisée avec une autre équipe (grille en fin de sujet).
 
+### Modération : suspendre un utilisateur
+
+Réalisé par Idir le 15/11/2026 sur `feature/idir-moderation`, en adaptant le sujet Symfony à Miaoumi (voir CHANGELOG et docs/FICHE-REVISION.md, section « Modération »).
+
+- [x] Champ `actif` (booléen, 1 par défaut) sur `utilisateurs` et migration `005_moderation.sql`. — Idir, 15/11/2026
+- [x] Équivalent du UserChecker : `AuthController::connexion()` refuse un compte suspendu. — Idir, 15/11/2026
+- [x] Route `POST ?page=suspendre-utilisateur` avec jeton CSRF, page « Modération » réservée aux admins. — Idir, 15/11/2026
+- [x] Test : un compte suspendu voit « Ce compte est suspendu » à la connexion. — Idir, 15/11/2026 : parcours HTTP et `tests/moderation.php`.
+- [x] Discussion : un compte déjà connecté est déconnecté à sa page suivante (`verifierCompteConnecte()`). — Idir, 15/11/2026
+- [x] Comptes de démo : `admin@demo.miaoumi.fr` (administrateur) et `bastien@demo.miaoumi.fr` (suspendu). — Idir, 15/11/2026
+
 ### Révision commune — tout le monde sait tout
 
 Le professeur peut interroger n’importe qui sur n’importe quelle partie. **Idir, Ama et Maria doivent chacun savoir expliquer les trois modules.** Pour chaque personne, l’assistant :
