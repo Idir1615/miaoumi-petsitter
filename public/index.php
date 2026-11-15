@@ -24,6 +24,8 @@ $routes = [
     'inscription' => [AuthController::class, 'inscription'],
     'connexion' => [AuthController::class, 'connexion'],
     'deconnexion' => [AuthController::class, 'deconnexion'],
+    'admin-utilisateurs' => [AdminController::class, 'utilisateurs'],
+    'suspendre-utilisateur' => [AdminController::class, 'suspendre'],
 ];
 
 $page = $_GET['page'] ?? 'annonces';
@@ -34,6 +36,7 @@ if (!is_string($page) || !isset($routes[$page])) {
 }
 
 try {
+    verifierCompteConnecte();
     [$classe, $methode] = $routes[$page];
     $controleur = new $classe();
     $controleur->$methode();

@@ -67,7 +67,7 @@ Traduction du MCD en tables, telle qu’elle est appliquée par [`sql/miaoumi.sq
 
 Le MLD ci-dessus est généré par Looping à partir du MCD ; les clés étrangères y sont en italique et les flèches pointent vers la table référencée. Le détail en texte :
 
-- **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role, photo)
+- **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role *(`user` ou `admin`)*, actif *(1 par défaut, 0 = suspendu)*, photo)
 - **annonces** (**id**, titre, type_animal, ville, date_debut, date_fin, description, photo, statut, `#id_proprietaire` → utilisateurs.id)
 - **candidatures** (**id**, message, statut, date_candidature, `#id_annonce` → annonces.id, `#id_gardien` → utilisateurs.id)
 - **avis** (**id**, note, commentaire, dates, `#id_annonce` → annonces.id, `#id_auteur` → utilisateurs.id, `#id_cible` → utilisateurs.id)
@@ -199,6 +199,7 @@ classDiagram
 6. **Note moyenne** : `Avis::noteMoyenne(int $utilisateur)` calcule la moyenne des notes **reçues** par un utilisateur avec la requête `SELECT AVG(note) FROM avis WHERE id_cible = ?`. La fonction SQL `AVG` renvoie `NULL` quand l’utilisateur n’a reçu aucun avis : la méthode renvoie alors `null` et le profil affiche « Pas encore d’avis ». Sinon, la moyenne est arrondie à une décimale (`round(..., 1)`) et affichée au format français, par exemple « 4,5 / 5 ».
 7. **Modifier, supprimer** : tant que l’annonce est ouverte, son propriétaire peut la modifier (mêmes règles qu’à la création, `Annonce::valider()`) ou la supprimer ; la photo est gérée par `PhotoUploader` sans laisser de fichier orphelin.
 8. **Favoris** : un utilisateur met de côté les annonces des autres (`Favori::ajouter()`, clé primaire composée contre les doublons) et les retrouve dans « Mes favoris » (`Favori::parGardien()`, le dernier ajouté en premier).
+9. **Modérer** : un administrateur (`role = 'admin'`) suspend ou réactive un compte depuis la page « Modération » ; un compte suspendu ne peut plus se connecter et, s’il est connecté, il est déconnecté à sa page suivante.
 
 ---
 
@@ -206,7 +207,7 @@ classDiagram
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Accepter un gardien fait passer l’annonce en « pourvue » et refuse les autres candidatures en attente. Le propriétaire peut clôturer sa garde depuis Mes annonces ; elle passe alors au statut terminée. Les avis sont consultables publiquement et leur dépôt est réservé aux participants une fois la garde finie (date de fin passée ou garde clôturée). Le propriétaire peut ajouter une photo, puis modifier ou supprimer son annonce tant qu’elle est ouverte ; chaque utilisateur peut mettre les annonces des autres en favori et les retrouver dans « Mes favoris ». Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Accepter un gardien fait passer l’annonce en « pourvue » et refuse les autres candidatures en attente. Le propriétaire peut clôturer sa garde depuis Mes annonces ; elle passe alors au statut terminée. Les avis sont consultables publiquement et leur dépôt est réservé aux participants une fois la garde finie (date de fin passée ou garde clôturée). Le propriétaire peut ajouter une photo, puis modifier ou supprimer son annonce tant qu’elle est ouverte ; chaque utilisateur peut mettre les annonces des autres en favori et les retrouver dans « Mes favoris ». Un administrateur peut suspendre un compte depuis la page « Modération ». Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
@@ -230,6 +231,7 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
    Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `sql/migrations/002_avis_dates.sql`.
    Si les tables `annonces` et `utilisateurs` n’ont pas de colonne `photo`, exécuter une seule fois `sql/migrations/003_photos.sql`.
    Si la table `favoris` n’existe pas, exécuter une seule fois `sql/migrations/004_favoris.sql`.
+   Si la table `utilisateurs` n’a pas de colonne `actif`, exécuter une seule fois `sql/migrations/005_moderation.sql` (obligatoire : la connexion lit cette colonne).
    Pour retirer les métadonnées des photos, activer l’extension GD de PHP : dans `C:\xampp\php\php.ini`, retirer le `;` devant `extension=gd`, puis redémarrer Apache.
    Pour la démonstration, importer ensuite `sql/donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
 5. Depuis la racine du projet, lancer :
@@ -256,8 +258,10 @@ Après l’import de `sql/donnees-demo.sql`, ces comptes fictifs sont disponible
 | Lucas | `lucas@demo.miaoumi.fr` | Propriétaire : annonce pourvue « Promenades pour Rex » ; garde terminée « Nourrir Bulle et Caillou » |
 | Sofia | `sofia@demo.miaoumi.fr` | Gardienne : candidature en attente sur Moka, acceptée sur Rex et Bulle ; peut laisser un avis à Lucas sur Bulle |
 | Karim | `karim@demo.miaoumi.fr` | Gardien : candidature en attente sur Moka, refusée sur Rex, acceptée sur Plume |
+| Modération | `admin@demo.miaoumi.fr` | **Administrateur** : lien « Modération » dans le menu du compte, suspendre puis réactiver un compte |
+| Bastien | `bastien@demo.miaoumi.fr` | Compte **suspendu** : la connexion affiche « Ce compte est suspendu » |
 
-Le jeu contient 12 comptes (Inès, Thomas, Amélie, Julien, Nadia, Hugo, Léa et Mehdi en plus des quatre ci-dessus, même mot de passe), 25 annonces dans une dizaine de villes, 23 candidatures et 16 avis : les quatre scénarios ci-dessus restent identiques. Les dates sont calculées à partir du jour de l’import. Le fichier peut être réimporté pour remettre la démonstration à zéro : il remplace uniquement ces comptes et leurs données.
+Le jeu contient 14 comptes (Inès, Thomas, Amélie, Julien, Nadia, Hugo, Léa et Mehdi en plus des six ci-dessus, même mot de passe), 25 annonces dans une dizaine de villes, 23 candidatures et 16 avis : les quatre scénarios ci-dessus restent identiques. Les dates sont calculées à partir du jour de l’import. Le fichier peut être réimporté pour remettre la démonstration à zéro : il remplace uniquement ces comptes et leurs données.
 
 ## Organisation
 
@@ -267,14 +271,14 @@ La structure suit celle présentée en cours :
 miaoumi/
 ├── config/        database.php (connexion PDO), config.example.php
 ├── app/
-│   ├── core/      bootstrap.php (session, CSRF, chargements), flash.php, PhotoUploader.php, photos.php
+│   ├── core/      bootstrap.php (session, CSRF, chargements), flash.php, moderation.php, PhotoUploader.php, photos.php
 │   ├── models/    Utilisateur, Annonce, Candidature, Avis, Favori
 │   ├── controllers/
 │   └── views/
 ├── public/        index.php (point d’entrée), assets/ et uploads/ (photos envoyées, ignoré par Git)
 ├── sql/           miaoumi.sql, donnees-demo.sql et migrations/
 ├── storage/       sessions/ : sessions PHP locales, créé automatiquement, ignoré par Git
-└── tests/         annonces.php, parcours.php, modification.php, favoris.php
+└── tests/         annonces.php, parcours.php, modification.php, favoris.php, moderation.php
 ```
 
 | Fichier ou dossier | Rôle |
@@ -303,9 +307,10 @@ miaoumi/
 | `app/views/annonce.php` | Page de détail d’une annonce |
 | `app/core/photos.php` | Image affichée pour une annonce : photo envoyée, sinon photo ou illustration du type d’animal |
 | `storage/sessions/` | Sessions PHP gardées dans le projet (évite les erreurs d’accès à `C:\xampp\tmp`), ignoré par Git |
-| `tests/annonces.php`, `tests/parcours.php`, `tests/modification.php`, `tests/favoris.php` | Tests sur tables temporaires : annonces, parcours complet, modification et suppression d’annonce, favoris |
+| `tests/annonces.php`, `tests/parcours.php`, `tests/modification.php`, `tests/favoris.php`, `tests/moderation.php` | Tests sur tables temporaires : annonces, parcours complet, modification et suppression d’annonce, favoris, modération |
 | `app/core/PhotoUploader.php` | Envoi sécurisé d’une photo (contrôle, nom aléatoire, suppression) |
 | `app/models/Favori.php`, `app/controllers/FavoriController.php`, `app/views/favoris.php` | Favoris et page « Mes favoris » |
+| `app/controllers/AdminController.php`, `app/core/moderation.php`, `app/views/admin-utilisateurs.php` | Modération : suspendre ou réactiver un compte (administrateurs) |
 | `app/views/interdit.php` | Page « Accès refusé » (403) |
 | `sql/migrations/` | Évolutions pour les bases déjà importées |
 | `public/assets/` | Logo du projet |
@@ -386,6 +391,15 @@ Un utilisateur connecté met de côté les annonces des autres avec le bouton «
 `FavoriController::basculer()` (`?page=basculer_favori`) vérifie dans l’ordre : utilisateur connecté (sinon connexion), méthode POST (sinon **405**), jeton CSRF (sinon **403**, vérifié par `bootstrap.php`), annonce existante (sinon **404**), pas sa propre annonce (sinon message d’erreur, rien n’est enregistré). Il ajoute ou retire selon l’état, puis redirige vers une des deux seules destinations autorisées : « Mes favoris » si le champ `retour` vaut `mes_favoris`, sinon la fiche ; une adresse saisie dans `retour` n’est jamais utilisée (pas de redirection ouverte). Sur sa propre fiche, le propriétaire voit « n gardien(s) intéressé(s) » (`COUNT`).
 
 Limite connue : le site ne propose pas de supprimer un compte ; une suppression faite directement en base efface les lignes (`ON DELETE CASCADE`) mais pas les fichiers des photos.
+
+## La modération
+
+Un compte dont la colonne `role` vaut `admin` voit le lien « Modération » dans le menu du compte (`?page=admin-utilisateurs`) : la liste des comptes avec leur rôle, leur nombre d’annonces et leur état, et un bouton « Suspendre » ou « Réactiver ». La colonne `actif` (migration `005_moderation.sql`, 1 par défaut) indique si le compte peut se connecter.
+
+- **À la connexion** (équivalent du `UserChecker` de Symfony) : `AuthController::connexion()` affiche « Ce compte est suspendu » (code 403) quand `actif = 0`. Le contrôle a lieu **après** la vérification du mot de passe, pour ne pas révéler à un inconnu qu’une adresse existe.
+- **Compte déjà connecté** : `verifierCompteConnecte()` (`app/core/moderation.php`), appelée par `public/index.php` avant chaque page, relit `actif` et `role` en base. Un compte suspendu ou supprimé perd sa session à sa requête suivante et revient à la connexion avec un message ; un changement de rôle s’applique aussi tout de suite.
+- **Suspendre** : `AdminController::suspendre()` (`?page=suspendre-utilisateur`) vérifie dans l’ordre : connecté (sinon connexion), administrateur (sinon **403**), POST (sinon **405**), jeton CSRF (sinon **403**, `bootstrap.php`), compte existant (sinon **404**). `Utilisateur::changerActif()` exécute `UPDATE … WHERE id = ? AND role <> 'admin'` : un administrateur ne peut pas être suspendu, donc il ne peut pas non plus se suspendre lui-même.
+- Les annonces et avis d’un compte suspendu restent visibles.
 
 ## Accepter une candidature et note moyenne
 

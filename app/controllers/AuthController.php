@@ -50,9 +50,18 @@ class AuthController
             if (!$erreurs) {
                 $modele = new Utilisateur();
                 $utilisateur = $modele->trouverParEmail($email);
-                if ($utilisateur && password_verify($password, $utilisateur['password'])) {
+                $motDePasseCorrect = $utilisateur && password_verify($password, $utilisateur['password']);
+                // Équivalent du UserChecker de Symfony : le compte suspendu est refusé APRÈS la vérification
+                // du mot de passe, pour ne pas révéler à un inconnu qu'une adresse existe et qu'elle est suspendue.
+                if ($motDePasseCorrect && !(int) $utilisateur['actif']) {
+                    $erreurs[] = 'Ce compte est suspendu.';
+                    http_response_code(403);
+                    require __DIR__ . '/../views/auth.php';
+                    return;
+                }
+                if ($motDePasseCorrect) {
                     session_regenerate_id(true);
-                    $_SESSION['utilisateur'] = ['id' => $utilisateur['id'], 'nom' => $utilisateur['nom']];
+                    $_SESSION['utilisateur'] = ['id' => $utilisateur['id'], 'nom' => $utilisateur['nom'], 'role' => $utilisateur['role']];
                     $_SESSION['csrf'] = bin2hex(random_bytes(32));
                     $destination = '?page=annonces';
                     $annonceApresConnexion = filter_var(

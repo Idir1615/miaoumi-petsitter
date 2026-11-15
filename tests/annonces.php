@@ -4,6 +4,7 @@
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../app/core/flash.php';
 require __DIR__ . '/../app/core/icones.php';
+require __DIR__ . '/../app/core/moderation.php';
 require __DIR__ . '/../app/core/PhotoUploader.php';
 require __DIR__ . '/../app/core/photos.php';
 require __DIR__ . '/../app/models/Annonce.php';

@@ -17,6 +17,7 @@ session_start([
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/flash.php';
 require_once __DIR__ . '/icones.php';
+require_once __DIR__ . '/moderation.php';
 require_once __DIR__ . '/PhotoUploader.php';
 require_once __DIR__ . '/photos.php';
 require_once __DIR__ . '/../models/Utilisateur.php';
@@ -30,6 +31,7 @@ require_once __DIR__ . '/../controllers/AvisController.php';
 require_once __DIR__ . '/../controllers/CandidatureController.php';
 require_once __DIR__ . '/../controllers/ProfilController.php';
 require_once __DIR__ . '/../controllers/FavoriController.php';
+require_once __DIR__ . '/../controllers/AdminController.php';
 
 function e(string $value): string
 {
