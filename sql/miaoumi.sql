@@ -47,3 +47,12 @@ CREATE TABLE avis (
     FOREIGN KEY (id_auteur) REFERENCES utilisateurs(id) ON DELETE CASCADE,
     FOREIGN KEY (id_cible) REFERENCES utilisateurs(id) ON DELETE CASCADE
 );
+
+CREATE TABLE favoris (
+    id_gardien INT NOT NULL,
+    id_annonce INT NOT NULL,
+    date_ajout DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_gardien, id_annonce),
+    FOREIGN KEY (id_gardien) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_annonce) REFERENCES annonces(id) ON DELETE CASCADE
+);

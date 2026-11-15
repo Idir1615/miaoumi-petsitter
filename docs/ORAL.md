@@ -1,5 +1,7 @@
 # Préparer l’oral — Miaoumi
 
+> Version la plus complète et à jour (photos, favoris, modification d’annonce, questions-réponses) : [FICHE-REVISION.md](FICHE-REVISION.md).
+
 Support de révision pour Idir, Ama et Maria. Chacun doit pouvoir expliquer **tout le projet**, pas seulement sa partie : le professeur peut interroger n’importe qui sur n’importe quel module. Ce document décrit le code tel qu’il est sur `develop` ; il ne présente pas comme faites des fonctionnalités qui n’existent pas.
 
 ## 1. Le projet en 30 secondes
@@ -17,9 +19,9 @@ Technologies : **PHP** sans framework, **MySQL** avec **PDO**, HTML/CSS, archite
 
 | Personne | Partie | Fichiers principaux |
 | --- | --- | --- |
-| **Idir** | Annonces, socle commun (header/footer, CSS, messages flash), adaptation à la maquette, organisation Git | `app/models/Annonce.php`, `app/controllers/AnnonceController.php`, `app/views/annonces.php`, `app/views/annonce-formulaire.php`, `app/views/header.php`, `app/views/footer.php`, `app/core/flash.php`, `public/assets/style.css` |
+| **Idir** | Annonces (dont la clôture), socle commun (header/footer, CSS, messages flash), profil public, photos conformes au RGPD, adaptation à la maquette, organisation Git ; a aussi branché le passage en « pourvue » dans `decider()` (09/11/2026) | `app/models/Annonce.php`, `app/controllers/AnnonceController.php`, `app/views/annonces.php`, `app/views/annonce-formulaire.php`, `app/views/header.php`, `app/views/footer.php`, `app/core/flash.php`, `app/core/photos.php`, `app/controllers/ProfilController.php`, `app/views/profil.php`, `public/assets/style.css` |
 | **Ama** | Candidatures : postuler, consulter, accepter/refuser | `app/models/Candidature.php`, `app/controllers/CandidatureController.php`, `app/views/candidatures.php`, `app/views/candidature-formulaire.php` |
-| **Maria** | Avis et comptes (inscription, connexion) | `app/models/Avis.php`, `app/controllers/AvisController.php`, `app/views/avis.php`, `app/models/Utilisateur.php`, `app/controllers/AuthController.php`, `app/views/auth.php` |
+| **Maria** | Avis et comptes (inscription, connexion), note moyenne, page de détail d’une annonce, refonte visuelle et données de démonstration | `app/models/Avis.php`, `app/controllers/AvisController.php`, `app/views/avis.php`, `app/models/Utilisateur.php`, `app/controllers/AuthController.php`, `app/views/auth.php`, `app/views/annonce.php` |
 
 ## 3. L’architecture MVC
 
@@ -71,6 +73,7 @@ Quatre tables (fichier `sql/miaoumi.sql`) :
 - Un utilisateur n’a pas de rôle fixe : **le même compte peut être propriétaire et gardien**.
 - `ON DELETE CASCADE` : supprimer un utilisateur supprime ses annonces, candidatures et avis.
 - `sql/migrations/001_ajout_ville.sql` ajoute la colonne `ville` aux bases créées avant son ajout. Le code vérifie si la colonne existe (`villeDisponible()`) pour rester compatible.
+- `sql/migrations/003_photos.sql` ajoute une colonne `photo` à `annonces` et `utilisateurs` ; même principe avec `photoDisponible()`.
 
 ## 5. Les méthodes des modèles en une phrase
 
@@ -82,20 +85,45 @@ Quatre tables (fichier `sql/miaoumi.sql`) :
 - `cloturer()` : termine une garde après avoir vérifié qu’elle existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée ; renvoie les erreurs, vide si la garde est clôturée.
 - `marquerPourvue()` : passe une annonce `ouverte` en `pourvue` ; elle est appelée quand une candidature est acceptée.
 - `villeDisponible()` : indique si la colonne `ville` existe dans la base.
+- `photoDisponible()` : indique si la colonne `photo` existe (migration 003).
+- `valider()` : règles communes à la création et à la modification (titre, animal, dates, description, ville) ; renvoie les erreurs par champ.
+- `estModifiable()` : vrai si l’utilisateur est le propriétaire **et** que l’annonce est encore ouverte.
+- `modifier()` / `supprimer()` : mettent à jour ou suppriment une annonce ouverte de son propriétaire ; les conditions sont répétées dans le `WHERE`.
+- `definirPhoto()` : enregistre le nom de la photo, ou `NULL` pour la retirer ; `photoUrl()` : adresse de l’image à afficher (photo envoyée, sinon image du type d’animal).
+- `retirerPhoto()` : retire la photo d’une annonce, seulement pour son propriétaire, et renvoie le fichier à effacer (droit à l’effacement).
+- `detail()` : renvoie une annonce avec le nom du propriétaire et son nombre de candidatures, pour la page de détail (Maria).
+- `statistiques()` : chiffres de la page d’accueil (annonces ouvertes, terminées, nombre de villes) (Maria).
 
 ### Candidature (Ama)
 - `pourUtilisateur()` : liste les candidatures envoyées par l’utilisateur **et** celles reçues sur ses annonces.
 - `postuler()` : dans une **transaction**, vérifie que l’annonce est ouverte et non expirée, que ce n’est pas sa propre annonce et qu’il n’a pas déjà postulé, puis crée la candidature `en_attente`.
-- `decider()` : dans une transaction, vérifie que l’utilisateur est bien le propriétaire et que la candidature est encore en attente, puis la passe à `acceptee` ou `refusee`.
+- `decider()` : dans une transaction, vérifie que l’utilisateur est bien le propriétaire et que la candidature est encore en attente, puis la passe à `acceptee` ou `refusee`. **À l’acceptation**, l’annonce passe en `pourvue` (`marquerPourvue()`) et les autres candidatures en attente sur cette annonce sont refusées, dans la même transaction (branché par Idir le 09/11/2026).
 
 ### Avis (Maria)
 - `pourAnnonce()` : liste les avis d’une annonce avec le nom de l’auteur et de la personne notée.
-- `destinataires()` : renvoie les personnes que l’utilisateur a le droit de noter (garde terminée, candidature acceptée, pas d’avis déjà déposé).
+- `recus()` : liste les avis reçus par un utilisateur, pour son profil public (Idir).
+- `noteMoyenne()` : moyenne des notes reçues (`AVG`), arrondie à une décimale, ou `null` sans avis (« Pas encore d’avis »).
+- `gardeFinie()` : la garde est finie si elle est clôturée (`terminee`) **ou** si sa date de fin est passée.
+- `destinataires()` : renvoie les personnes que l’utilisateur a le droit de noter (garde finie, candidature acceptée, pas d’avis déjà déposé).
 - `creer()` : dans une transaction, revérifie la note, le commentaire et le droit de noter cette personne, puis enregistre l’avis.
+- `derniers()` et `statistiques()` : derniers avis positifs et chiffres affichés sur la page d’accueil.
+
+### Favori (sujet « photos et favoris »)
+- `existe()` : vrai si le gardien a déjà mis l’annonce en favori.
+- `ajouter()` : `INSERT IGNORE … SELECT` qui n’insère que si l’annonce existe et n’est pas la sienne ; un doublon est ignoré grâce à la clé primaire composée.
+- `retirer()` : supprime la ligne du favori.
+- `parGardien()` : annonces mises de côté avec le nom du propriétaire, `ORDER BY date_ajout DESC`.
+- `compterPourAnnonce()` : `COUNT(*)` des gardiens intéressés, montré au seul propriétaire.
+
+### PhotoUploader (sujet « photos et favoris »)
+- `enregistrer()` : contrôle le code d’erreur, 2 Mo, le type réel (`finfo`, liste blanche JPEG/PNG/WebP), 4 000 px, donne un nom aléatoire et déplace le fichier avec `move_uploaded_file` ; renvoie le nom ou lève une `RuntimeException`.
+- `supprimer()` : efface un fichier à partir de son nom (`basename`), sans erreur s’il n’existe plus.
 
 ### Utilisateur (Maria)
-- `creer()` : enregistre un compte avec le mot de passe haché par `password_hash()`.
+- `creer()` : valide le nom (1 à 100 caractères), l’e-mail (format, 150 caractères, pas déjà utilisé) et le mot de passe (8 à 72 octets) **avant** l’INSERT, puis enregistre le compte avec le mot de passe haché par `password_hash()` ; renvoie la liste des erreurs, comme `Annonce::creer()`.
 - `trouverParEmail()` : renvoie le compte correspondant à un e-mail pour la connexion.
+- `trouver()` : renvoie les informations publiques d’un compte (id, nom, photo), jamais l’e-mail ni le mot de passe (Idir).
+- `changerPhoto()` / `photoDisponible()` : remplace ou retire la photo de profil (Idir).
 
 ## 6. La sécurité (questions très probables)
 
@@ -129,14 +157,11 @@ Quatre tables (fichier `sql/miaoumi.sql`) :
 
 ## 9. Ce qui n’est pas fait (à dire honnêtement si on le demande)
 
-- **Passage en « pourvue »** : `Annonce::marquerPourvue()` existe, mais son appel à l’acceptation d’une candidature dans `decider()` est à brancher par Ama.
-- **Avis après clôture** : clôturer une garde avant sa date de fin ne permet pas encore de laisser un avis, car la règle des avis exige que la date de fin soit passée (choix à faire par Maria).
 - Une annonce n’est pas clôturée automatiquement à sa date de fin : c’est le propriétaire qui la clôture.
-- **Plusieurs candidatures peuvent être acceptées** pour une même annonce (choix assumé dans le code).
-- **Validation des comptes** : elle se fait dans `AuthController`, pas encore dans `Utilisateur::creer()` (tâche de Maria).
-- **Messages de succès** après inscription et dépôt d’avis : affichés via un paramètre d’URL (`inscrit=1`, `ajoute=1`) et non par le mécanisme flash commun (tâche de Maria).
-- Pas de modification ni de suppression d’annonce, pas de profil gardien ni de classement des gardiens (présents dans la maquette seulement).
-- **Tests** : un script de test PHP existe pour les annonces (`tests/annonces.php`) ; candidatures, avis et comptes ont été vérifiés manuellement ou pas encore (voir `docs/VERIFICATION.md`).
+- Pas de classement des gardiens (présent dans la maquette seulement). Le profil public existe (nom, photo, note moyenne, avis reçus), mais il n’y a pas de profil gardien détaillé.
+- **Tests** : quatre scripts PHP sur tables temporaires : `tests/annonces.php` (annonces), `tests/parcours.php` (accepter → pourvue, note moyenne), `tests/modification.php` (modifier, supprimer, photo), `tests/favoris.php` (favoris). Il n’y a pas encore de script dédié aux erreurs des candidatures (doublon, propre annonce, décision par un tiers : tâche d’Ama).
+
+Déjà corrigé depuis la séance 2 (à savoir dire si on le demande) : passage en « pourvue » et refus des autres candidatures à l’acceptation, avis possibles dès la clôture, validation des comptes dans `Utilisateur::creer()`, messages flash à la place de `inscrit=1` et `ajoute=1`.
 
 ## 10. Questions possibles du jury
 
@@ -150,7 +175,7 @@ Quatre tables (fichier `sql/miaoumi.sql`) :
 
 **Comment empêcher quelqu’un de postuler deux fois ?** `postuler()` verrouille l’annonce dans une transaction, vérifie qu’aucune candidature n’existe déjà pour ce gardien, puis insère.
 
-**Qui peut laisser un avis ?** Seulement le propriétaire et un gardien dont la candidature a été acceptée, après la date de fin, une seule fois par personne notée.
+**Qui peut laisser un avis ?** Seulement le propriétaire et un gardien dont la candidature a été acceptée, une fois la garde finie (date de fin passée ou garde clôturée, voir `Avis::gardeFinie()`), une seule fois par personne notée.
 
 **Pourquoi rediriger après un POST ?** Pour éviter qu’un rafraîchissement de la page renvoie le formulaire (patron Post/Redirect/Get) et pour afficher le message flash.
 
@@ -162,7 +187,7 @@ Quatre tables (fichier `sql/miaoumi.sql`) :
 
 **Que voit-on si on tape une page qui n’existe pas ?** Le routeur renvoie un code 404 et affiche `app/views/introuvable.php` avec le gabarit du site, jamais une page blanche.
 
-**Comment montrer le site avec des données ?** `sql/donnees-demo.sql` crée 4 comptes fictifs, 4 annonces, 6 candidatures et 3 avis, avec des dates calculées depuis le jour de l’import ; il peut être réimporté pour remettre la démonstration à zéro.
+**Comment montrer le site avec des données ?** `sql/donnees-demo.sql` crée 12 comptes fictifs, 25 annonces, 23 candidatures et 16 avis (dont les quatre scénarios du README avec Claire, Lucas, Sofia et Karim), avec des dates calculées depuis le jour de l’import ; il peut être réimporté pour remettre la démonstration à zéro.
 
 ## Réviser pas à pas
 

@@ -2,6 +2,8 @@
 
 Préparée le **23/10/2026 à 15:51 (Europe/Paris)** par **Idir avec l’assistant**, à partir de [REPARTITION-SEANCE-2.md](REPARTITION-SEANCE-2.md) et d’une relecture du code.
 
+> **Mise à jour du 15/11/2026 (Idir)** : ces points ont été traités par Maria le 09/11/2026 (commit `851b6d1`) et vérifiés par Idir après fusion dans `develop` le 10/11/2026 ; le suivi à jour est dans [ROADMAP.md](ROADMAP.md), section « Remise finale — Maria ». Cette liste est conservée comme historique (les chemins `views/…` sont devenus `app/views/…`, et les pull requests vont vers `develop`).
+
 Cette liste indique le travail **à faire** ; elle ne signifie pas que Maria l’a réalisé. Pour cocher une case, ajouter le prénom, la date et la vérification faite.
 
 ## Déjà fait (ne pas refaire)

@@ -5,7 +5,7 @@ require __DIR__ . '/header.php';
 ?>
 <section class="profil-entete carte">
     <?php if (!empty($utilisateur['photo'])): ?>
-        <img class="photo-profil" src="uploads/profils/<?= e($utilisateur['photo']) ?>" alt="Photo de profil de <?= e($utilisateur['nom']) ?>">
+        <img class="photo-profil" src="<?= e((string) PhotoUploader::url($utilisateur['photo'], 'profils')) ?>" alt="Photo de profil de <?= e($utilisateur['nom']) ?>">
     <?php else: ?>
         <span class="avatar avatar-grand" aria-hidden="true"><?= e(mb_strtoupper(mb_substr($utilisateur['nom'], 0, 1))) ?></span>
     <?php endif; ?>
@@ -28,7 +28,7 @@ require __DIR__ . '/header.php';
         <summary><?= empty($utilisateur['photo']) ? 'Ajouter une photo de profil' : 'Changer ou supprimer ma photo' ?></summary>
         <form method="post" action="?page=photo-profil" enctype="multipart/form-data">
             <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
-            <p><label for="photo">Photo (JPEG ou PNG, 5 Mo maximum)</label><br><input id="photo" name="photo" type="file" accept="image/jpeg,image/png" required></p>
+            <p><label for="photo">Photo (JPEG, PNG ou WebP, 2 Mo maximum)</label><br><input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required></p>
             <p><label><input type="checkbox" name="consentement" value="oui" required> J’accepte que cette photo soit visible par tous sur mon profil public.</label></p>
             <p class="meta">Facultative. La position GPS et les autres métadonnées sont supprimées, l’image est redimensionnée et renommée. Tu peux la supprimer à tout moment : elle est alors effacée du serveur.</p>
             <button type="submit">Enregistrer la photo</button>
