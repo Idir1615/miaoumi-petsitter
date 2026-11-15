@@ -1,25 +1,14 @@
-# Photos des animaux
+# Images du site
 
-Dépose ici les photos des annonces, nommées **type + numéro** :
+## Image d’une annonce
 
-| Type d'animal de l'annonce | Noms de fichiers |
-| --- | --- |
-| Chat | `chat1.jpg`, `chat2.jpg`, `chat3.jpg`… |
-| Chien | `chien1.jpg`, `chien2.jpg`… |
-| Lapin | `lapin1.jpg`… |
-| Oiseau | `oiseau1.jpg`… |
-| Poisson | `poisson1.jpg`… |
-| Autre (hamster, tortue…) | `autre1.jpg`… |
+- Si le propriétaire a envoyé une photo, c’est elle qui s’affiche (`public/uploads/annonces/`, voir `PhotoUploader`).
+- Sinon, l’**illustration du type d’animal** s’affiche : `animaux/illustrations/chat.svg`, `chien.svg`, `lapin.svg`, `oiseau.svg`, `poisson.svg`, et `autre.svg` (une patte) pour tous les autres types. Aucune photo n’est choisie au hasard.
 
-- Formats acceptés : `.jpg`, `.jpeg`, `.png`, `.webp` (majuscules ou minuscules).
-- Les numéros n'ont pas besoin de se suivre ; il en faut au moins un par type.
-- Format conseillé : paysage, environ 800 × 500 pixels, moins de 300 Ko.
-- Sous Windows, vérifier que le fichier ne s'appelle pas `chat1.jpg.jpg` (afficher les extensions dans l'Explorateur).
+`photoAnimal()` (`app/core/photos.php`) fait ce choix ; `cleAnimal()` transforme « Chats » ou « Oiseaux » en `chat` ou `oiseau`.
 
-`photoAnimal()` (`app/core/photos.php`) choisit la photo d'après le type d'animal et le numéro de l'annonce : une annonce garde toujours la même image. Sans photo pour un type, l'illustration de `illustrations/` est affichée.
+Les photos `animaux/chat1.jpg`, `chat2.jpg`, `lapin1.jpg` et `poisson1.jpg` (première refonte de Maria) ne sont plus affichées ; `chien1.jpg` sert seulement de photo de secours pour la bannière.
 
-Utiliser des photos libres de droits (par exemple Unsplash ou Pexels) ou ses propres photos.
+## Photo de la bannière d’accueil
 
-## Photo de la bannière d'accueil
-
-La bannière affiche `public/assets/accueil.jpg` si ce fichier existe, sinon `animaux/chien1.jpg`. `accueil.jpg` montre actuellement un chien et un chat (domaine public). Pour la changer, remplacer ce fichier par une autre image libre de droits (paysage, environ 1 400 × 900 pixels) : aucun code à modifier. Les crédits de toutes les photos ajoutées sont dans `animaux/CREDITS.md`.
+La bannière affiche `accueil.jpg` (un chien et un chat, domaine public) si ce fichier existe, sinon `animaux/chien1.jpg`. Pour la changer, remplacer `accueil.jpg` par une autre image libre de droits (paysage, environ 1 400 × 900 pixels) : aucun code à modifier. Crédit dans `animaux/CREDITS.md`.
