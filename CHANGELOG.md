@@ -6,6 +6,11 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 15/11/2026 à 14:26 — Idir — Illustration à la place d’une photo prise au hasard (travail local consigné)
+
+- Sans photo envoyée par le propriétaire, une annonce affiche de nouveau l’illustration de son type d’animal (une patte pour « Autre »), comme dans la refonte de Maria, au lieu d’une photo choisie au hasard : `photoAnimal()` simplifiée, `rangAnnonce()` supprimée. Les 24 photos d’animaux ajoutées plus tôt dans la journée sont retirées ; seule reste la photo de bannière `accueil.jpg` (domaine public).
+- README, `public/assets/README.md`, `CREDITS.md` et docs/FICHE-REVISION.md mis à jour.
+
 ### 15/11/2026 à 14:12 — Idir — Refonte visuelle de l’interface et photos variées (travail local consigné)
 
 - Mise en page modernisée d’après les maquettes fournies par Idir, **avec les couleurs d’origine du site** (variables CSS existantes : marron doré `#6c4f13`, vert menthe `#daf1e6`, vert foncé `#213530`/`#20755f`, crème `#f6efe1`, jaune pastel `#fbe6bf`) ; une première version en vert forêt a été abandonnée à la demande d’Idir. Bloc « Refonte 2 » à la fin de `public/assets/style.css`.

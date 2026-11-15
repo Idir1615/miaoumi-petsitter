@@ -195,7 +195,7 @@ Règle générale : **connecté ?** (sinon redirection vers la connexion) → **
 - **Pagination** : `array_slice($annonces, ($numero - 1) * 6, 6)`, numéro de page ramené entre 1 et le nombre de pages.
 - **Variables CSS** : `--accent:#6c4f13` déclarée dans `:root`, utilisée avec `var(--accent)` ; changer la couleur à un seul endroit change tout le site.
 - **Responsive** : des `@media (max-width: …)` changent la mise en page : 3 colonnes de cartes sur ordinateur, 2 sur tablette, 1 sur mobile ; la bannière passe en une colonne.
-- **Image par annonce** : `photoAnimal()` prend la photo envoyée par le propriétaire, sinon une photo du type d’animal (`chien1.jpg` à `chien7.jpg`…) choisie d’après le rang de l’annonce, pour que deux annonces voisines n’aient pas la même image.
+- **Image par annonce** : `photoAnimal()` affiche la photo envoyée par le propriétaire ; sans photo, l’**illustration du type d’animal** (`chat.svg`, `chien.svg`… et une patte pour « Autre »), jamais une photo prise au hasard.
 
 ---
 
@@ -397,9 +397,9 @@ Avec des media queries CSS : sous 1 100 px, la bannière passe en une colonne et
 Pas de dépendance ni de requête vers un autre site : la page reste rapide, fonctionne hors ligne, et l’adresse IP des visiteurs n’est pas envoyée à un tiers (point RGPD). Les icônes prennent la couleur du texte (`currentColor`) et sont marquées `aria-hidden`, car elles sont décoratives.
 </details>
 
-<details><summary>Avez-vous le droit d’utiliser ces photos ?</summary>
+<details><summary>Que s’affiche-t-il quand le propriétaire ne met pas de photo ?</summary>
 
-Oui : les photos ajoutées viennent de Wikimedia Commons et sont toutes en **domaine public ou CC0**, donc utilisables et modifiables librement, même sans citer l’auteur. Nous les créditons quand même dans `public/assets/animaux/CREDITS.md`. Les photos envoyées par les utilisateurs, elles, ne sont jamais publiées sur GitHub.
+L’illustration de son type d’animal (un chat, un chien, un oiseau… ou une patte pour les autres), dessinée en SVG. C’est un choix : une photo prise au hasard ferait croire que c’est le vrai animal de l’annonce. `cleAnimal()` transforme « Chats » en `chat` pour trouver le bon fichier. La photo de la bannière d’accueil est dans le domaine public (créditée dans `public/assets/animaux/CREDITS.md`).
 </details>
 
 <details><summary>Les statistiques de la bannière sont-elles écrites en dur ?</summary>

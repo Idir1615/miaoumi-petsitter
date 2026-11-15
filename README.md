@@ -244,7 +244,7 @@ Le serveur intégré PHP sert au développement local.
 
 ## Photos des animaux
 
-Les cartes et la page de détail affichent une image choisie par `photoAnimal()` (`app/core/photos.php`) d’après le type d’animal : déposer des photos nommées `chat1.jpg`, `chien1.jpg`, `lapin1.jpg`, `oiseau1.jpg`, `poisson1.jpg`, `autre1.jpg`… dans `public/assets/animaux/` (voir son README). Sans photo, une illustration SVG est affichée.
+Les cartes, la fiche et « Mes favoris » affichent la photo envoyée par le propriétaire ; sans photo, l’illustration du type d’animal (`public/assets/animaux/illustrations/`, une patte pour les types « Autre »), choisie par `photoAnimal()` (`app/core/photos.php`). Aucune photo n’est prise au hasard. Voir `public/assets/README.md`.
 
 ## Comptes de démonstration
 
