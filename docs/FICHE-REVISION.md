@@ -115,6 +115,8 @@ Navigateur ── ?page=creer-annonce ──► public/index.php (routeur, seul 
 
 ## E. Les méthodes des modèles en une phrase
 
+Version simplifiée, avec les questions probables : [FICHE-FONCTIONS.md](FICHE-FONCTIONS.md).
+
 ### Annonce (`app/models/Annonce.php`)
 - `rechercher()` : liste filtrée (texte, animal, ville) ; seulement les annonces ouvertes pour tous, ou toutes celles du propriétaire dans « Mes annonces » ; joint le nom et la note moyenne du propriétaire.
 - `valider()` : règles communes à la création et à la modification ; renvoie un tableau d’erreurs par champ.
