@@ -47,7 +47,9 @@ class Annonce
     }
 
     // Retourne les erreurs ; une liste vide signifie que l'annonce a été créée.
-    public function creer(array $donnees, int $proprietaire): array
+    // Règles communes à la création et à la modification ; renvoie les erreurs par champ.
+    // En modification, $debutActuel permet de garder une date de début déjà passée sans la changer.
+    public function valider(array $donnees, ?string $debutActuel = null): array
     {
         $erreurs = [];
         foreach (['titre' => 150, 'type_animal' => 100] as $champ => $maximum) {
@@ -66,7 +68,8 @@ class Annonce
                 $dates[$champ] = $date;
             }
         }
-        if (isset($dates['date_debut']) && $dates['date_debut'] < new DateTimeImmutable('today', $fuseau)) {
+        if (isset($dates['date_debut']) && $donnees['date_debut'] !== $debutActuel
+            && $dates['date_debut'] < new DateTimeImmutable('today', $fuseau)) {
             $erreurs['date_debut'] = 'La garde doit commencer aujourd’hui ou plus tard.';
         }
         if (isset($dates['date_debut'], $dates['date_fin']) && $dates['date_fin'] < $dates['date_debut']) {
@@ -79,6 +82,13 @@ class Annonce
         if (!is_string($ville) || mb_strlen($ville) > 100) {
             $erreurs['ville'] = 'La ville est limitée à 100 caractères.';
         }
+        return $erreurs;
+    }
+
+    public function creer(array $donnees, int $proprietaire): array
+    {
+        $erreurs = $this->valider($donnees);
+        $ville = $donnees['ville'] ?? '';
         if ($proprietaire < 1) {
             $erreurs['general'] = 'Connecte-toi pour créer une annonce.';
         }
@@ -98,7 +108,7 @@ class Annonce
             $colonnes[] = 'ville';
             $valeurs[] = trim($ville);
         }
-        // La photo a déjà été contrôlée et nettoyée par enregistrerPhoto() ; on ne garde que son nom.
+        // La photo a déjà été contrôlée par PhotoUploader ; on ne garde que son nom.
         if (!empty($donnees['photo']) && $this->photoDisponible()) {
             $colonnes[] = 'photo';
             $valeurs[] = $donnees['photo'];
@@ -109,6 +119,61 @@ class Annonce
         );
         $requete->execute($valeurs);
         return [];
+    }
+
+    // Vrai si l'utilisateur peut modifier ou supprimer l'annonce : il en est le propriétaire et elle est encore ouverte.
+    public function estModifiable(array $annonce, int $utilisateur): bool
+    {
+        return (int) $annonce['id_proprietaire'] === $utilisateur && $annonce['statut'] === 'ouverte';
+    }
+
+    // Met à jour les champs d'une annonce ouverte de son propriétaire ; renvoie les erreurs, vide si c'est fait.
+    public function modifier(int $annonce, int $proprietaire, array $donnees): array
+    {
+        $garde = $annonce > 0 ? $this->trouver($annonce) : null;
+        if (!$garde || !$this->estModifiable($garde, $proprietaire)) {
+            return ['general' => 'Seul le propriétaire peut modifier une annonce encore ouverte.'];
+        }
+        $erreurs = $this->valider($donnees, $garde['date_debut']);
+        if ($erreurs) {
+            return $erreurs;
+        }
+        $colonnes = ['titre = ?', 'type_animal = ?', 'date_debut = ?', 'date_fin = ?', 'description = ?'];
+        $valeurs = [trim($donnees['titre']), trim($donnees['type_animal']),
+            $donnees['date_debut'], $donnees['date_fin'], trim($donnees['description'])];
+        if ($this->villeDisponible()) {
+            $colonnes[] = 'ville = ?';
+            $valeurs[] = trim($donnees['ville'] ?? '');
+        }
+        // Les conditions de droit sont répétées dans le WHERE, comme pour cloturer().
+        $valeurs[] = $annonce;
+        $valeurs[] = $proprietaire;
+        Database::getConnection()
+            ->prepare('UPDATE annonces SET ' . implode(', ', $colonnes) . " WHERE id = ? AND id_proprietaire = ? AND statut = 'ouverte'")
+            ->execute($valeurs);
+        return [];
+    }
+
+    // Supprime une annonce ouverte de son propriétaire (candidatures et favoris partent en cascade).
+    public function supprimer(int $annonce, int $proprietaire): bool
+    {
+        $requete = Database::getConnection()->prepare(
+            "DELETE FROM annonces WHERE id = ? AND id_proprietaire = ? AND statut = 'ouverte'"
+        );
+        $requete->execute([$annonce, $proprietaire]);
+        return $requete->rowCount() === 1;
+    }
+
+    // Enregistre le nom de la photo (ou NULL pour la retirer) ; le fichier est géré par PhotoUploader.
+    public function definirPhoto(int $id, ?string $fichier): void
+    {
+        Database::getConnection()->prepare('UPDATE annonces SET photo = ? WHERE id = ?')->execute([$fichier, $id]);
+    }
+
+    // Adresse de l'image à afficher : la photo envoyée, sinon une photo ou une illustration du type d'animal.
+    public function photoUrl(array $annonce): string
+    {
+        return photoAnimal($annonce)['src'];
     }
 
     // Clôture une garde ; seul son propriétaire peut le faire. Une liste vide signifie que la garde est clôturée.
@@ -169,9 +234,11 @@ class Annonce
     // Chiffres affichés sur la page d'accueil.
     public function statistiques(): array
     {
+        // Sans la migration 001, la colonne ville n'existe pas : on compte alors 0 ville.
+        $villes = $this->villeDisponible() ? "COUNT(DISTINCT NULLIF(ville, ''))" : '0';
         return Database::getConnection()->query(
             "SELECT SUM(statut = 'ouverte') AS ouvertes, SUM(statut = 'terminee') AS terminees,
-                    COUNT(DISTINCT NULLIF(ville, '')) AS villes
+                    $villes AS villes
              FROM annonces"
         )->fetch();
     }

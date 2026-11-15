@@ -9,7 +9,7 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
 - [x] Checklist de séance 2 complète pour le module Annonces.
 - [x] Branche `feature/idir-annonces` publiée (03/11/2026).
 - [ ] Réviser **tout** docs/ORAL.md : les trois modules, pas seulement les annonces (voir « Révision commune »).
-- [ ] Relire et fusionner les pull requests d’Ama et de Maria dans `develop`, puis `develop` dans `main`.
+- [ ] Relire et fusionner les pull requests d’Ama et de Maria dans `develop`, puis `develop` dans `main`. — Maria : `feature/maria-avis-comptes` fusionnée dans `develop` puis `main` le 10/11/2026. Ama : aucune branche `feature/ama-…` sur GitHub au 15/11/2026.
 
 ## Ama — Candidatures
 
@@ -33,6 +33,8 @@ Objectif actuel : **checklist de fin de séance 2**, puis l’oral (projet fonct
 3. [ ] **Réviser tout le projet** (voir « Révision commune ») : commencer par `app/models/Candidature.php`, puis les annonces, les avis et les comptes.
 
 ## Maria — Avis et comptes
+
+> État au 15/11/2026 (Idir) : les étapes 1 à 4 ont été livrées par Maria le 09/11/2026 (commit `851b6d1`) et vérifiées par Idir après fusion le 10/11/2026 — voir « Remise finale — Maria » plus bas. Reste l’étape 5 (révision). À cocher avec Maria.
 
 1. [ ] **Mettre à jour sa branche** :
    ```sh
@@ -63,7 +65,7 @@ Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car 
 2. [x] **`Annonce::marquerPourvue(int $annonce)`** : passe une annonce ouverte en `pourvue` ; méthode fournie à Ama.
 3. [x] **Page introuvable** : la réponse 404 du routeur (`public/index.php`) s’affiche avec le gabarit commun, pas en texte brut.
 4. [x] **Jeu de données SQL** : `sql/donnees-demo.sql` (4 annonces, 6 candidatures, 3 avis), sur `feature/idir-donnees-demo`, à fusionner.
-5. [~] **Documentation** dans le README (MLD, diagramme de classes, logique métier et `cloturer()` rédigés le 03/11/2026 ; reste à intégrer les paragraphes d’Ama et de Maria) : MLD à jour, diagramme de classes (modèles et contrôleurs), logique métier, paragraphe expliquant `cloturer()`. Intégrer le paragraphe de Maria sur `noteMoyenne()`.
+5. [~] **Documentation** dans le README (MLD, diagramme de classes, logique métier et `cloturer()` rédigés le 03/11/2026 ; reste à intégrer les paragraphes d’Ama et de Maria ; au 15/11/2026, un paragraphe sur `noteMoyenne()` figure au point 6 de la Logique métier du README, auteur à confirmer, et le README décrit le nouveau `decider()`) : MLD à jour, diagramme de classes (modèles et contrôleurs), logique métier, paragraphe expliquant `cloturer()`. Intégrer le paragraphe de Maria sur `noteMoyenne()`.
 6. [ ] **Intégration** : relire et fusionner les pull requests dans `develop`, puis `develop` dans `main`, sans conflit résiduel.
 
 ### Ama — Candidatures
@@ -83,6 +85,16 @@ Ordre conseillé : Idir livre d’abord `cloturer()` et `marquerPourvue()`, car 
 5. [ ] **Paragraphe** expliquant `noteMoyenne()` pour la documentation, à transmettre à Idir.
 6. [x] **Historique Git** : commit à son nom `851b6d1`, poussé sur `feature/maria-avis-comptes` — Maria, 10/11/2026.
 
+### Sujet « photos et favoris » (PetSitter V2)
+
+Réalisé par Idir le 15/11/2026, à l’approche de l’oral, sur `feature/idir-mise-a-jour-docs` (voir CHANGELOG). Chacun doit savoir l’expliquer : voir docs/FICHE-REVISION.md.
+
+- [x] **Lot A** : `PhotoUploader` (envoi sécurisé). — Idir, 15/11/2026 : tableau de tests du lot A rejoué (fichiers de test fabriqués à l’identique).
+- [x] **Lot B** : photo, modification et suppression d’annonce. — Idir, 15/11/2026 : tests a à i et `tests/modification.php`.
+- [x] **Lot C** : favoris. — Idir, 15/11/2026 : tests a à i, « pour aller plus loin » et `tests/favoris.php`.
+- [x] Rapport d’une demi-page : docs/RAPPORT-PHOTOS-FAVORIS.md — Idir, 15/11/2026 ; archive zip du projet générée depuis `main`.
+- [ ] Recette croisée avec une autre équipe (grille en fin de sujet).
+
 ### Révision commune — tout le monde sait tout
 
 Le professeur peut interroger n’importe qui sur n’importe quelle partie. **Idir, Ama et Maria doivent chacun savoir expliquer les trois modules.** Pour chaque personne, l’assistant :
@@ -98,5 +110,5 @@ Le professeur peut interroger n’importe qui sur n’importe quelle partie. **I
 
 ### Équipe
 
-- [ ] Parcours complet sans erreur sur XAMPP avec `sql/donnees-demo.sql` : publier → candidater → valider → clôturer → noter.
+- [x] Parcours complet sans erreur sur XAMPP avec `sql/donnees-demo.sql` : publier → candidater → valider → clôturer → noter. — Idir, 15/11/2026 : parcours rejoué en HTTP sur le site local (MySQL XAMPP, serveur PHP), avec inscription, comptes Claire et Sofia, refus d’une décision et d’une clôture par un tiers et d’un avis en double ; données de test supprimées ensuite. Reste à le refaire à la main dans le navigateur pour la démonstration.
 - [ ] Oral blanc à trois avec les questions de docs/ORAL.md.

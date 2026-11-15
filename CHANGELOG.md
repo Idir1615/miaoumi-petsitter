@@ -6,6 +6,29 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 15/11/2026 à 13:44 — Idir — Rapport du sujet « photos et favoris » et fiche de révision (travail local consigné)
+
+- Rapport d’une demi-page `docs/RAPPORT-PHOTOS-FAVORIS.md` (ce qui fonctionne, écarts avec le sujet, difficulté, décision).
+- Fiche de révision complète `docs/FICHE-REVISION.md` pour l’oral (pitch, démonstration, architecture, base, méthodes, sécurité, questions-réponses) ; elle remplace les PDF du 07/11/2026. Liens ajoutés dans le README et docs/ORAL.md.
+
+### 15/11/2026 à 13:30 — Idir — Sujet « photos et favoris » : lots A, B et C (travail local consigné)
+
+- Réalisé par Idir avec l’assistant, à sa demande, pour finir le projet avant l’oral ; les lots B (annonces) et C (favoris) touchent des fichiers partagés : à expliquer à Ama et Maria pendant les révisions. Noms du contrat du sujet adaptés à la structure de Miaoumi (routes `?page=`, tableaux plutôt qu’objets, vues à plat dans `app/views/`).
+- **Lot A** : nouvelle classe `PhotoUploader` (`app/core/PhotoUploader.php`) : code d’erreur `UPLOAD_ERR_*` avec un message par cas, 2 Mo, type réel lu par `finfo` et liste blanche JPEG/PNG/WebP, 4 000 pixels maximum, nom aléatoire avec l’extension du type détecté, `move_uploaded_file`, `supprimer()` protégée par `basename`. Les métadonnées sont retirées si GD est active (le site fonctionne sans GD). Remplace `enregistrerPhoto()` et `supprimerPhoto()` de `app/core/photos.php`, aussi pour la photo de profil. Dossier `public/uploads/annonces/` suivi par Git grâce à un `.gitkeep`.
+- **Lot B** : modification (`?page=modifier-annonce`) et suppression (`?page=supprimer-annonce`) d’une annonce ouverte par son propriétaire, sinon 403 (nouvelle page `app/views/interdit.php`) ; validation commune `Annonce::valider()` ; `Annonce::estModifiable()`, `modifier()`, `supprimer()`, `definirPhoto()`, `photoUrl()`. Remplacement, case « Supprimer la photo actuelle » et suppression d’annonce effacent l’ancien fichier.
+- **Lot C** : table `favoris` (`sql/migrations/004_favoris.sql`, ajoutée à `sql/miaoumi.sql`, 4 favoris dans les données de démo), modèle `Favori`, `FavoriController` (`basculer_favori` en POST, `mes_favoris`), page « Mes favoris », lien dans le menu du compte, bouton sur la fiche ; règles du sujet dans l’ordre (connexion, 405, 403, 404, pas sa propre annonce, retour limité à deux valeurs). En plus : « n gardien(s) intéressé(s) » pour le propriétaire.
+- Corrections : `Annonce::statistiques()` ne plante plus sans la colonne `ville` ; `sql/migrations/002_avis_dates.sql`, vidé par erreur en local, est restauré.
+- Nouveaux tests `tests/modification.php` et `tests/favoris.php` (tables temporaires) ; `tests/annonces.php` charge `PhotoUploader.php`.
+- Vérifié le 15/11/2026 : `php -l` ; les quatre scripts de test réussis ; recette HTTP des tableaux de tests A, B et C du sujet sur le site local (31 contrôles réussis, avec des fichiers de test fabriqués à l’identique, l’archive du professeur n’étant pas disponible) ; photo de profil (WebP, « Aucun fichier choisi », suppression) ; import de `sql/miaoumi.sql` puis `sql/donnees-demo.sql` dans une base neuve jetable ; pages principales sans erreur PHP. Extension GD activée dans le `php.ini` de XAMPP de ce poste.
+
+### 15/11/2026 à 13:01 — Idir — Documentation remise à jour après la fusion du 10/11 (travail local consigné)
+
+- docs/ORAL.md : « Qui a fait quoi », méthodes des quatre modèles (nouveau `decider()`, `noteMoyenne()`, `gardeFinie()`, validation dans `Utilisateur::creer()`, photos, détail, statistiques), migration 003, règle des avis après clôture, chiffres des données de démo ; section « Ce qui n’est pas fait » purgée des points déjà livrés.
+- README : logique métier et état du projet alignés sur le code (annonce pourvue et autres candidatures refusées à l’acceptation, avis dès la clôture), diagramme de classes complété, structure et tableau des fichiers (`photos.php`, `annonce.php`, `storage/`, `tests/`).
+- `.gitignore` : `storage/` ignoré (les sessions PHP contiennent des données des utilisateurs connectés).
+- docs/ROADMAP.md, CHECKLIST-IDIR.md, CHECKLIST-MARIA.md : notes d’état au 15/11/2026, sans cocher les tâches d’Ama ni de Maria.
+- Vérifié : `php -l` sur tous les fichiers PHP (aucune erreur). Non vérifié : `tests/annonces.php` et `tests/parcours.php`, MySQL n’étant pas démarré.
+
 ### 10/11/2026 à 10:01 — Idir — Fusion du travail de Maria avec celui d’Idir (travail local consigné)
 
 - Intégration dans `develop` de `feature/maria-avis-comptes` (refonte visuelle, page détail, corrections avis et comptes, nouvelles données de démo) par-dessus le profil, le MLD, les photos et le parcours d’Idir.
@@ -46,6 +69,10 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 - Page des avis : personne évaluée conservée après une erreur, erreurs en `message message-erreur`, champs avec les classes communes, notes en étoiles, dates au format JJ/MM/AAAA ; « Annonce introuvable » affiché avec le gabarit 404 commun.
 - Nouvelle méthode `Avis::noteMoyenne()` (`AVG`, `null` sans avis) utilisée par le profil d’Idir ; `Avis::gardeFinie()` ouvre les avis dès la clôture d’une garde, même avant sa date de fin.
 - Vérifié sur une base MariaDB locale avec `sql/donnees-demo.sql` et un script HTTP (24 contrôles) : inscription invalide sans ligne créée, e-mail déjà utilisé, saisie conservée sans mot de passe, flash affichés une seule fois, dépôt d’avis, doublon refusé, texte `<script>` échappé, avis après clôture, moyenne 4,5 et « Pas encore d’avis ». `php -l` sur les fichiers modifiés. Non vérifié dans XAMPP sous Windows.
+
+### 07/11/2026 à 18:16 — Idir — Sessions PHP stockées dans le projet
+
+- Configure les sessions PHP dans `storage/sessions`, créé automatiquement, pour éviter les erreurs d'accès à `C:\xampp\tmp` sous Windows.
 
 ### 07/11/2026 à 11:09 — Idir — Profil public (travail local consigné)
 

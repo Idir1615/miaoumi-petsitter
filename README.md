@@ -67,10 +67,11 @@ Traduction du MCD en tables, telle qu’elle est appliquée par [`sql/miaoumi.sq
 
 Le MLD ci-dessus est généré par Looping à partir du MCD ; les clés étrangères y sont en italique et les flèches pointent vers la table référencée. Le détail en texte :
 
-- **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role)
-- **annonces** (**id**, titre, type_animal, ville, date_debut, date_fin, description, statut, `#id_proprietaire` → utilisateurs.id)
+- **utilisateurs** (**id**, nom, email *(unique)*, password *(haché)*, role, photo)
+- **annonces** (**id**, titre, type_animal, ville, date_debut, date_fin, description, photo, statut, `#id_proprietaire` → utilisateurs.id)
 - **candidatures** (**id**, message, statut, date_candidature, `#id_annonce` → annonces.id, `#id_gardien` → utilisateurs.id)
 - **avis** (**id**, note, commentaire, dates, `#id_annonce` → annonces.id, `#id_auteur` → utilisateurs.id, `#id_cible` → utilisateurs.id)
+- **favoris** (**#id_gardien** → utilisateurs.id, **#id_annonce** → annonces.id, date_ajout) : table de liaison ajoutée avec les favoris (migration 004), clé primaire composée des deux clés étrangères. Elle n’apparaît pas encore sur l’image Looping ci-dessus.
 
 Toutes les clés étrangères sont en `ON DELETE CASCADE` : supprimer un compte supprime ses annonces, candidatures et avis. Valeurs de statut utilisées : annonces `ouverte`, `pourvue`, `terminee` ; candidatures `en_attente`, `acceptee`, `refusee`.
 
@@ -85,16 +86,28 @@ classDiagram
         +getConnection()$ PDO
     }
     class Utilisateur {
-        +creer(nom, email, password) void
+        +creer(nom, email, password) array
+        +photoDisponible() bool
         +trouver(id) array
+        +changerPhoto(id, photo) string
         +trouverParEmail(email) array
     }
     class Annonce {
         +villeDisponible() bool
+        +photoDisponible() bool
         +rechercher(recherche, animal, proprietaire, ville) array
+        +valider(donnees, debutActuel) array
         +creer(donnees, proprietaire) array
+        +estModifiable(annonce, utilisateur) bool
+        +modifier(annonce, proprietaire, donnees) array
+        +supprimer(annonce, proprietaire) bool
+        +definirPhoto(id, fichier) void
+        +photoUrl(annonce) string
         +cloturer(annonce, proprietaire) array
         +marquerPourvue(annonce) bool
+        +retirerPhoto(annonce, proprietaire) string
+        +detail(id) array
+        +statistiques() array
         +trouver(id) array
         +toutes() array
     }
@@ -107,6 +120,10 @@ classDiagram
     class Avis {
         +pourAnnonce(annonce) array
         +recus(utilisateur) array
+        +derniers(limite) array
+        +statistiques() array
+        +noteMoyenne(utilisateur) float
+        +gardeFinie(annonce) bool
         +destinataires(annonce, auteur) array
         +creer(annonce, auteur, cible, note, commentaire) bool
     }
@@ -117,8 +134,12 @@ classDiagram
     }
     class AnnonceController {
         +index() void
+        +voir() void
         +creer() void
+        +modifier() void
+        +supprimer() void
         +cloturer() void
+        +supprimerPhoto() void
     }
     class CandidatureController {
         +index() void
@@ -128,8 +149,25 @@ classDiagram
     class AvisController {
         +index() void
     }
+    class Favori {
+        +existe(gardien, annonce) bool
+        +ajouter(gardien, annonce) bool
+        +retirer(gardien, annonce) bool
+        +parGardien(gardien) array
+        +compterPourAnnonce(annonce) int
+    }
+    class FavoriController {
+        +basculer() void
+        +mesFavoris() void
+    }
+    class PhotoUploader {
+        +enregistrer(fichier, dossier)$ string
+        +supprimer(nom, dossier)$ void
+        +url(nom, dossier)$ string
+    }
     class ProfilController {
         +index() void
+        +photo() void
     }
     AuthController ..> Utilisateur
     AnnonceController ..> Annonce
@@ -137,6 +175,12 @@ classDiagram
     CandidatureController ..> Annonce
     AvisController ..> Avis
     AvisController ..> Annonce
+    FavoriController ..> Favori
+    FavoriController ..> Annonce
+    AnnonceController ..> PhotoUploader
+    AnnonceController ..> Favori
+    ProfilController ..> PhotoUploader
+    Favori ..> Database
     ProfilController ..> Utilisateur
     ProfilController ..> Avis
     Utilisateur ..> Database
@@ -149,10 +193,12 @@ classDiagram
 
 1. **Publier** : un utilisateur connecté crée une annonce ; `Annonce::creer()` valide les champs et les dates (début aujourd’hui ou plus tard, fin après le début) avant l’insertion. L’annonce démarre au statut `ouverte` et le propriétaire est lu dans la session.
 2. **Candidater** : un autre utilisateur postule à une annonce ouverte dont la date de fin n’est pas passée ; `Candidature::postuler()` refuse sa propre annonce et les doublons, dans une transaction qui verrouille l’annonce.
-3. **Valider** : le propriétaire accepte ou refuse une candidature en attente avec `Candidature::decider()`. `Annonce::marquerPourvue()` fait passer une annonce `ouverte` en `pourvue` ; son appel à l’acceptation est à brancher par Ama dans `decider()` (voir [docs/ROADMAP.md](docs/ROADMAP.md)).
+3. **Valider** : le propriétaire accepte ou refuse une candidature en attente avec `Candidature::decider()`. À l’acceptation, dans la même transaction, `Annonce::marquerPourvue()` fait passer l’annonce `ouverte` en `pourvue` et les autres candidatures en attente sur cette annonce sont refusées (une seule candidature acceptée par annonce).
 4. **Clôturer** : `Annonce::cloturer()` termine une garde. Elle vérifie que l’annonce existe, que l’utilisateur connecté en est le propriétaire et qu’elle n’est pas déjà terminée, puis passe son statut à `terminee`. La mise à jour reprend ces conditions dans sa clause `WHERE`, si bien qu’un second envoi ou un tiers ne peut rien modifier. Le bouton « Terminer la garde » de Mes annonces ouvre une demande de confirmation ; seul « Confirmer la clôture » envoie le POST protégé par le jeton CSRF ; le contrôleur redirige avec un message de confirmation ou d’erreur. Une garde terminée ne propose plus le bouton et n’accepte plus de candidature.
 5. **Noter** : quand la garde est finie (date de fin passée ou clôture par `cloturer()`), le propriétaire et chaque gardien accepté peuvent se laisser un avis de 1 à 5, une seule fois par personne évaluée (`Avis::creer()`).
 6. **Note moyenne** : `Avis::noteMoyenne(int $utilisateur)` calcule la moyenne des notes **reçues** par un utilisateur avec la requête `SELECT AVG(note) FROM avis WHERE id_cible = ?`. La fonction SQL `AVG` renvoie `NULL` quand l’utilisateur n’a reçu aucun avis : la méthode renvoie alors `null` et le profil affiche « Pas encore d’avis ». Sinon, la moyenne est arrondie à une décimale (`round(..., 1)`) et affichée au format français, par exemple « 4,5 / 5 ».
+7. **Modifier, supprimer** : tant que l’annonce est ouverte, son propriétaire peut la modifier (mêmes règles qu’à la création, `Annonce::valider()`) ou la supprimer ; la photo est gérée par `PhotoUploader` sans laisser de fichier orphelin.
+8. **Favoris** : un utilisateur met de côté les annonces des autres (`Favori::ajouter()`, clé primaire composée contre les doublons) et les retrouve dans « Mes favoris » (`Favori::parGardien()`, le dernier ajouté en premier).
 
 ---
 
@@ -160,7 +206,7 @@ classDiagram
 
 Le site affiche les annonces de garde, de la plus récente à la plus ancienne. Il propose une inscription, une connexion et une déconnexion avec session utilisateur. Les mots de passe sont hachés et les formulaires disposent d’un jeton contre les soumissions intersites.
 
-Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Une annonce peut avoir plusieurs candidatures acceptées. Le propriétaire peut clôturer sa garde depuis Mes annonces ; elle passe alors au statut terminée. Les avis sont consultables publiquement et leur dépôt est réservé aux participants après la date de fin de la garde. Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
+Les utilisateurs connectés peuvent publier une annonce avec validation des champs et des dates, puis recevoir un message de confirmation. Les gardiens peuvent postuler aux annonces ouvertes dont la date de fin n’est pas passée ; les propriétaires consultent leurs demandes et acceptent ou refusent celles en attente. Accepter un gardien fait passer l’annonce en « pourvue » et refuse les autres candidatures en attente. Le propriétaire peut clôturer sa garde depuis Mes annonces ; elle passe alors au statut terminée. Les avis sont consultables publiquement et leur dépôt est réservé aux participants une fois la garde finie (date de fin passée ou garde clôturée). Le propriétaire peut ajouter une photo, puis modifier ou supprimer son annonce tant qu’elle est ouverte ; chaque utilisateur peut mettre les annonces des autres en favori et les retrouver dans « Mes favoris ». Pour le démarrage avec XAMPP, suivre [le guide Windows](docs/DEMARRAGE-WINDOWS.md).
 
 L’inscription et la connexion sur la base MySQL ont été confirmées fonctionnelles par le propriétaire du projet.
 
@@ -183,7 +229,8 @@ Prérequis : Git, PHP 7.4 ou supérieur avec les extensions `pdo_mysql` et `mbst
 4. Pour une base neuve, importer `sql/miaoumi.sql` dans MySQL, par exemple avec phpMyAdmin. Pour une base existante sans colonne `annonces.ville`, exécuter une seule fois `sql/migrations/001_ajout_ville.sql` ; ne pas réimporter le schéma complet. Si la colonne existe déjà, ne pas exécuter cette migration.
    Si la table `avis` a une colonne `date` au lieu de `dates` (`SHOW COLUMNS FROM avis;`), exécuter une seule fois `sql/migrations/002_avis_dates.sql`.
    Si les tables `annonces` et `utilisateurs` n’ont pas de colonne `photo`, exécuter une seule fois `sql/migrations/003_photos.sql`.
-   Pour envoyer des photos, activer l’extension GD de PHP : dans `C:\xampp\php\php.ini`, retirer le `;` devant `extension=gd`, puis redémarrer Apache.
+   Si la table `favoris` n’existe pas, exécuter une seule fois `sql/migrations/004_favoris.sql`.
+   Pour retirer les métadonnées des photos, activer l’extension GD de PHP : dans `C:\xampp\php\php.ini`, retirer le `;` devant `extension=gd`, puis redémarrer Apache.
    Pour la démonstration, importer ensuite `sql/donnees-demo.sql` : voir [Comptes de démonstration](#comptes-de-démonstration).
 5. Depuis la racine du projet, lancer :
 
@@ -220,12 +267,14 @@ La structure suit celle présentée en cours :
 miaoumi/
 ├── config/        database.php (connexion PDO), config.example.php
 ├── app/
-│   ├── core/      bootstrap.php (session, CSRF, chargements), flash.php
-│   ├── models/    Utilisateur, Annonce, Candidature, Avis
+│   ├── core/      bootstrap.php (session, CSRF, chargements), flash.php, PhotoUploader.php, photos.php
+│   ├── models/    Utilisateur, Annonce, Candidature, Avis, Favori
 │   ├── controllers/
 │   └── views/
-├── public/        index.php (point d’entrée) et assets/
-└── sql/           miaoumi.sql, donnees-demo.sql et migrations/
+├── public/        index.php (point d’entrée), assets/ et uploads/ (photos envoyées, ignoré par Git)
+├── sql/           miaoumi.sql, donnees-demo.sql et migrations/
+├── storage/       sessions/ : sessions PHP locales, créé automatiquement, ignoré par Git
+└── tests/         annonces.php, parcours.php, modification.php, favoris.php
 ```
 
 | Fichier ou dossier | Rôle |
@@ -250,7 +299,14 @@ miaoumi/
 | `app/controllers/CandidatureController.php` | Contrôle des candidatures et choix de la vue |
 | `app/views/candidatures.php` | Candidatures envoyées et reçues |
 | `app/views/candidature-formulaire.php` | Formulaire de candidature |
-| `app/controllers/ProfilController.php`, `app/views/profil.php` | Profil public : nom, note moyenne et avis reçus |
+| `app/controllers/ProfilController.php`, `app/views/profil.php` | Profil public : nom, photo, note moyenne et avis reçus |
+| `app/views/annonce.php` | Page de détail d’une annonce |
+| `app/core/photos.php` | Image affichée pour une annonce : photo envoyée, sinon photo ou illustration du type d’animal |
+| `storage/sessions/` | Sessions PHP gardées dans le projet (évite les erreurs d’accès à `C:\xampp\tmp`), ignoré par Git |
+| `tests/annonces.php`, `tests/parcours.php`, `tests/modification.php`, `tests/favoris.php` | Tests sur tables temporaires : annonces, parcours complet, modification et suppression d’annonce, favoris |
+| `app/core/PhotoUploader.php` | Envoi sécurisé d’une photo (contrôle, nom aléatoire, suppression) |
+| `app/models/Favori.php`, `app/controllers/FavoriController.php`, `app/views/favoris.php` | Favoris et page « Mes favoris » |
+| `app/views/interdit.php` | Page « Accès refusé » (403) |
 | `sql/migrations/` | Évolutions pour les bases déjà importées |
 | `public/assets/` | Logo du projet |
 | `sql/miaoumi.sql` | Structure de la base de données |
@@ -258,6 +314,7 @@ miaoumi/
 | `CHANGELOG.md` | Résumé lisible des modifications |
 | `docs/GIT.md` | Guide Git pour débuter |
 | `docs/ORAL.md` | Support de révision de l’équipe pour l’oral |
+| `docs/FICHE-REVISION.md` | Fiche de révision complète (démonstration, code, sécurité, questions-réponses) |
 | `docs/ROADMAP.md` | Tâches en cours de chaque membre, lues par les assistants IA |
 | `docs/PROMPTS.md` | Historique des demandes et décisions partagé avec l’équipe |
 | `scripts/` | Outils pour générer les journaux |
@@ -307,15 +364,26 @@ La page d’authentification réunit les formulaires de connexion et d’inscrip
 
 ## Les photos et le RGPD
 
-Un propriétaire peut ajouter une photo de son animal en publiant une annonce, et chaque utilisateur peut mettre une photo sur son profil public. Les deux sont facultatives. Sans photo envoyée, les cartes affichent une photo ou une illustration selon le type d’animal (`photoAnimal()`, images de `public/assets/animaux/`). Le traitement des photos envoyées est regroupé dans `app/core/photos.php` :
+Un propriétaire peut ajouter une photo de son animal en publiant une annonce, et chaque utilisateur peut mettre une photo sur son profil public. Les deux sont facultatives. Sans photo envoyée, les cartes affichent une photo ou une illustration selon le type d’animal (`photoAnimal()`, images de `public/assets/animaux/`). L’envoi est géré par la classe `PhotoUploader` (`app/core/PhotoUploader.php`, lot A du sujet « photos et favoris ») : `PhotoUploader::enregistrer($_FILES['photo'])` renvoie le nom du fichier enregistré ou lève une `RuntimeException` dont le message est affiché dans le formulaire ; `PhotoUploader::supprimer($nom)` efface le fichier.
 
-- **Contrôle du fichier** : JPEG ou PNG uniquement, type lu dans le contenu du fichier (`finfo`), 5 Mo et 8 000 pixels de côté maximum.
-- **Suppression des métadonnées** : l’image est recréée avec GD et redimensionnée (1 200 pixels maximum) ; la position GPS, l’appareil et la date de prise de vue disparaissent. L’orientation des photos de téléphone est appliquée avant.
-- **Nom aléatoire** (32 caractères hexadécimaux) : impossible de deviner l’adresse des photos des autres.
+- **Contrôle du fichier** : code d’erreur de l’envoi (`UPLOAD_ERR_*`, un message par cas), taille réelle de 2 Mo maximum, type lu dans le contenu (`finfo`) et comparé à une liste blanche (JPEG, PNG, WebP), image lisible de 4 000 pixels de côté maximum (`getimagesize`).
+- **Nom aléatoire** : `bin2hex(random_bytes(16))` (32 caractères hexadécimaux) suivi de l’extension du type **détecté** (un JPEG renommé en `.png` est enregistré en `.jpg`) ; le nom envoyé n’est jamais repris. Déplacement avec `move_uploaded_file`.
+- **Suppression des métadonnées** : si l’extension GD est active, l’image est recréée dans le même format ; la position GPS, l’appareil et la date de prise de vue disparaissent (l’orientation des photos de téléphone est appliquée avant). Sans GD, le fichier contrôlé est gardé tel quel.
+- **Suppression sûre** : `supprimer()` reçoit un nom, pas un chemin ; `basename()` puis une expression régulière empêchent de sortir du dossier (« ../../config/config.php » est ignoré).
 - **Minimisation** : la base ne garde que le nom du fichier ; le formulaire d’annonce demande de ne photographier que l’animal, sans personne, plaque ni adresse visible ; le profil public n’affiche jamais l’e-mail.
 - **Consentement** : la photo de profil exige de cocher une case acceptant son affichage public.
-- **Droit à l’effacement** : « Supprimer ma photo » sur le profil et « Supprimer la photo » dans Mes annonces effacent le fichier du serveur.
-- **Stockage** : `public/uploads/` est ignoré par Git (aucune photo n’est publiée sur GitHub) ; un `.htaccess` y interdit l’exécution de scripts et la liste des fichiers.
+- **Droit à l’effacement et pas de fichier orphelin** : « Supprimer ma photo » sur le profil, « Supprimer la photo » dans Mes annonces, la case « Supprimer la photo actuelle » à la modification, le remplacement par une nouvelle photo et la suppression d’une annonce effacent tous l’ancien fichier du serveur.
+- **Stockage** : `public/uploads/annonces/` et `public/uploads/profils/` ; leur contenu est ignoré par Git (seul `annonces/.gitkeep` est suivi pour que le dossier existe) ; un `.htaccess` y interdit l’exécution de scripts et la liste des fichiers.
+
+## Modifier ou supprimer une annonce
+
+Tant qu’une annonce est **ouverte**, son propriétaire (et lui seul) peut la modifier (`?page=modifier-annonce&id=…`) ou la supprimer (bouton « Supprimer » de la fiche, POST protégé par CSRF avec confirmation). Sinon : **403** avec une page « Accès refusé ». La modification réutilise le formulaire de publication et les mêmes règles (`Annonce::valider()`, partagée avec `creer()`) ; une date de début déjà passée peut être gardée, mais pas choisie. Une nouvelle photo remplace l’ancienne, dont le fichier est effacé ; sans nouvelle photo, l’ancienne est conservée, sauf si la case « Supprimer la photo actuelle » est cochée. Supprimer l’annonce efface aussi son fichier photo ; ses candidatures et favoris partent en cascade. Les requêtes `UPDATE` et `DELETE` répètent les conditions de droit dans leur `WHERE` (`id_proprietaire = ? AND statut = 'ouverte'`).
+
+## Les favoris
+
+Un utilisateur connecté met de côté les annonces des autres avec le bouton « Ajouter aux favoris » de la fiche, et les retrouve dans « Mes favoris » (menu du compte, `?page=mes_favoris`), la dernière ajoutée en premier. La table `favoris` (migration `004_favoris.sql`) relie un gardien et une annonce : relation **plusieurs-à-plusieurs**, clé primaire composée `(id_gardien, id_annonce)` qui interdit les doublons, clés étrangères en `ON DELETE CASCADE`. Le modèle `Favori` propose `existe()`, `ajouter()`, `retirer()`, `parGardien()` et `compterPourAnnonce()`.
+
+`FavoriController::basculer()` (`?page=basculer_favori`) vérifie dans l’ordre : utilisateur connecté (sinon connexion), méthode POST (sinon **405**), jeton CSRF (sinon **403**, vérifié par `bootstrap.php`), annonce existante (sinon **404**), pas sa propre annonce (sinon message d’erreur, rien n’est enregistré). Il ajoute ou retire selon l’état, puis redirige vers une des deux seules destinations autorisées : « Mes favoris » si le champ `retour` vaut `mes_favoris`, sinon la fiche ; une adresse saisie dans `retour` n’est jamais utilisée (pas de redirection ouverte). Sur sa propre fiche, le propriétaire voit « n gardien(s) intéressé(s) » (`COUNT`).
 
 Limite connue : le site ne propose pas de supprimer un compte ; une suppression faite directement en base efface les lignes (`ON DELETE CASCADE`) mais pas les fichiers des photos.
 

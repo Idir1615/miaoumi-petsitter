@@ -7,6 +7,12 @@ logs/
 # Photos envoyées par les utilisateurs (données personnelles, jamais versionnées)
 public/uploads/*
 !public/uploads/.htaccess
+!public/uploads/annonces/
+public/uploads/annonces/*
+!public/uploads/annonces/.gitkeep
+
+# Sessions PHP locales (contiennent les données des utilisateurs connectés)
+storage/
 
 # Config locale (mot de passe BDD)
 config/config.php

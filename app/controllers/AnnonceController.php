@@ -9,22 +9,29 @@ class AnnonceController
             header('Location: ?page=connexion', true, 303);
             return;
         }
-        $villeDisponible = (new Annonce())->villeDisponible();
-        $photoDisponible = (new Annonce())->photoDisponible();
-        $donnees = array_fill_keys(['titre', 'type_animal', 'ville', 'date_debut', 'date_fin', 'description'], '');
+        $modele = new Annonce();
+        $villeDisponible = $modele->villeDisponible();
+        $photoDisponible = $modele->photoDisponible();
+        $annonce = null; // pas d'annonce existante : le formulaire est en mode création
+        $donnees = array_fill_keys(self::CHAMPS, '');
         $erreurs = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            foreach ($donnees as $champ => $valeur) {
-                $donnees[$champ] = is_string($_POST[$champ] ?? null) ? trim($_POST[$champ]) : '';
+            $donnees = $this->lireChamps();
+            $erreurs = $modele->valider($donnees);
+            // La photo n'est traitée qu'une fois les champs valides : pas de fichier pour une annonce refusée.
+            $photo = null;
+            if (!$erreurs && $photoDisponible && $this->photoChoisie()) {
+                try {
+                    $photo = PhotoUploader::enregistrer($_FILES['photo']);
+                } catch (RuntimeException $exception) {
+                    $erreurs['photo'] = $exception->getMessage();
+                }
             }
-            $photo = $photoDisponible ? enregistrerPhoto($_FILES['photo'] ?? null, 'annonces') : [];
-            if (isset($photo['erreur'])) {
-                $erreurs = ['photo' => $photo['erreur']];
-            } else {
-                $donnees['photo'] = $photo['nom'] ?? null;
-                $erreurs = (new Annonce())->creer($donnees, (int) $_SESSION['utilisateur']['id']);
-                if ($erreurs) {
-                    supprimerPhoto($donnees['photo'], 'annonces');   // annonce refusée : on ne garde pas la photo
+            if (!$erreurs) {
+                $donnees['photo'] = $photo;
+                $erreurs = $modele->creer($donnees, (int) $_SESSION['utilisateur']['id']);
+                if ($erreurs && $photo !== null) {
+                    PhotoUploader::supprimer($photo);   // annonce refusée : on ne garde pas la photo
                 }
             }
             if (!$erreurs) {
@@ -35,6 +42,123 @@ class AnnonceController
             http_response_code(422);
         }
         require __DIR__ . '/../views/annonce-formulaire.php';
+    }
+
+    // Modification d'une annonce : ?page=modifier-annonce&id=… (propriétaire seulement, annonce ouverte).
+    public function modifier(): void
+    {
+        if (!isset($_SESSION['utilisateur']['id'])) {
+            ajouterFlash('Connecte-toi pour modifier tes annonces.', 'erreur');
+            header('Location: ?page=connexion', true, 303);
+            return;
+        }
+        $utilisateur = (int) $_SESSION['utilisateur']['id'];
+        $id = filter_var($_GET['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $modele = new Annonce();
+        $annonce = $id ? $modele->trouver($id) : null;
+        if (!$annonce) {
+            http_response_code(404);
+            require __DIR__ . '/../views/introuvable.php';
+            return;
+        }
+        if (!$modele->estModifiable($annonce, $utilisateur)) {
+            http_response_code(403);
+            $messageInterdit = 'Seul le propriétaire peut modifier une annonce, et seulement tant qu’elle est ouverte.';
+            require __DIR__ . '/../views/interdit.php';
+            return;
+        }
+        $villeDisponible = $modele->villeDisponible();
+        $photoDisponible = $modele->photoDisponible();
+        $donnees = array_intersect_key(array_map('strval', $annonce), array_flip(self::CHAMPS)) + array_fill_keys(self::CHAMPS, '');
+        $erreurs = [];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $donnees = $this->lireChamps();
+            $erreurs = $modele->valider($donnees, $annonce['date_debut']);
+            $nouvelle = null;
+            if (!$erreurs && $photoDisponible && $this->photoChoisie()) {
+                try {
+                    $nouvelle = PhotoUploader::enregistrer($_FILES['photo']);
+                } catch (RuntimeException $exception) {
+                    $erreurs['photo'] = $exception->getMessage();
+                }
+            }
+            if (!$erreurs) {
+                $erreurs = $modele->modifier($id, $utilisateur, $donnees);
+            }
+            if (!$erreurs) {
+                $ancienne = $annonce['photo'] ?? null;
+                if ($nouvelle !== null) {
+                    // Nouvelle photo : elle remplace l'ancienne, dont le fichier est effacé du disque.
+                    $modele->definirPhoto($id, $nouvelle);
+                    PhotoUploader::supprimer((string) $ancienne);
+                } elseif (($_POST['supprimer_photo'] ?? '') === 'oui' && $ancienne) {
+                    $modele->definirPhoto($id, null);
+                    PhotoUploader::supprimer($ancienne);
+                }
+                ajouterFlash('Ton annonce a été modifiée.');
+                header('Location: ?page=annonce&id=' . $id, true, 303);
+                return;
+            }
+            if ($nouvelle !== null) {
+                PhotoUploader::supprimer($nouvelle);
+            }
+            http_response_code(422);
+        }
+        require __DIR__ . '/../views/annonce-formulaire.php';
+    }
+
+    // Suppression d'une annonce ouverte par son propriétaire ; le fichier de sa photo est effacé.
+    public function supprimer(): void
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            exit('Utilise le bouton « Supprimer l’annonce ».');
+        }
+        if (!isset($_SESSION['utilisateur']['id'])) {
+            ajouterFlash('Connecte-toi pour modifier tes annonces.', 'erreur');
+            header('Location: ?page=connexion', true, 303);
+            return;
+        }
+        $utilisateur = (int) $_SESSION['utilisateur']['id'];
+        $id = filter_var($_POST['annonce'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $modele = new Annonce();
+        $annonce = $id ? $modele->trouver($id) : null;
+        if (!$annonce) {
+            http_response_code(404);
+            require __DIR__ . '/../views/introuvable.php';
+            return;
+        }
+        if ((int) $annonce['id_proprietaire'] !== $utilisateur) {
+            http_response_code(403);
+            $messageInterdit = 'Seul le propriétaire peut supprimer cette annonce.';
+            require __DIR__ . '/../views/interdit.php';
+            return;
+        }
+        if ($modele->supprimer($id, $utilisateur)) {
+            PhotoUploader::supprimer((string) ($annonce['photo'] ?? ''));
+            ajouterFlash('L’annonce a été supprimée.');
+        } else {
+            ajouterFlash('Seule une annonce encore ouverte peut être supprimée.', 'erreur');
+        }
+        header('Location: ?page=mes-annonces', true, 303);
+    }
+
+    private const CHAMPS = ['titre', 'type_animal', 'ville', 'date_debut', 'date_fin', 'description'];
+
+    private function lireChamps(): array
+    {
+        $donnees = [];
+        foreach (self::CHAMPS as $champ) {
+            $donnees[$champ] = is_string($_POST[$champ] ?? null) ? trim($_POST[$champ]) : '';
+        }
+        return $donnees;
+    }
+
+    // Vrai si un fichier a été choisi dans le champ photo (le champ est facultatif).
+    private function photoChoisie(): bool
+    {
+        return isset($_FILES['photo']['error']) && $_FILES['photo']['error'] !== UPLOAD_ERR_NO_FILE;
     }
 
     public function cloturer(): void
@@ -76,7 +200,7 @@ class AnnonceController
         $id = filter_var($_POST['annonce'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
         $photo = (new Annonce())->retirerPhoto((int) $id, (int) $_SESSION['utilisateur']['id']);
         if ($photo) {
-            supprimerPhoto($photo, 'annonces');
+            PhotoUploader::supprimer($photo);
             ajouterFlash('La photo a été supprimée.');
         } else {
             ajouterFlash('Cette photo ne peut pas être supprimée.', 'erreur');
@@ -140,8 +264,13 @@ class AnnonceController
         $noteProprietaire = $avisModele->noteMoyenne((int) $annonce['id_proprietaire']);
         $utilisateur = (int) ($_SESSION['utilisateur']['id'] ?? 0);
         $aujourdHui = (new DateTimeImmutable('now', new DateTimeZone('Europe/Paris')))->format('Y-m-d');
-        $peutPostuler = $annonce['statut'] === 'ouverte' && $annonce['date_fin'] >= $aujourdHui
-            && $utilisateur !== (int) $annonce['id_proprietaire'];
+        $estProprietaire = $utilisateur === (int) $annonce['id_proprietaire'];
+        $peutPostuler = $annonce['statut'] === 'ouverte' && $annonce['date_fin'] >= $aujourdHui && !$estProprietaire;
+        $peutModifier = (new Annonce())->estModifiable($annonce, $utilisateur);
+        // Favoris : bouton pour un utilisateur connecté qui n'est pas le propriétaire ; compteur pour le propriétaire.
+        $favoris = new Favori();
+        $estFavori = $utilisateur && !$estProprietaire && $favoris->existe($utilisateur, $id);
+        $interesses = $estProprietaire ? $favoris->compterPourAnnonce($id) : null;
         require __DIR__ . '/../views/annonce.php';
     }
 }

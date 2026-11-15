@@ -1,6 +1,12 @@
 <?php
 
 // Préparation commune à toutes les pages.
+$sessionPath = __DIR__ . '/../../storage/sessions';
+if (!is_dir($sessionPath) && !mkdir($sessionPath, 0700, true) && !is_dir($sessionPath)) {
+    throw new RuntimeException('Cannot create the session directory.');
+}
+session_save_path($sessionPath);
+
 session_start([
     'use_strict_mode' => true,
     'cookie_httponly' => true,
@@ -10,16 +16,19 @@ session_start([
 
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/flash.php';
+require_once __DIR__ . '/PhotoUploader.php';
 require_once __DIR__ . '/photos.php';
 require_once __DIR__ . '/../models/Utilisateur.php';
 require_once __DIR__ . '/../models/Annonce.php';
 require_once __DIR__ . '/../models/Avis.php';
 require_once __DIR__ . '/../models/Candidature.php';
+require_once __DIR__ . '/../models/Favori.php';
 require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/AnnonceController.php';
 require_once __DIR__ . '/../controllers/AvisController.php';
 require_once __DIR__ . '/../controllers/CandidatureController.php';
 require_once __DIR__ . '/../controllers/ProfilController.php';
+require_once __DIR__ . '/../controllers/FavoriController.php';
 
 function e(string $value): string
 {
