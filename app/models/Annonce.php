@@ -2,6 +2,9 @@
 
 class Annonce
 {
+    // Liste fermée des types d'animaux : la même pour le formulaire, le filtre et la validation.
+    public const TYPES = ['Chien', 'Chat', 'Lapin', 'Oiseau', 'Poisson', 'Autre'];
+
     public function villeDisponible(): bool
     {
         return (bool) Database::getConnection()->query("SHOW COLUMNS FROM annonces LIKE 'ville'")->fetch();
@@ -52,10 +55,12 @@ class Annonce
     public function valider(array $donnees, ?string $debutActuel = null): array
     {
         $erreurs = [];
-        foreach (['titre' => 150, 'type_animal' => 100] as $champ => $maximum) {
-            if (!is_string($donnees[$champ] ?? null) || trim($donnees[$champ]) === '' || mb_strlen($donnees[$champ]) > $maximum) {
-                $erreurs[$champ] = 'Ce champ est obligatoire (' . $maximum . ' caractères maximum).';
-            }
+        if (!is_string($donnees['titre'] ?? null) || trim($donnees['titre']) === '' || mb_strlen($donnees['titre']) > 150) {
+            $erreurs['titre'] = 'Ce champ est obligatoire (150 caractères maximum).';
+        }
+        // Le type doit faire partie de la liste : une valeur forgée hors du menu est refusée.
+        if (!in_array($donnees['type_animal'] ?? null, self::TYPES, true)) {
+            $erreurs['type_animal'] = 'Choisis un type d’animal dans la liste.';
         }
         $fuseau = new DateTimeZone('Europe/Paris');
         $dates = [];

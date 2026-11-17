@@ -7,16 +7,17 @@ class FavoriController
     public function basculer(): void
     {
         // 1. Connecté, méthode POST (jeton CSRF déjà vérifié pour tout POST).
+        // La méthode est contrôlée d'abord : un GET reçoit toujours 405, connecté ou non.
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            exit('Utilise le bouton de la fiche de l’annonce.');
+        }
         $gardien = (int) ($_SESSION['utilisateur']['id'] ?? 0);
         if (!$gardien) {
             ajouterFlash('Connecte-toi pour gérer tes favoris.', 'erreur');
             header('Location: ?page=connexion', true, 303);
             return;
-        }
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            http_response_code(405);
-            header('Allow: POST');
-            exit('Utilise le bouton de la fiche de l’annonce.');
         }
 
         // 2. L'annonce existe.
