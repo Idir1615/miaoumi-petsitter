@@ -58,7 +58,7 @@ require __DIR__ . '/header.php';
             <div class="champ champ-icone"><label for="mots-cles">Rechercher</label><?= icone('recherche') ?><input id="mots-cles" name="q" placeholder="Ex. Garde de Milo" value="<?= e($recherche) ?>" maxlength="150"></div>
             <div class="champ champ-icone"><label for="animal">Type d’animal</label><?= icone('patte') ?><select id="animal" name="animal">
                 <option value="">Tous</option>
-                <?php foreach (['Chien', 'Chat', 'Lapin', 'Oiseau', 'Poisson', 'Autre'] as $type): ?><option value="<?= e($type) ?>" <?= $animal === $type ? 'selected' : '' ?>><?= e($type) ?></option><?php endforeach; ?>
+                <?php foreach (Annonce::TYPES as $type): ?><option value="<?= e($type) ?>" <?= $animal === $type ? 'selected' : '' ?>><?= e($type) ?></option><?php endforeach; ?>
             </select></div>
             <button type="submit">Appliquer</button>
             <a class="reinitialiser" href="?page=<?= e($pageListe) ?>">Réinitialiser</a>

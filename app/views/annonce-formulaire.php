@@ -13,15 +13,27 @@ require __DIR__ . '/header.php';
 <form class="formulaire" method="post" action="<?= e($action) ?>" enctype="multipart/form-data">
     <input type="hidden" name="csrf" value="<?= e($_SESSION['csrf']) ?>">
     <div class="formulaire-grille">
-    <?php foreach (['titre' => ['Titre', 'text', 150, 'Ex. Garde de Milo, week-end'], 'type_animal' => ['Type d’animal', 'text', 100, 'Ex. Chien, chat, lapin...'], 'date_debut' => ['Date de début', 'date', null, ''], 'date_fin' => ['Date de fin', 'date', null, '']] as $champ => $options): ?>
-        <div class="champ <?= $champ === 'titre' || ($champ === 'type_animal' && !($villeDisponible ?? false)) ? 'large' : '' ?>">
+    <?php foreach (['titre' => ['Titre', 'text', 150, 'Ex. Garde de Milo, week-end'], 'date_debut' => ['Date de début', 'date', null, ''], 'date_fin' => ['Date de fin', 'date', null, '']] as $champ => $options): ?>
+        <div class="champ <?= $champ === 'titre' ? 'large' : '' ?>">
             <label for="<?= e($champ) ?>"><?= e($options[0]) ?></label>
             <input id="<?= e($champ) ?>" name="<?= e($champ) ?>" type="<?= e($options[1]) ?>" placeholder="<?= e($options[3]) ?>" value="<?= e($donnees[$champ]) ?>" required
                 <?= $options[2] ? 'maxlength="' . (int) $options[2] . '"' : '' ?>
                 <?= isset($erreurs[$champ]) ? 'aria-invalid="true" aria-describedby="erreur-' . e($champ) . '"' : '' ?>>
             <?php if (isset($erreurs[$champ])): ?><p class="erreur-champ" id="erreur-<?= e($champ) ?>"><?= e($erreurs[$champ]) ?></p><?php endif; ?>
         </div>
-        <?php if ($champ === 'type_animal' && ($villeDisponible ?? false)): ?>
+        <?php if ($champ === 'titre'): ?>
+            <div class="champ <?= ($villeDisponible ?? false) ? '' : 'large' ?>">
+                <label for="type_animal">Type d’animal</label>
+                <select id="type_animal" name="type_animal" required <?= isset($erreurs['type_animal']) ? 'aria-invalid="true" aria-describedby="erreur-type_animal"' : '' ?>>
+                    <option value="">Choisir…</option>
+                    <?php foreach (Annonce::TYPES as $type): ?>
+                        <option value="<?= e($type) ?>" <?= ($donnees['type_animal'] ?? '') === $type ? 'selected' : '' ?>><?= e($type) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (isset($erreurs['type_animal'])): ?><p class="erreur-champ" id="erreur-type_animal"><?= e($erreurs['type_animal']) ?></p><?php endif; ?>
+            </div>
+        <?php endif; ?>
+        <?php if ($champ === 'titre' && ($villeDisponible ?? false)): ?>
             <div class="champ"><label for="ville">Ville</label><input id="ville" name="ville" placeholder="Ex. Paris 11e" maxlength="100" value="<?= e($donnees['ville'] ?? '') ?>" <?= isset($erreurs['ville']) ? 'aria-invalid="true" aria-describedby="erreur-ville"' : '' ?>><?php if (isset($erreurs['ville'])): ?><p class="erreur-champ" id="erreur-ville"><?= e($erreurs['ville']) ?></p><?php endif; ?></div>
         <?php endif; ?>
     <?php endforeach; ?>

@@ -6,6 +6,11 @@ Les horaires sont exprimés en heure de Paris (Europe/Paris). Pour les anciennes
 
 ## Non publié
 
+### 17/11/2026 à 10:14 — Idir — Favori : la 405 passe avant la connexion (grille d'évaluation, travail local consigné)
+- `FavoriController::basculer()` contrôle la méthode en premier : un GET reçoit 405 même sans être connecté.
+- Recette rejouée : schéma importé dans une base neuve (5 tables) ; GET 405, POST sans jeton 403, annonce 999 404, sa propre annonce refusée, `retour` hostile redirigé vers la fiche ; 5 scripts de `tests/` OK.
+- Type d’animal : menu déroulant (Chien, Chat, Lapin, Oiseau, Poisson, Autre) au lieu d’un texte libre ; liste `Annonce::TYPES` partagée par le formulaire, le filtre et la validation du modèle, qui refuse toute autre valeur. Avant, « Chiens » ou « Chiens : Malinois » n’apparaissaient jamais dans le filtre « Chien ».
+
 ### 15/11/2026 à 15:51 — Idir — Modération : suspendre un utilisateur (travail local consigné)
 
 - Sujet « Modération » du cours adapté à Miaoumi (PHP sans Symfony) : colonne `utilisateurs.actif` (1 par défaut, migration `sql/migrations/005_moderation.sql`, ajoutée aussi à `sql/miaoumi.sql`) ; la colonne `role` existante distingue les administrateurs (`admin`).
